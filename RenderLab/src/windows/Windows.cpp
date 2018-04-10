@@ -1,4 +1,5 @@
-#include <Windows.h>
+#include "RenderLab.h"
+
 
 HWND mainWindowHandle = 0;
 
@@ -8,7 +9,7 @@ int Run();
 
 LRESULT CALLBACK
 WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
+RenderLab* renderLab;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCmd) {
 	if (!InitWindowsApp(hInstance, nShowCmd)) {
@@ -55,6 +56,8 @@ bool InitWindowsApp(HINSTANCE instanceHandle, int show) {
 		return false;
 	}
 
+	renderLab = new RenderLab(mainWindowHandle);
+	renderLab->InitLab();
 	ShowWindow(mainWindowHandle, show);
 	UpdateWindow(mainWindowHandle);
 
@@ -92,10 +95,14 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE) {
 			DestroyWindow(mainWindowHandle);
+			delete renderLab;
+			renderLab = nullptr;
 		}
 		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		delete renderLab;
+		renderLab = nullptr;
 		return 0;
 	}
 

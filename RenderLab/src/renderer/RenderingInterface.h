@@ -1,4 +1,6 @@
 #pragma once
+#ifndef RENDERING_INTERFACE_H
+#define RENDERING_INTERFACE_H
 
 class RenderingInterface {
 public:
@@ -8,3 +10,5 @@ public:
 	virtual void InitRenderer() = 0;
 
 };
+
+#endif
