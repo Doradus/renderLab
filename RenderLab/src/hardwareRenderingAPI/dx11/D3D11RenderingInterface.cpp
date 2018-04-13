@@ -170,7 +170,7 @@ void D3D11RenderingInterface::CreateDepthAndStencilBuffer() {
 	d3dImmediateContext->RSSetViewports(1, &vp);
 }
 
-ID3D11Texture2D* D3D11RenderingInterface::CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) {
+ID3D11Texture2D* D3D11RenderingInterface::CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const {
 	ID3D11Texture2D* texture;
 	VERIFY_D3D_RESULT(d3dDevice->CreateTexture2D(desc, 0, &texture));
 	return texture;

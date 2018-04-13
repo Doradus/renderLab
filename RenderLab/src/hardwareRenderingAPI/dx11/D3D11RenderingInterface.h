@@ -25,7 +25,7 @@ public :
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
 
 private :
-	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc);
+	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const;
 
 	ID3D11Device*			d3dDevice;
 	ID3D11DeviceContext*	d3dImmediateContext;
