@@ -4,6 +4,7 @@
 
 #include "D3D11Utils.h"
 #include "RenderingInterface.h"
+#include "D3D11VertexBuffer.h"
 
 class D3D11RenderingInterface : public RenderingInterface {
 public :
@@ -11,13 +12,15 @@ public :
 	virtual ~D3D11RenderingInterface();
 	D3D11RenderingInterface(const D3D11RenderingInterface& that) = delete;
 
-	virtual void	InitRenderer() final;
+	void			InitRenderer() final override;
 
 	void			CreateDepthAndStencilBuffer();
 	void			CreateRenderTarget();
 
 	bool			CreateDevice();
 	bool			CreateSwapChain();
+
+	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) final override;
 
 private :
 	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc);
