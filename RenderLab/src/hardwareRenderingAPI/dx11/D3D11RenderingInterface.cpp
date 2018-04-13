@@ -176,7 +176,7 @@ ID3D11Texture2D* D3D11RenderingInterface::CreateTexture2D(D3D11_TEXTURE2D_DESC* 
 	return texture;
 }
 
-VertexBuffer* D3D11RenderingInterface::CreateVertexBuffer(unsigned int size, const void * data) {
+VertexBuffer* D3D11RenderingInterface::CreateVertexBuffer(unsigned int size, const void * data) const {
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = size;
@@ -194,3 +194,20 @@ VertexBuffer* D3D11RenderingInterface::CreateVertexBuffer(unsigned int size, con
 	return vertexBuffer;
 }
 
+IndexBuffer* D3D11RenderingInterface::CreateIndexBuffer(unsigned int size, const void * data) const {
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = size;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	ID3D11Buffer* bufferResource;
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = data;
+	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&ibd, &initData, &bufferResource));
+
+	D3D11IndexBuffer* indexBuffer = new D3D11IndexBuffer(bufferResource);
+	return indexBuffer;
+}
