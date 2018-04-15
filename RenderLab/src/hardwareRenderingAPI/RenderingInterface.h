@@ -4,6 +4,7 @@
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "Shader.h"
 
 class RenderingInterface {
 public:
@@ -13,6 +14,7 @@ public:
 	virtual void			InitRenderer() = 0;
 	virtual VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const = 0;
 	virtual IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const = 0;
+	virtual Shader*			CreateShader() const = 0;
 };
 
 #endif

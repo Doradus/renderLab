@@ -6,6 +6,7 @@
 #include "RenderingInterface.h"
 #include "D3D11VertexBuffer.h"
 #include "D3D11IndexBuffer.h"
+#include "D3D11Shader.h"
 
 class D3D11RenderingInterface : public RenderingInterface {
 public :
@@ -23,6 +24,7 @@ public :
 
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const final override;
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
+	Shader*			CreateShader() const final override;
 
 private :
 	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const;

@@ -211,3 +211,8 @@ IndexBuffer* D3D11RenderingInterface::CreateIndexBuffer(unsigned int size, const
 	D3D11IndexBuffer* indexBuffer = new D3D11IndexBuffer(bufferResource);
 	return indexBuffer;
 }
+
+Shader* D3D11RenderingInterface::CreateShader() const {
+
+	return new D3D11Shader(NULL);
+}
