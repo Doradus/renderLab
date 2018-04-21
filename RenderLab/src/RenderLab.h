@@ -15,7 +15,7 @@ public:
 
 private:
 	bool CreateRenderingInterface();
-
+	void InitShaders();
 	RenderingInterface* renderingInterface;
 	HWND windowHandle;
 };
