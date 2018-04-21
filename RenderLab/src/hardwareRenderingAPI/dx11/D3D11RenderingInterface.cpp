@@ -220,10 +220,10 @@ VertexShader* D3D11RenderingInterface::CreateVertexShader(const unsigned char* s
 	return shader;
 }
 
-PixelShader* D3D11RenderingInterface::CreatePixelShader(const void* shaderSource) const {
+PixelShader* D3D11RenderingInterface::CreatePixelShader(const unsigned char* shaderSource, size_t size) const {
 
 	D3D11PixelShader* shader = new D3D11PixelShader();
-
+	VERIFY_D3D_RESULT(d3dDevice->CreatePixelShader(shaderSource, size, nullptr, &shader->resource));
 
 	return shader;
 }

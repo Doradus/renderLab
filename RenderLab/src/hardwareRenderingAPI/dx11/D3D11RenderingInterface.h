@@ -26,7 +26,7 @@ public :
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const final override;
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
 	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
-	PixelShader*	CreatePixelShader(const void* shaderSource) const final override;
+	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
 
 private :
 	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const;

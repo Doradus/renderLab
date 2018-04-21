@@ -2,4 +2,6 @@
 
 D3D11PixelShader::D3D11PixelShader() {}
 
-D3D11PixelShader::~D3D11PixelShader() {}
+D3D11PixelShader::~D3D11PixelShader() {
+	RELEASE(resource);
+}

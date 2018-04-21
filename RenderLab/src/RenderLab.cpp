@@ -1,5 +1,6 @@
 #include "RenderLab.h"
 #include "BasicVertexShader.h"
+#include "BasicPixelShader.h"
 RenderLab::RenderLab(HWND window) :
 	windowHandle(window) {
 };
@@ -28,7 +29,12 @@ bool RenderLab::CreateRenderingInterface() {
 void RenderLab::InitShaders() {
 	size_t size = sizeof(g_basic_vs);
 	VertexShader* vertextShader  = renderingInterface->CreateVertexShader(g_basic_vs, size);
+
+	size_t pixelShaderSize = sizeof(g_ps);
+	PixelShader* pixelShader = renderingInterface->CreatePixelShader(g_ps, pixelShaderSize);
+
 	delete vertextShader;
+	delete pixelShader;
 }
 
 void RenderLab::ShutDown() {
