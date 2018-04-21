@@ -212,7 +212,19 @@ IndexBuffer* D3D11RenderingInterface::CreateIndexBuffer(unsigned int size, const
 	return indexBuffer;
 }
 
-Shader* D3D11RenderingInterface::CreateShader() const {
+VertexShader* D3D11RenderingInterface::CreateVertexShader(const void* shaderSource) const {
 
-	return new D3D11Shader(NULL);
+	D3D11VertexShader* shader = new D3D11VertexShader();
+	VERIFY_D3D_RESULT(d3dDevice->CreateVertexShader(shaderSource, sizeof(shaderSource), nullptr, &shader->resource));
+
+	return shader;
 }
+
+PixelShader* D3D11RenderingInterface::CreatePixelShader(const void* shaderSource) const {
+
+	D3D11PixelShader* shader = new D3D11PixelShader();
+
+
+	return shader;
+}
+
