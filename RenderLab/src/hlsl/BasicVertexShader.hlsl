@@ -1,4 +1,4 @@
-cbuffer perObjecxt {
+cbuffer perObject {
     float4x4 worldViewProj;
 };
 

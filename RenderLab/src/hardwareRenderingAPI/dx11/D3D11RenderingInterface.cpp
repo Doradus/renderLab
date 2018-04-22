@@ -1,4 +1,5 @@
 #include "D3D11RenderingInterface.h"
+#include "MathUtils.h"
 #include <cassert>
 
 D3D11RenderingInterface::D3D11RenderingInterface(int screenWidth, int screenHeight, HWND window) :
@@ -21,6 +22,8 @@ D3D11RenderingInterface::~D3D11RenderingInterface() {
 		d3dImmediateContext->ClearState();
 	}
 
+	RELEASE(inputLayout);
+	RELEASE(constantBuffer);
 	RELEASE(depthStencilView);
 	RELEASE(depthStencilBuffer);
 	RELEASE(d3dRenderTargetView);
@@ -226,5 +229,30 @@ PixelShader* D3D11RenderingInterface::CreatePixelShader(const unsigned char* sha
 	VERIFY_D3D_RESULT(d3dDevice->CreatePixelShader(shaderSource, size, nullptr, &shader->resource));
 
 	return shader;
+}
+
+void D3D11RenderingInterface::CreateInputLayout(const unsigned char* shaderSource, size_t size) {
+
+	// hardcoded values for now
+	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	VERIFY_D3D_RESULT(d3dDevice->CreateInputLayout(vertexDesc, 2, shaderSource, size, &inputLayout));
+
+}
+
+void D3D11RenderingInterface::CreateConstantBuffer() {
+	D3D11_BUFFER_DESC constantBufferDesc;
+	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constantBufferDesc.ByteWidth = sizeof(DirectX::XMMATRIX);
+	constantBufferDesc.CPUAccessFlags = 0;
+	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
 }
 

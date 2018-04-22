@@ -28,6 +28,9 @@ public :
 	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
 
+	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
+	void			CreateConstantBuffer();
+
 private :
 	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const;
 
@@ -38,6 +41,9 @@ private :
 	ID3D11DepthStencilView* depthStencilView;
 	IDXGISwapChain*			swapChain;
 	D3D_DRIVER_TYPE			driverType;
+
+	ID3D11InputLayout*		inputLayout;
+	ID3D11Buffer*			constantBuffer;
 
 	HWND					windowHandle;
 

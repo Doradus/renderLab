@@ -17,6 +17,10 @@ public:
 	virtual IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const = 0;
 	virtual VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const = 0;
+
+	// todo: refactor to shader state
+	virtual void			CreateInputLayout(const unsigned char* shaderSource, size_t size) = 0;
+	virtual void			CreateConstantBuffer() = 0;
 };
 
 #endif

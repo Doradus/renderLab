@@ -2,6 +2,7 @@
 
 #include "RenderingInterface.h"
 #include "D3D11RenderingInterface.h"
+#include "PrimitiveFactory.h"
 
 class RenderLab {
 public:
@@ -15,7 +16,12 @@ public:
 
 private:
 	bool CreateRenderingInterface();
+	void BuildGeometry();
 	void InitShaders();
+
 	RenderingInterface* renderingInterface;
 	HWND windowHandle;
+
+	VertexBuffer* vertexBuffer;
+	IndexBuffer* indexBuffer;
 };
