@@ -11,11 +11,3 @@ public:
 private:
 
 };
-
-PrimitiveFactory::PrimitiveFactory()
-{
-}
-
-PrimitiveFactory::~PrimitiveFactory()
-{
-}

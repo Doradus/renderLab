@@ -6,6 +6,8 @@
 #include "RenderingInterface.h"
 #include "D3D11VertexBuffer.h"
 #include "D3D11IndexBuffer.h"
+#include "D3D11VertexShader.h"
+#include "D3D11PixelShader.h"
 
 class D3D11RenderingInterface : public RenderingInterface {
 public :
@@ -23,6 +25,11 @@ public :
 
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const final override;
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
+	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
+	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
+
+	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
+	void			CreateConstantBuffer();
 
 private :
 	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const;
@@ -34,6 +41,9 @@ private :
 	ID3D11DepthStencilView* depthStencilView;
 	IDXGISwapChain*			swapChain;
 	D3D_DRIVER_TYPE			driverType;
+
+	ID3D11InputLayout*		inputLayout;
+	ID3D11Buffer*			constantBuffer;
 
 	HWND					windowHandle;
 

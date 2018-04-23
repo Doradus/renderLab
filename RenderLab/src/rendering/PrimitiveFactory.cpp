@@ -1,6 +1,14 @@
 
 #include "PrimitiveFactory.h"
 
+PrimitiveFactory::PrimitiveFactory()
+{
+}
+
+PrimitiveFactory::~PrimitiveFactory()
+{
+}
+
 void PrimitiveFactory::CreateBox(unsigned int width, unsigned int height, unsigned int depth, MeshData& meshDataOut) const {
 	Vertex v[24];
 

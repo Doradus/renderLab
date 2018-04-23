@@ -4,6 +4,8 @@
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexShader.h"
+#include "PixelShader.h"
 
 class RenderingInterface {
 public:
@@ -13,6 +15,12 @@ public:
 	virtual void			InitRenderer() = 0;
 	virtual VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const = 0;
 	virtual IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const = 0;
+	virtual VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const = 0;
+	virtual PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const = 0;
+
+	// todo: refactor to shader state
+	virtual void			CreateInputLayout(const unsigned char* shaderSource, size_t size) = 0;
+	virtual void			CreateConstantBuffer() = 0;
 };
 
 #endif
