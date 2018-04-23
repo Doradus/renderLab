@@ -6,6 +6,7 @@
 #include "IndexBuffer.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
+#include "RenderUtils.h"
 
 class RenderingInterface {
 public:
@@ -21,6 +22,8 @@ public:
 	// todo: refactor to shader state
 	virtual void			CreateInputLayout(const unsigned char* shaderSource, size_t size) = 0;
 	virtual void			CreateConstantBuffer() = 0;
+
+	virtual void			Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader) = 0;
 };
 
 #endif

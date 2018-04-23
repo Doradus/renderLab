@@ -8,8 +8,8 @@ struct VertexIn {
 };
 
 struct VertexOut {
-    float4 pos : SV_POSITION;
     float4 color : COLOR;
+    float4 pos : SV_POSITION;
 };
 
 VertexOut BasicVertexShader(VertexIn vIn) {

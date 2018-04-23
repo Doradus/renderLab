@@ -56,11 +56,10 @@ bool InitWindowsApp(HINSTANCE instanceHandle, int show) {
 		return false;
 	}
 
-	renderLab = new RenderLab(mainWindowHandle);
-	renderLab->InitLab();
 	ShowWindow(mainWindowHandle, show);
 	UpdateWindow(mainWindowHandle);
-
+	renderLab = new RenderLab(mainWindowHandle);
+	renderLab->InitLab();
 	return true;
 }
 

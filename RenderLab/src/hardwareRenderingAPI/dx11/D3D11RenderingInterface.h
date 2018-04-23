@@ -31,6 +31,8 @@ public :
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
 
+	void			Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader);
+
 private :
 	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const;
 

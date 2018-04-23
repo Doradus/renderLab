@@ -18,10 +18,17 @@ private:
 	bool CreateRenderingInterface();
 	void BuildGeometry();
 	void InitShaders();
+	void Draw();
 
 	RenderingInterface* renderingInterface;
 	HWND windowHandle;
 
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
+	VertexShader* vertextShader;
+	PixelShader* pixelShader;
+
+	XMFLOAT4X4 mWorld;
+	XMFLOAT4X4 mView;
+	XMFLOAT4X4 mProj;
 };
