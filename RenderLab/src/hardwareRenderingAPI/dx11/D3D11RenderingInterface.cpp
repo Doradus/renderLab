@@ -256,31 +256,12 @@ void D3D11RenderingInterface::CreateConstantBuffer() {
 	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
 }
 
-void D3D11RenderingInterface::Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader) {
-	XMMATRIX proj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), float (screenWidth) / float (screenHeight), 0.1f, 100.0f);
-
-	XMVECTOR eyePosition = XMVectorSet(0, 0, -5, 1);
-	XMVECTOR focusPoint = XMVectorSet(0, 0, 0, 1);
-	XMVECTOR upDirection = XMVectorSet(0, 1, 0, 0);
-	XMMATRIX view = XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
-
-	XMVECTOR pos = XMVectorSet(5.0f, 10.0f, -5.0f, 1.0f);
-	XMVECTOR target = XMVectorZero();
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
-
-	XMMATRIX world = XMMatrixIdentity();
-
-	//static float angle =50.0f;
-	//XMVECTOR rotationAxis = XMVectorSet(1, 0, 1, 0);
-	//XMMATRIX world = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
-
-	XMMATRIX worldViewProj = world*V*proj;
-
-	//update buffer
+void D3D11RenderingInterface::UpdateConstantBuffer(XMFLOAT4X4 matrix) const {
+	XMMATRIX worldViewProj = XMLoadFloat4x4(&matrix);
 	d3dImmediateContext->UpdateSubresource(constantBuffer, 0, nullptr, &worldViewProj, 0, 0);
+}
 
+void D3D11RenderingInterface::Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader) {
 	//clear
 	float black [] = {0.0f, 0.0f, 0.0f, 1.0f};
 	d3dImmediateContext->ClearRenderTargetView(d3dRenderTargetView, black);

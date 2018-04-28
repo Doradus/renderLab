@@ -22,12 +22,12 @@ public:
 	XMFLOAT4X4	GetCameraView() const;
 	XMFLOAT3	GetCameraTarget() const;
 
-private:
 	XMFLOAT4X4 projectionMatrix;
 	XMFLOAT4X4 cameraView;
 	XMFLOAT3 upDirection;
 	XMFLOAT3 cameraTarget;
 
+private:
 	float aspectRatio;
 	float nearPlane;
 	float farPlane;

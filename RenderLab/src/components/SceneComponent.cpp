@@ -62,21 +62,20 @@ void SceneComponent::Move(float x, float y, float z) {
 }
 
 void SceneComponent::UpdateTransform() {
-	if (isDirty) {
-		XMMATRIX scalingMatrix = XMMatrixScaling(scale.x, scale.y, scale.z);
+	XMMATRIX scalingMatrix = XMMatrixScaling(scale.x, scale.y, scale.z);
 
-		float rotateX = XMConvertToRadians(rotation.x);
-		float rotateY = XMConvertToRadians(rotation.y);
-		float rotateZ = XMConvertToRadians(rotation.z);
+	float rotateX = XMConvertToRadians(rotation.x);
+	float rotateY = XMConvertToRadians(rotation.y);
+	float rotateZ = XMConvertToRadians(rotation.z);
 
-		XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(rotateX, rotateY, rotateZ);
-		XMMATRIX translationMatrix = XMMatrixTranslation(position.x, position.y, position.z);
+	XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(rotateX, rotateY, rotateZ);
+	XMMATRIX translationMatrix = XMMatrixTranslation(position.x, position.y, position.z);
 
-		XMMATRIX world = scalingMatrix * rotationMatrix * translationMatrix;
-		XMStoreFloat4x4(&worldMatrix, world);
+	XMMATRIX world = scalingMatrix * rotationMatrix * translationMatrix;
+	XMStoreFloat4x4(&worldMatrix, world);
 
-		isDirty = false;
-	}
+	isDirty = false;
+
 }
 
 XMFLOAT4X4 SceneComponent::GetWorld() const {

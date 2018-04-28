@@ -1,8 +1,9 @@
 #include "CameraComponent.h"
 
 CameraComponent::CameraComponent() :
-	upDirection(0.0f, 0.0f, 0.0f)
+	upDirection(0.0f, 1.0f, 0.0f)
 {
+	position = { 0.0f, 10.0f, 0.0f };
 }
 
 CameraComponent::CameraComponent(float aspectRatio, float nearPlane, float farPlane, float fieldOfView) :
@@ -10,8 +11,9 @@ CameraComponent::CameraComponent(float aspectRatio, float nearPlane, float farPl
 		nearPlane (nearPlane),
 		farPlane (farPlane),
 		fieldOfView (fieldOfView),
-		upDirection(0.0f, 0.0f, 0.0f) {
+		upDirection(0.0f, 1.0f, 0.0f) {
 	
+	position = { 0.0f, 10.0f, 0.0f };
 	UpdateProjection();
 }
 

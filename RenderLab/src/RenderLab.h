@@ -1,8 +1,8 @@
 #pragma once
-
-#include "RenderingInterface.h"
-#include "D3D11RenderingInterface.h"
 #include "PrimitiveFactory.h"
+#include "Renderer.h"
+#include "CameraComponent.h"
+#include "StaticMesh.h"
 
 class RenderLab {
 public:
@@ -18,17 +18,18 @@ private:
 	bool CreateRenderingInterface();
 	void BuildGeometry();
 	void InitShaders();
+	void CreateCamera();
+	void CreateMesh();
 	void Draw();
 
-	RenderingInterface* renderingInterface;
-	HWND windowHandle;
+	Renderer*			renderer;
+	HWND				windowHandle;
 
-	VertexBuffer* vertexBuffer;
-	IndexBuffer* indexBuffer;
-	VertexShader* vertextShader;
-	PixelShader* pixelShader;
+	VertexBuffer*		vertexBuffer;
+	IndexBuffer*		indexBuffer;
+	VertexShader*		vertextShader;
+	PixelShader*		pixelShader;
 
-	XMFLOAT4X4 mWorld;
-	XMFLOAT4X4 mView;
-	XMFLOAT4X4 mProj;
+	CameraComponent*	camera;
+	StaticMesh*			mesh;
 };
