@@ -22,6 +22,7 @@ public:
 	// todo: refactor to shader state
 	virtual void			CreateInputLayout(const unsigned char* shaderSource, size_t size) = 0;
 	virtual void			CreateConstantBuffer() = 0;
+	virtual void			UpdateConstantBuffer(XMFLOAT4X4 matrix) const = 0;
 
 	virtual void			Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader) = 0;
 };

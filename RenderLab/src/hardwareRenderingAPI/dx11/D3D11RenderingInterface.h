@@ -30,7 +30,7 @@ public :
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
-
+	void			UpdateConstantBuffer(XMFLOAT4X4 matrix) const;
 	void			Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader);
 
 private :
