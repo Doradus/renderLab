@@ -65,18 +65,14 @@ bool InitWindowsApp(HINSTANCE instanceHandle, int show) {
 
 int Run() {
 	MSG msg = { 0 };
-
-	BOOL bRet = 1;
-
-	while ((bRet = GetMessage(&msg, 0, 0, 0)) != 0)
-	{
-		if (bRet == -1) {
-			MessageBox(0, L"GetMessage FAIELD", L"Error", MB_OK);
-			break;
-		}
-		else {
+	renderLab->PrepareStart();
+	while (msg.message != WM_QUIT) {
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		} else {
+			renderLab->Tick();
+			renderLab->Draw();
 		}
 	}
 

@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "CameraComponent.h"
 #include "StaticMesh.h"
+#include "Timer.h"
 
 class RenderLab {
 public:
@@ -12,15 +13,18 @@ public:
 	RenderLab& operator = (const RenderLab&) = delete;
 
 	bool		InitLab();
+	void		Tick();
+	void		PrepareStart();
 	void		ShutDown();
+	void		Draw();
 
 private:
-	bool CreateRenderingInterface();
+	bool CreateRenderer();
 	void BuildGeometry();
 	void InitShaders();
 	void CreateCamera();
 	void CreateMesh();
-	void Draw();
+
 
 	Renderer*			renderer;
 	HWND				windowHandle;
@@ -32,4 +36,7 @@ private:
 
 	CameraComponent*	camera;
 	StaticMesh*			mesh;
+	Timer				timer;
+
+	float				testRotation;
 };
