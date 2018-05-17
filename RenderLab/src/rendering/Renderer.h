@@ -6,13 +6,15 @@
 #include "IndexBuffer.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
+#include "World.h"
 
 class Renderer {
 public:
 	Renderer();
 	~Renderer();
 	void CreateHardwareRenderingInterface(int screenWidth, int screenHeight, HWND mainWindow);
-	void RenderPrimitive(StaticMesh* staticMesh) const;
+	void RenderWorld(const World* world) const;
+	void RenderPrimitive(const StaticMesh* mesh) const;
 
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const;
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const;
@@ -21,7 +23,6 @@ public:
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) const;
 	void			CreateConstantBuffer() const;
-	void			UpdateConstantBuffer(XMFLOAT4X4 matrix) const;
 
 private:
 	RenderingInterface* renderingInterface;

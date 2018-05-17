@@ -18,6 +18,9 @@ public:
 	virtual void	UpdateTransform();
 
 	XMFLOAT4X4		GetWorld() const;
+	XMFLOAT3		GetPosition() const;
+	XMFLOAT3		GetScale() const;
+	XMFLOAT3		GetRotation() const;
 
 protected:
 	bool			isDirty;

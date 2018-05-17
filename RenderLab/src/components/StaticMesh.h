@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderUtils.h"
+#include "RenderingResources.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "SceneComponent.h"

@@ -6,6 +6,8 @@ RenderLab::RenderLab(HWND window) :
 	renderer (nullptr),
 	camera (nullptr),
 	mesh(nullptr),
+	world(nullptr),
+	light(nullptr),
 	testRotation(0) {
 };
 
@@ -30,6 +32,12 @@ RenderLab::~RenderLab() {
 
 	delete renderer;
 	renderer = nullptr;
+
+	delete light;
+	light = nullptr;
+
+	delete world;
+	world = nullptr;
 };
 
 bool RenderLab::InitLab() {
@@ -37,6 +45,8 @@ bool RenderLab::InitLab() {
 		return false;
 	}
 
+	CreateWorld();
+	CreateLights();
 	BuildGeometry();
 	InitShaders();
 	CreateCamera();
@@ -98,6 +108,8 @@ void RenderLab::CreateCamera() {
 	camera->SetCameraTarget(0, 2.5f, -10);
 
 	camera->UpdateProjection();
+
+	world->AddCamera(camera);
 }
 
 void RenderLab::CreateMesh() {
@@ -109,26 +121,28 @@ void RenderLab::CreateMesh() {
 
 	mesh->SetPosition(0, 0, -20);
 	mesh->SetRotation(0, testRotation, 0);
+
+	world->AddStaticMesh(mesh);
+}
+
+void RenderLab::CreateWorld() {
+	world = new World();
+}
+
+void RenderLab::CreateLights() {
+	light = new DirectionalLightComponent();
+	light->SetPosition(-10, 20, -10);
+	light->SetDirection(-.2, -.4, -1);
+	light->SetLightColor(1.0f, 1.0f, 1.0f);
+	light->SetIsEnabled(true);
+
+	world->AddDirectionalLight(light);
 }
 
 void RenderLab::Draw() {
 	mesh->UpdateTransform();
 	camera->UpdateView();
-
-	//update const buffer
-	XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
-	XMMATRIX view = XMLoadFloat4x4(&camera->GetCameraView());
-	XMMATRIX proj = XMLoadFloat4x4(&camera->GetProjection());
-
-	XMMATRIX wvp = world * view * proj;
-	XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
-
-	XMFLOAT4X4 wvpData;
-
-	XMStoreFloat4x4(&wvpData, transposedWvp);
-
-	renderer->UpdateConstantBuffer(wvpData);
-	renderer->RenderPrimitive(mesh);
+	renderer->RenderWorld(world);
 }
 
 void RenderLab::PrepareStart() {

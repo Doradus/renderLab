@@ -17,40 +17,40 @@ void PrimitiveFactory::CreateBox(unsigned int width, unsigned int height, unsign
 	float d2 = 0.5f*depth;
 
 	// Fill in the front face vertex data.
-	v[0] = Vertex(-w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[1] = Vertex(-w2, h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f);
-	v[2] = Vertex(w2, h2, -d2, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[3] = Vertex(w2, -h2, -d2, 0.0f, 1.0, 1.0f, 1.0f);
+	v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[1] = Vertex(-w2, h2, -d2, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[2] = Vertex(w2, h2, -d2, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[3] = Vertex(w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 0.0f, 1.0, 1.0f, 1.0f);
 
 	// Fill in the back face vertex data.
-	v[4] = Vertex(-w2, -h2, d2, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[5] = Vertex(w2, -h2, d2, 0.0f, 1.0f, 0.0f, 1.0f);
-	v[6] = Vertex(w2, h2, d2, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[7] = Vertex(-w2, h2, d2, 0.0f, 1.0, 1.0f, 1.0f);
+	v[4] = Vertex(-w2, -h2, d2, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[5] = Vertex(w2, -h2, d2, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[6] = Vertex(w2, h2, d2, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[7] = Vertex(-w2, h2, d2, 0.0f, 0.0f, 1.0f, 0.0f, 1.0, 1.0f, 1.0f);
 
 	// Fill in the top face vertex data.
-	v[8] = Vertex(-w2, h2, -d2, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[9] = Vertex(-w2, h2, d2, 0.0f, 1.0f, 0.0f, 1.0f);
-	v[10] = Vertex(w2, h2, d2, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[11] = Vertex(w2, h2, -d2, 0.0f, 1.0, 1.0f, 1.0f);
+	v[8] = Vertex(-w2, h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[9] = Vertex(-w2, h2, d2, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[10] = Vertex(w2, h2, d2, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[11] = Vertex(w2, h2, -d2, 0.0f, 1.0f, 0.0f, 0.0f, 1.0, 1.0f, 1.0f);
 
 	// Fill in the bottom face vertex data.
-	v[12] = Vertex(-w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[13] = Vertex(w2, -h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f);
-	v[14] = Vertex(w2, -h2, d2, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[15] = Vertex(-w2, -h2, d2, 0.0f, 1.0, 1.0f, 1.0f);
+	v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[13] = Vertex(w2, -h2, -d2, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[14] = Vertex(w2, -h2, d2, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[15] = Vertex(-w2, -h2, d2, 0.0f, -1.0f, 0.0f, 0.0f, 1.0, 1.0f, 1.0f);
 
 	// Fill in the left face vertex data.
-	v[16] = Vertex(-w2, -h2, d2, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[17] = Vertex(-w2, h2, d2, 0.0f, 1.0f, 0.0f, 1.0f);
-	v[18] = Vertex(-w2, h2, -d2, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[19] = Vertex(-w2, -h2, -d2, 0.0f, 1.0, 1.0f, 1.0f);
+	v[16] = Vertex(-w2, -h2, d2, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[17] = Vertex(-w2, h2, d2, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[18] = Vertex(-w2, h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 1.0, 1.0f, 1.0f);
 
 	// Fill in the right face vertex data.
-	v[20] = Vertex(w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[21] = Vertex(w2, h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f);
-	v[22] = Vertex(w2, h2, d2, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[23] = Vertex(w2, -h2, d2, 0.0f, 1.0, 1.0f, 1.0f);
+	v[20] = Vertex(w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[21] = Vertex(w2, h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[22] = Vertex(w2, h2, d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[23] = Vertex(w2, -h2, d2, 1.0f, 0.0f, 0.0f, 0.0f, 1.0, 1.0f, 1.0f);
 
 	meshDataOut.vertices.assign(&v[0], &v[24]);
 
@@ -81,4 +81,55 @@ void PrimitiveFactory::CreateBox(unsigned int width, unsigned int height, unsign
 	indices[33] = 20; indices[34] = 22; indices[35] = 23;
 
 	meshDataOut.indices.assign(&indices[0], &indices[36]);
+}
+
+void PrimitiveFactory::CreatePlane(float width, float depth, unsigned int subDivsWidth, unsigned int subDivsDepth, MeshData & meshDataOut) const {
+	unsigned int vertexCount = subDivsWidth * subDivsDepth;
+	unsigned int faceCount = (subDivsWidth - 1)*(subDivsDepth - 1) * 2;
+
+	//
+	// Create the vertices.
+	//
+
+	float halfWidth = 0.5f * width;
+	float halfDepth = 0.5f * depth;
+
+	float dx = width / (subDivsWidth - 1);
+	float dz = depth / (subDivsDepth - 1);
+
+	//float du = 1.0f / (subDivsWidth - 1);
+	//float dv = 1.0f / (subDivsDepth - 1);
+
+	meshDataOut.vertices.resize(vertexCount);
+	for (unsigned int i = 0; i < subDivsWidth; ++i) {
+		float z = halfDepth - i*dz;
+		for (unsigned int j = 0; j < subDivsDepth; ++j) {
+			float x = -halfWidth + j*dx;
+
+			meshDataOut.vertices[i*subDivsDepth + j].position = XMFLOAT3(x, 0.0f, z);
+			meshDataOut.vertices[i*subDivsDepth + j].color = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+		}
+	}
+
+	//
+	// Create the indices.
+	//
+
+	meshDataOut.indices.resize(faceCount * 3); // 3 indices per face
+
+											// Iterate over each quad and compute indices.
+	unsigned int k = 0;
+	for (unsigned int i = 0; i < subDivsWidth - 1; ++i) {
+		for (unsigned int j = 0; j < subDivsDepth - 1; ++j) {
+			meshDataOut.indices[k] = i*subDivsDepth + j;
+			meshDataOut.indices[k + 1] = i*subDivsDepth + j + 1;
+			meshDataOut.indices[k + 2] = (i + 1)*subDivsDepth + j;
+
+			meshDataOut.indices[k + 3] = (i + 1)*subDivsDepth + j;
+			meshDataOut.indices[k + 4] = i*subDivsDepth + j + 1;
+			meshDataOut.indices[k + 5] = (i + 1)*subDivsDepth + j + 1;
+
+			k += 6; // next quad
+		}
+	}
 }

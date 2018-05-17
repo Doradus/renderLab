@@ -30,7 +30,8 @@ public :
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
-	void			UpdateConstantBuffer(XMFLOAT4X4 matrix) const;
+	void			ConstantBuffersMiddFrame(ObjectProperties objectProperties) const;
+	void			ConstantBuffersFrameStart(DirectionalLightResource light) const;
 	void			Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader);
 
 private :
@@ -45,7 +46,7 @@ private :
 	D3D_DRIVER_TYPE			driverType;
 
 	ID3D11InputLayout*		inputLayout;
-	ID3D11Buffer*			constantBuffer;
+	ID3D11Buffer*			constantBuffers[NumConstantBuffers];
 
 	HWND					windowHandle;
 

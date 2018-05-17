@@ -4,6 +4,7 @@
 #include "CameraComponent.h"
 #include "StaticMesh.h"
 #include "Timer.h"
+#include "RenderingResources.h"
 
 class RenderLab {
 public:
@@ -24,19 +25,22 @@ private:
 	void InitShaders();
 	void CreateCamera();
 	void CreateMesh();
+	void CreateWorld();
+	void CreateLights();
 
+	World*						world;
+	Renderer*					renderer;
+	HWND						windowHandle;
 
-	Renderer*			renderer;
-	HWND				windowHandle;
+	VertexBuffer*				vertexBuffer;
+	IndexBuffer*				indexBuffer;
+	VertexShader*				vertextShader;
+	PixelShader*				pixelShader;
 
-	VertexBuffer*		vertexBuffer;
-	IndexBuffer*		indexBuffer;
-	VertexShader*		vertextShader;
-	PixelShader*		pixelShader;
+	CameraComponent*			camera;
+	StaticMesh*					mesh;
+	DirectionalLightComponent*	light;
+	Timer						timer;
 
-	CameraComponent*	camera;
-	StaticMesh*			mesh;
-	Timer				timer;
-
-	float				testRotation;
+	float						testRotation;
 };

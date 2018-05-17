@@ -82,3 +82,15 @@ XMFLOAT4X4 SceneComponent::GetWorld() const {
 	return worldMatrix;
 }
 
+XMFLOAT3 SceneComponent::GetPosition() const {
+	return position;
+}
+
+XMFLOAT3 SceneComponent::GetScale() const {
+	return scale;
+}
+
+XMFLOAT3 SceneComponent::GetRotation() const {
+	return rotation;
+}
+
