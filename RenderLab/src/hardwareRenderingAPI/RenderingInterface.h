@@ -7,6 +7,7 @@
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "RenderingResources.h"
+#include "RenderData.h"
 
 class RenderingInterface {
 public:
@@ -25,7 +26,9 @@ public:
 	virtual void			ConstantBuffersFrameStart(DirectionalLightResource light) const = 0;
 	virtual void			ConstantBuffersMiddFrame(ObjectProperties objectProperties) const = 0;
 
-	virtual void			Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader) = 0;
+	virtual void			StartFrame() const = 0;
+	virtual void			Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) = 0;
+	virtual void			EndFrame() const = 0;
 };
 
 #endif

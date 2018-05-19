@@ -12,7 +12,7 @@ D3D11RenderingInterface::D3D11RenderingInterface(int screenWidth, int screenHeig
 	depthStencilBuffer(nullptr),
 	depthStencilView(nullptr),
 	windowHandle(window),
-
+	enable4xMsaa(true),
 	xmsaaQuality(0),
 	driverType(D3D_DRIVER_TYPE_HARDWARE)
 {}
@@ -279,21 +279,23 @@ void D3D11RenderingInterface::ConstantBuffersFrameStart(DirectionalLightResource
 	d3dImmediateContext->UpdateSubresource(constantBuffers[DirectionalLights], 0, nullptr, &light, 0, 0);
 }
 
-void D3D11RenderingInterface::Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader) {
+void D3D11RenderingInterface::StartFrame() const {
 	//clear
-	float black [] = {0.0f, 0.0f, 0.0f, 1.0f};
+	float black[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	d3dImmediateContext->ClearRenderTargetView(d3dRenderTargetView, black);
 	d3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	d3dImmediateContext->IASetInputLayout(inputLayout);
 	d3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
 
+void D3D11RenderingInterface::Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) {
 	//vertex buffer
 	unsigned int stride = sizeof(Vertex);
 	unsigned int offset = 0;
 
-	D3D11VertexBuffer* vertexBuffer = static_cast<D3D11VertexBuffer*>(vertices);
-	D3D11IndexBuffer* indexBuffer = static_cast<D3D11IndexBuffer*>(indices);
+	D3D11VertexBuffer* vertexBuffer = static_cast<D3D11VertexBuffer*>(renderData->GetVertexBuffer());
+	D3D11IndexBuffer* indexBuffer = static_cast<D3D11IndexBuffer*>(renderData->GetIndexBuffer());
 
 	d3dImmediateContext->IASetVertexBuffers(0, 1, &vertexBuffer->resource, &stride, &offset);
 	d3dImmediateContext->IASetIndexBuffer(indexBuffer->resource, DXGI_FORMAT_R32_UINT, 0);
@@ -311,8 +313,10 @@ void D3D11RenderingInterface::Draw(VertexBuffer* vertices, IndexBuffer* indices,
 	d3dImmediateContext->PSSetShader(pShader->resource, nullptr, 0);
 	d3dImmediateContext->PSSetConstantBuffers(0, 1, &constantBuffers[DirectionalLights]);
 
-	d3dImmediateContext->DrawIndexed(36, 0, 0);
+	d3dImmediateContext->DrawIndexed(renderData->GetNumIndices(), 0, 0);
+}
 
+void D3D11RenderingInterface::EndFrame() const {
 	swapChain->Present(0, 0);
 }
 

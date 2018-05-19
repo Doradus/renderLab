@@ -34,11 +34,19 @@ private:
 
 	VertexBuffer*				vertexBuffer;
 	IndexBuffer*				indexBuffer;
+	VertexBuffer*				planeVertexBuffer;
+	IndexBuffer*				planeIndexBuffer;
+	VertexBuffer*				sphereVertexBuffer;
+	IndexBuffer*				sphereIndexBuffer;
+
 	VertexShader*				vertextShader;
 	PixelShader*				pixelShader;
 
 	CameraComponent*			camera;
-	StaticMesh*					mesh;
+	StaticMesh*					box;
+	StaticMesh*					box2;
+	StaticMesh*					plane;
+	StaticMesh*					sphere;
 	DirectionalLightComponent*	light;
 	Timer						timer;
 

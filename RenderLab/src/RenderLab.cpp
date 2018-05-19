@@ -5,7 +5,10 @@ RenderLab::RenderLab(HWND window) :
 	windowHandle(window),
 	renderer (nullptr),
 	camera (nullptr),
-	mesh(nullptr),
+	box(nullptr),
+	box2(nullptr),
+	sphere(nullptr),
+	plane(nullptr),
 	world(nullptr),
 	light(nullptr),
 	testRotation(0) {
@@ -15,14 +18,35 @@ RenderLab::~RenderLab() {
 	delete camera;
 	camera = nullptr;
 
-	delete mesh;
-	mesh = nullptr;
+	delete box;
+	box = nullptr;
+
+	delete box2;
+	box2 = nullptr;
+
+	delete plane;
+	plane = nullptr;
+
+	delete sphere;
+	sphere = nullptr;
 
 	delete vertexBuffer;
 	vertexBuffer = nullptr;
 
 	delete indexBuffer;
 	indexBuffer = nullptr;
+
+	delete planeVertexBuffer;
+	planeVertexBuffer = nullptr;
+
+	delete planeIndexBuffer;
+	planeIndexBuffer = nullptr;
+
+	delete sphereVertexBuffer;
+	sphereVertexBuffer = nullptr;
+
+	delete sphereIndexBuffer;
+	sphereIndexBuffer = nullptr;
 
 	delete vertextShader;
 	vertextShader = nullptr;
@@ -47,8 +71,8 @@ bool RenderLab::InitLab() {
 
 	CreateWorld();
 	CreateLights();
-	BuildGeometry();
 	InitShaders();
+	BuildGeometry();
 	CreateCamera();
 	CreateMesh();
 
@@ -60,7 +84,7 @@ void RenderLab::Tick() {
 
 	testRotation += 50 * timer.GetDeltaTime();
 
-	mesh->SetRotation(testRotation, testRotation, 0);
+	//box->SetRotation(testRotation, testRotation, 0);
 }
 
 bool RenderLab::CreateRenderer() {
@@ -82,15 +106,99 @@ void RenderLab::InitShaders() {
 void RenderLab::BuildGeometry() {
 	PrimitiveFactory* factory = new PrimitiveFactory();
 
-	MeshData box;
+	//  ---- box ----- //
+	MeshData boxData;
 
-	factory->CreateBox(5, 5, 5, box);
+	factory->CreateBox(5, 5, 5, boxData);
 
-	size_t vertSize = sizeof(Vertex) * box.vertices.size();
-	vertexBuffer = renderer->CreateVertexBuffer(vertSize, &box.vertices[0]);
+	size_t vertSize = sizeof(Vertex) * boxData.vertices.size();
+	vertexBuffer = renderer->CreateVertexBuffer(vertSize, &boxData.vertices[0]);
 
-	size_t indSize = sizeof(unsigned int) * box.indices.size();
-	indexBuffer = renderer->CreateIndexBuffer(indSize, &box.indices[0]);
+	size_t indSize = sizeof(unsigned int) * boxData.indices.size();
+	indexBuffer = renderer->CreateIndexBuffer(indSize, &boxData.indices[0]);
+
+	MeshData planeData;
+
+	factory->CreatePlane(30, 30, 2, 2, planeData);
+
+	size_t planeVertSize = sizeof(Vertex) * planeData.vertices.size();
+	planeVertexBuffer = renderer->CreateVertexBuffer(planeVertSize, &planeData.vertices[0]);
+
+	size_t planeIndSize = sizeof(unsigned int) * planeData.indices.size();
+	planeIndexBuffer = renderer->CreateIndexBuffer(planeIndSize, &planeData.indices[0]);
+
+	MeshData sphereData;
+
+	factory->CreateSphere(3.0f, 40, 20, sphereData);
+
+	size_t sphereVertSize = sizeof(Vertex) * sphereData.vertices.size();
+	sphereVertexBuffer = renderer->CreateVertexBuffer(sphereVertSize, &sphereData.vertices[0]);
+
+	size_t sphereIndSize = sizeof(unsigned int) * sphereData.indices.size();
+	sphereIndexBuffer = renderer->CreateIndexBuffer(sphereIndSize, &sphereData.indices[0]);
+
+	box = new StaticMesh();
+
+	RenderData* boxRenderData = new RenderData();
+	boxRenderData->SetVertexBuffer(vertexBuffer);
+	boxRenderData->SetIndexBuffer(indexBuffer);
+	boxRenderData->SetNumIndices(boxData.indices.size());
+
+	box->SetVertexShader(vertextShader);
+	box->SetPixelShader(pixelShader);
+	box->SetRenderData(boxRenderData);
+
+	box->SetPosition(-4, 2.5f, -10);
+	box->SetRotation(0, 30, 0);
+
+	box2 = new StaticMesh();
+
+	RenderData* box2RenderData = new RenderData();
+	box2RenderData->SetVertexBuffer(vertexBuffer);
+	box2RenderData->SetIndexBuffer(indexBuffer);
+	box2RenderData->SetNumIndices(boxData.indices.size());
+
+	box2->SetVertexShader(vertextShader);
+	box2->SetPixelShader(pixelShader);
+	box2->SetRenderData(box2RenderData);
+
+	box2->SetPosition(4, 2.5f, 4);
+	box2->SetRotation(0, 145, 0);
+
+	//  ---- plane ----- //
+
+	plane = new StaticMesh();
+
+	RenderData* planeRenderData = new RenderData();
+	planeRenderData->SetVertexBuffer(planeVertexBuffer);
+	planeRenderData->SetIndexBuffer(planeIndexBuffer);
+	planeRenderData->SetNumIndices(planeData.indices.size());
+
+	plane->SetVertexShader(vertextShader);
+	plane->SetPixelShader(pixelShader);
+	plane->SetRenderData(planeRenderData);
+
+	plane->SetPosition(0, 0, 0);
+
+	//  ---- sphere ----- //
+
+	sphere = new StaticMesh();
+
+	RenderData* sphereRenderData = new RenderData();
+	sphereRenderData->SetVertexBuffer(sphereVertexBuffer);
+	sphereRenderData->SetIndexBuffer(sphereIndexBuffer);
+	sphereRenderData->SetNumIndices(sphereData.indices.size());
+
+	sphere->SetVertexShader(vertextShader);
+	sphere->SetPixelShader(pixelShader);
+	sphere->SetRenderData(sphereRenderData);
+
+	sphere->SetPosition(-4.0, 3.0f, 3.0f);
+
+	world->AddStaticMesh(box);
+	world->AddStaticMesh(box2);
+	world->AddStaticMesh(plane);
+	world->AddStaticMesh(sphere);
 
 	renderer->CreateConstantBuffer();
 
@@ -104,7 +212,7 @@ void RenderLab::CreateCamera() {
 	camera->SetNearPlane(1);
 	camera->SetFarPlane(1000);
 
-	camera->SetPosition(0.0f, 5.0f, 10.0f);
+	camera->SetPosition(0.0f, 8.0f, 25.0f);
 	camera->SetCameraTarget(0, 2.5f, -10);
 
 	camera->UpdateProjection();
@@ -113,16 +221,7 @@ void RenderLab::CreateCamera() {
 }
 
 void RenderLab::CreateMesh() {
-	mesh = new StaticMesh();
-	mesh->SetVertexBuffer(vertexBuffer);
-	mesh->SetIndexBuffer(indexBuffer);
-	mesh->SetVertexShader(vertextShader);
-	mesh->SetPixelShader(pixelShader);
 
-	mesh->SetPosition(0, 0, -20);
-	mesh->SetRotation(0, testRotation, 0);
-
-	world->AddStaticMesh(mesh);
 }
 
 void RenderLab::CreateWorld() {
@@ -132,7 +231,7 @@ void RenderLab::CreateWorld() {
 void RenderLab::CreateLights() {
 	light = new DirectionalLightComponent();
 	light->SetPosition(-10, 20, -10);
-	light->SetDirection(-.2, -.4, -1);
+	light->SetDirection(-0.3f, -.6f, -1.0f);
 	light->SetLightColor(1.0f, 1.0f, 1.0f);
 	light->SetIsEnabled(true);
 
@@ -140,7 +239,10 @@ void RenderLab::CreateLights() {
 }
 
 void RenderLab::Draw() {
-	mesh->UpdateTransform();
+	box->UpdateTransform();
+	box2->UpdateTransform();
+	plane->UpdateTransform();
+	sphere->UpdateTransform();
 	camera->UpdateView();
 	renderer->RenderWorld(world);
 }

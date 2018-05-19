@@ -30,9 +30,11 @@ public :
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
-	void			ConstantBuffersMiddFrame(ObjectProperties objectProperties) const;
-	void			ConstantBuffersFrameStart(DirectionalLightResource light) const;
-	void			Draw(VertexBuffer* vertices, IndexBuffer* indices, VertexShader* vertexShader, PixelShader* pixelShader);
+	void			ConstantBuffersMiddFrame(ObjectProperties objectProperties) const final override;
+	void			ConstantBuffersFrameStart(DirectionalLightResource light) const final override;
+	void			StartFrame() const final override;
+	void			Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) final override;
+	void			EndFrame() const final override;
 
 private :
 	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const;

@@ -6,21 +6,17 @@ using namespace DirectX;
 
 struct Vertex {
 	Vertex() {}
-	Vertex(const XMFLOAT3 &inPos, const XMFLOAT3 &inNormal, const XMFLOAT4 &inColor) :
+	Vertex(const XMFLOAT3 &inPos, const XMFLOAT3 &inNormal) :
 		position(inPos),
-		normal(inNormal),
-		color(inColor) {}
+		normal(inNormal) {}
 
 	Vertex(float inPosX, float inPosY, float inPosZ,
-		float inNormX, float inNormY, float inNormZ,
-		float inColorR, float inColorG, float inColorB, float inColorA) :
+		float inNormX, float inNormY, float inNormZ) :
 		position(inPosX, inPosY, inPosZ),
-		normal(inNormX, inNormY, inNormZ),
-		color(inColorR, inColorG, inColorB, inColorA) {}
+		normal(inNormX, inNormY, inNormZ) {}
 
 	XMFLOAT3 position;
 	XMFLOAT3 normal;
-	XMFLOAT4 color;
 };
 
 struct MeshData {

@@ -1,20 +1,12 @@
 #include "StaticMesh.h"
 
 StaticMesh::StaticMesh() :
-vertexBuffer (nullptr),
-indexBuffer(nullptr)
+	renderData(nullptr)
 {}
 
 StaticMesh::~StaticMesh() {
-
-}
-
-void StaticMesh::SetVertexBuffer(VertexBuffer* buffer) {
-	vertexBuffer = buffer;
-}
-
-void StaticMesh::SetIndexBuffer(IndexBuffer* buffer) {
-	indexBuffer = buffer;
+	delete renderData;
+	renderData = nullptr;
 }
 
 void StaticMesh::SetVertexShader(VertexShader * shader) {
@@ -25,12 +17,8 @@ void StaticMesh::SetPixelShader(PixelShader * shader) {
 	pixelShader = shader;
 }
 
-VertexBuffer* StaticMesh::GetVertexBuffer() const {
-	return vertexBuffer;
-}
-
-IndexBuffer* StaticMesh::GetIndexBuffer() const {
-	return indexBuffer;
+void StaticMesh::SetRenderData(RenderData * inData) {
+	renderData = inData;
 }
 
 VertexShader * StaticMesh::GetVertexShader() const {
@@ -39,4 +27,8 @@ VertexShader * StaticMesh::GetVertexShader() const {
 
 PixelShader * StaticMesh::GetPixelShader() const {
 	return pixelShader;
+}
+
+RenderData * StaticMesh::GetRenderData() const {
+	return renderData;
 }

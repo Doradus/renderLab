@@ -35,13 +35,14 @@ void Renderer::RenderWorld(const World* world) const {
 	XMMATRIX view = XMLoadFloat4x4(&camera->GetCameraView());
 	XMMATRIX proj = XMLoadFloat4x4(&camera->GetProjection());
 
+	renderingInterface->StartFrame();
+
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
 		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
 		XMMATRIX wvp = world * view * proj;
 		XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
 		XMFLOAT4X4 wvpData;
 		XMStoreFloat4x4(&wvpData, transposedWvp);
-
 
 		XMMATRIX worldCopy = world;
 		worldCopy.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
@@ -58,12 +59,13 @@ void Renderer::RenderWorld(const World* world) const {
 		renderingInterface->ConstantBuffersMiddFrame(properties);
 		RenderPrimitive(mesh);
 	}
+
+	renderingInterface->EndFrame();
 }
 
 void Renderer::RenderPrimitive(const StaticMesh * mesh) const {
-	renderingInterface->Draw(mesh->GetVertexBuffer(), mesh->GetIndexBuffer(), mesh->GetVertexShader(), mesh->GetPixelShader());
+	renderingInterface->Draw(mesh->GetRenderData(), mesh->GetVertexShader(), mesh->GetPixelShader());
 }
-
 
 VertexBuffer* Renderer::CreateVertexBuffer(unsigned int size, const void * data) const {
 	return renderingInterface->CreateVertexBuffer(size, data);
