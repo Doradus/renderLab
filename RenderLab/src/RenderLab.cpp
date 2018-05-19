@@ -11,6 +11,10 @@ RenderLab::RenderLab(HWND window) :
 	plane(nullptr),
 	world(nullptr),
 	light(nullptr),
+	boxMaterial(nullptr),
+	box2Material(nullptr),
+	sphereMaterial(nullptr),
+	planeMaterial(nullptr),
 	testRotation(0) {
 };
 
@@ -56,6 +60,18 @@ RenderLab::~RenderLab() {
 
 	delete renderer;
 	renderer = nullptr;
+
+	delete boxMaterial;
+	boxMaterial = nullptr;
+
+	delete box2Material;
+	box2Material = nullptr;
+
+	delete sphereMaterial;
+	sphereMaterial = nullptr;
+
+	delete planeMaterial;
+	planeMaterial = nullptr;
 
 	delete light;
 	light = nullptr;
@@ -106,7 +122,6 @@ void RenderLab::InitShaders() {
 void RenderLab::BuildGeometry() {
 	PrimitiveFactory* factory = new PrimitiveFactory();
 
-	//  ---- box ----- //
 	MeshData boxData;
 
 	factory->CreateBox(5, 5, 5, boxData);
@@ -137,6 +152,8 @@ void RenderLab::BuildGeometry() {
 	size_t sphereIndSize = sizeof(unsigned int) * sphereData.indices.size();
 	sphereIndexBuffer = renderer->CreateIndexBuffer(sphereIndSize, &sphereData.indices[0]);
 
+	//  ---- box ----- //
+
 	box = new StaticMesh();
 
 	RenderData* boxRenderData = new RenderData();
@@ -151,6 +168,11 @@ void RenderLab::BuildGeometry() {
 	box->SetPosition(-4, 2.5f, -10);
 	box->SetRotation(0, 30, 0);
 
+	boxMaterial = new Material();
+	boxMaterial->SetAlbedo(0.87f, 0.53f, 0.9f);
+
+	box->SetMaterial(boxMaterial);
+
 	box2 = new StaticMesh();
 
 	RenderData* box2RenderData = new RenderData();
@@ -164,6 +186,11 @@ void RenderLab::BuildGeometry() {
 
 	box2->SetPosition(4, 2.5f, 4);
 	box2->SetRotation(0, 145, 0);
+
+	box2Material = new Material();
+	box2Material->SetAlbedo(0.533f, 0.72f, 0.9f);
+
+	box2->SetMaterial(box2Material);
 
 	//  ---- plane ----- //
 
@@ -180,6 +207,10 @@ void RenderLab::BuildGeometry() {
 
 	plane->SetPosition(0, 0, 0);
 
+	planeMaterial = new Material();
+	planeMaterial->SetAlbedo(0.92f, 0.7f, 0.35f);
+	plane->SetMaterial(planeMaterial);
+
 	//  ---- sphere ----- //
 
 	sphere = new StaticMesh();
@@ -194,6 +225,10 @@ void RenderLab::BuildGeometry() {
 	sphere->SetRenderData(sphereRenderData);
 
 	sphere->SetPosition(-4.0, 3.0f, 3.0f);
+
+	sphereMaterial = new Material();
+	sphereMaterial->SetAlbedo(0.74f, 0.9f, 0.533f);
+	sphere->SetMaterial(sphereMaterial);
 
 	world->AddStaticMesh(box);
 	world->AddStaticMesh(box2);
@@ -233,6 +268,7 @@ void RenderLab::CreateLights() {
 	light->SetPosition(-10, 20, -10);
 	light->SetDirection(-0.3f, -.6f, -1.0f);
 	light->SetLightColor(1.0f, 1.0f, 1.0f);
+	light->SetBrightness(2.6f);
 	light->SetIsEnabled(true);
 
 	world->AddDirectionalLight(light);

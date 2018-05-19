@@ -24,7 +24,7 @@ public:
 	virtual void			CreateInputLayout(const unsigned char* shaderSource, size_t size) = 0;
 	virtual void			CreateConstantBuffer() = 0;
 	virtual void			ConstantBuffersFrameStart(DirectionalLightResource light) const = 0;
-	virtual void			ConstantBuffersMiddFrame(ObjectProperties objectProperties) const = 0;
+	virtual void			ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const = 0;
 
 	virtual void			StartFrame() const = 0;
 	virtual void			Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) = 0;

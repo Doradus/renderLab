@@ -35,13 +35,25 @@ struct DirectionalLightResource {
 	XMFLOAT3 color;
 	int	enabled; 
 	XMFLOAT3 position;
-	float padding1;
+	float brightness;
 	XMFLOAT3 direction;
-	float padding2;
+	float padding;
 };
 
-enum ConstBuffers {
-	WorldViewPorjection,
-	DirectionalLights,
-	NumConstantBuffers
+struct MaterialResource {
+	MaterialResource() {};
+
+	XMFLOAT3 albedo;
+	float padding;
+};
+
+enum VertexConstBuffers {
+	WorldViewPorjectionConstBuffer,
+	NumVertexConstantBuffers
+};
+
+enum PixelConstBuffers {
+	DirectionalLightsConstBuffer,
+	MaterialConstBuffer,
+	NumPixelConstantBuffers
 };

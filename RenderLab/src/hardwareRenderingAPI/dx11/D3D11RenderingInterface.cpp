@@ -24,8 +24,12 @@ D3D11RenderingInterface::~D3D11RenderingInterface() {
 
 	RELEASE(inputLayout);
 
-	for (int i = 0; i < NumConstantBuffers; i++) {
-		RELEASE(constantBuffers[i]);
+	for (int i = 0; i < NumVertexConstantBuffers; i++) {
+		RELEASE(vertexConstantBuffers[i]);
+	}
+
+	for (int i = 0; i < NumPixelConstantBuffers; i++) {
+		RELEASE(pixelConstantBuffers[i]);
 	}
 
 	RELEASE(depthStencilView);
@@ -258,7 +262,7 @@ void D3D11RenderingInterface::CreateConstantBuffer() {
 	wvpConstantBufferDesc.CPUAccessFlags = 0;
 	wvpConstantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&wvpConstantBufferDesc, nullptr, &constantBuffers[WorldViewPorjection]));
+	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&wvpConstantBufferDesc, nullptr, &vertexConstantBuffers[WorldViewPorjectionConstBuffer]));
 
 	D3D11_BUFFER_DESC dlConstantBufferDesc;
 	ZeroMemory(&dlConstantBufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -268,15 +272,26 @@ void D3D11RenderingInterface::CreateConstantBuffer() {
 	dlConstantBufferDesc.CPUAccessFlags = 0;
 	dlConstantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&dlConstantBufferDesc, nullptr, &constantBuffers[DirectionalLights]));
+	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&dlConstantBufferDesc, nullptr, &pixelConstantBuffers[DirectionalLightsConstBuffer]));
+
+	D3D11_BUFFER_DESC materialConstantBufferDesc;
+	ZeroMemory(&materialConstantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	materialConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	materialConstantBufferDesc.ByteWidth = sizeof(MaterialResource);
+	materialConstantBufferDesc.CPUAccessFlags = 0;
+	materialConstantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&materialConstantBufferDesc, nullptr, &pixelConstantBuffers[MaterialConstBuffer]));
 }
 
-void D3D11RenderingInterface::ConstantBuffersMiddFrame(ObjectProperties objectProperties) const {
-	d3dImmediateContext->UpdateSubresource(constantBuffers[WorldViewPorjection], 0, nullptr, &objectProperties, 0, 0);
+void D3D11RenderingInterface::ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const {
+	d3dImmediateContext->UpdateSubresource(vertexConstantBuffers[WorldViewPorjectionConstBuffer], 0, nullptr, &objectProperties, 0, 0);
+	d3dImmediateContext->UpdateSubresource(pixelConstantBuffers[MaterialConstBuffer], 0, nullptr, &material, 0, 0);
 }
 
 void D3D11RenderingInterface::ConstantBuffersFrameStart(DirectionalLightResource light) const {
-	d3dImmediateContext->UpdateSubresource(constantBuffers[DirectionalLights], 0, nullptr, &light, 0, 0);
+	d3dImmediateContext->UpdateSubresource(pixelConstantBuffers[DirectionalLightsConstBuffer], 0, nullptr, &light, 0, 0);
 }
 
 void D3D11RenderingInterface::StartFrame() const {
@@ -304,14 +319,14 @@ void D3D11RenderingInterface::Draw(RenderData* renderData, VertexShader* vertexS
 	D3D11VertexShader* vShader = static_cast<D3D11VertexShader*>(vertexShader);
 
 	d3dImmediateContext->VSSetShader(vShader->resource, nullptr, 0);
-	d3dImmediateContext->VSSetConstantBuffers(0, 1, &constantBuffers[WorldViewPorjection]);
+	d3dImmediateContext->VSSetConstantBuffers(0, 1, &vertexConstantBuffers[WorldViewPorjectionConstBuffer]);
 
 	//rasterizer
 
 	//pixel shader
 	D3D11PixelShader* pShader = static_cast<D3D11PixelShader*>(pixelShader);
 	d3dImmediateContext->PSSetShader(pShader->resource, nullptr, 0);
-	d3dImmediateContext->PSSetConstantBuffers(0, 1, &constantBuffers[DirectionalLights]);
+	d3dImmediateContext->PSSetConstantBuffers(0, 2, pixelConstantBuffers);
 
 	d3dImmediateContext->DrawIndexed(renderData->GetNumIndices(), 0, 0);
 }

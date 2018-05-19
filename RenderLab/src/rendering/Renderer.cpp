@@ -24,8 +24,8 @@ void Renderer::RenderWorld(const World* world) const {
 		lightResourceStruct.enabled = light->GetIsEnabled();
 		lightResourceStruct.color = light->GetLightColor();
 		lightResourceStruct.direction = light->GetDirection();
-		lightResourceStruct.padding1 = 0.0f;
-		lightResourceStruct.padding2 = 0.0f;
+		lightResourceStruct.brightness = light->GetBrightness();
+		lightResourceStruct.padding = 0.0f;
 	}
 
 	renderingInterface->ConstantBuffersFrameStart(lightResourceStruct);
@@ -56,7 +56,10 @@ void Renderer::RenderWorld(const World* world) const {
 		properties.wvp = wvpData;
 		properties.worldInverse = worldInverseData;
 
-		renderingInterface->ConstantBuffersMiddFrame(properties);
+		MaterialResource materialResource;
+		materialResource.albedo = mesh->GetMaterial()->GetAlbedo();
+
+		renderingInterface->ConstantBuffersMiddFrame(properties, materialResource);
 		RenderPrimitive(mesh);
 	}
 

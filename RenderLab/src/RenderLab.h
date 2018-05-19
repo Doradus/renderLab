@@ -50,5 +50,11 @@ private:
 	DirectionalLightComponent*	light;
 	Timer						timer;
 
+	//material
+	Material*					boxMaterial;
+	Material*					box2Material;
+	Material*					sphereMaterial;
+	Material*					planeMaterial;
+
 	float						testRotation;
 };

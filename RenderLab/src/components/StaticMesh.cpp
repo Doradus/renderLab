@@ -21,6 +21,10 @@ void StaticMesh::SetRenderData(RenderData * inData) {
 	renderData = inData;
 }
 
+void StaticMesh::SetMaterial(Material * inMaterial) {
+	material = inMaterial;
+}
+
 VertexShader * StaticMesh::GetVertexShader() const {
 	return vertexShader;
 }
@@ -31,4 +35,8 @@ PixelShader * StaticMesh::GetPixelShader() const {
 
 RenderData * StaticMesh::GetRenderData() const {
 	return renderData;
+}
+
+Material * StaticMesh::GetMaterial() const {
+	return material;
 }

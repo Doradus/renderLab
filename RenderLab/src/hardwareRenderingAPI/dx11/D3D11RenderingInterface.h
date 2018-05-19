@@ -30,7 +30,7 @@ public :
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
-	void			ConstantBuffersMiddFrame(ObjectProperties objectProperties) const final override;
+	void			ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const final override;
 	void			ConstantBuffersFrameStart(DirectionalLightResource light) const final override;
 	void			StartFrame() const final override;
 	void			Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) final override;
@@ -48,7 +48,8 @@ private :
 	D3D_DRIVER_TYPE			driverType;
 
 	ID3D11InputLayout*		inputLayout;
-	ID3D11Buffer*			constantBuffers[NumConstantBuffers];
+	ID3D11Buffer*			vertexConstantBuffers[NumVertexConstantBuffers];
+	ID3D11Buffer*			pixelConstantBuffers[NumPixelConstantBuffers];
 
 	HWND					windowHandle;
 
