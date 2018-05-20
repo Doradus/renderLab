@@ -27,16 +27,21 @@ struct MeshData {
 struct ObjectProperties {
 	XMFLOAT4X4 wvp;
 	XMFLOAT4X4 worldInverse;
+	XMFLOAT4X4 world;
 };
 
 struct DirectionalLightResource {
 	DirectionalLightResource() {};
-
 	XMFLOAT3 color;
 	int	enabled; 
-	XMFLOAT3 position;
-	float brightness;
 	XMFLOAT3 direction;
+	float brightness;
+};
+
+struct PixelShaderPerFrameResource {
+	PixelShaderPerFrameResource() {};
+	DirectionalLightResource directionalLight;
+	XMFLOAT3 cameraPosition;
 	float padding;
 };
 
@@ -44,6 +49,8 @@ struct MaterialResource {
 	MaterialResource() {};
 
 	XMFLOAT3 albedo;
+	float specularPower;
+	XMFLOAT3 specularColor;
 	float padding;
 };
 

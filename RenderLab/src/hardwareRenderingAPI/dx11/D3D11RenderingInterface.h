@@ -31,7 +31,7 @@ public :
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
 	void			ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const final override;
-	void			ConstantBuffersFrameStart(DirectionalLightResource light) const final override;
+	void			ConstantBuffersFrameStart(PixelShaderPerFrameResource perFrameResources) const final override;
 	void			StartFrame() const final override;
 	void			Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) final override;
 	void			EndFrame() const final override;

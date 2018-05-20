@@ -144,7 +144,7 @@ void RenderLab::BuildGeometry() {
 
 	MeshData sphereData;
 
-	factory->CreateSphere(3.0f, 40, 20, sphereData);
+	factory->CreateSphere(3.0f, 60, 30, sphereData);
 
 	size_t sphereVertSize = sizeof(Vertex) * sphereData.vertices.size();
 	sphereVertexBuffer = renderer->CreateVertexBuffer(sphereVertSize, &sphereData.vertices[0]);
@@ -170,6 +170,8 @@ void RenderLab::BuildGeometry() {
 
 	boxMaterial = new Material();
 	boxMaterial->SetAlbedo(0.87f, 0.53f, 0.9f);
+	boxMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
+	boxMaterial->SetSpecularPower(0.1f);
 
 	box->SetMaterial(boxMaterial);
 
@@ -189,6 +191,8 @@ void RenderLab::BuildGeometry() {
 
 	box2Material = new Material();
 	box2Material->SetAlbedo(0.533f, 0.72f, 0.9f);
+	box2Material->SetSpecularColor(0.01f, 0.01f, 0.01f);
+	box2Material->SetSpecularPower(0.1f);
 
 	box2->SetMaterial(box2Material);
 
@@ -209,6 +213,9 @@ void RenderLab::BuildGeometry() {
 
 	planeMaterial = new Material();
 	planeMaterial->SetAlbedo(0.92f, 0.7f, 0.35f);
+	planeMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
+	planeMaterial->SetSpecularPower(0.1f);
+
 	plane->SetMaterial(planeMaterial);
 
 	//  ---- sphere ----- //
@@ -228,6 +235,8 @@ void RenderLab::BuildGeometry() {
 
 	sphereMaterial = new Material();
 	sphereMaterial->SetAlbedo(0.74f, 0.9f, 0.533f);
+	sphereMaterial->SetSpecularColor(0.1f, 0.1f, 0.1f);
+	sphereMaterial->SetSpecularPower(2.0f);
 	sphere->SetMaterial(sphereMaterial);
 
 	world->AddStaticMesh(box);
@@ -266,9 +275,9 @@ void RenderLab::CreateWorld() {
 void RenderLab::CreateLights() {
 	light = new DirectionalLightComponent();
 	light->SetPosition(-10, 20, -10);
-	light->SetDirection(-0.3f, -.6f, -1.0f);
+	light->SetDirection(-0.8f, -.8f, -1.0f);
 	light->SetLightColor(1.0f, 1.0f, 1.0f);
-	light->SetBrightness(2.6f);
+	light->SetBrightness(0.7f);
 	light->SetIsEnabled(true);
 
 	world->AddDirectionalLight(light);

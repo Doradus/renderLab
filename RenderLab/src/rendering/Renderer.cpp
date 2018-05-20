@@ -16,19 +16,20 @@ void Renderer::CreateHardwareRenderingInterface(int screenWidth, int screenHeigh
 
 void Renderer::RenderWorld(const World* world) const {
 	//update the start frame const buffer
+	PixelShaderPerFrameResource pixelShaderPerFrameResource;
 
 	DirectionalLightResource lightResourceStruct;
 	
 	for (const DirectionalLightComponent* light : world->GetAllDirectionalLights()) {
-		lightResourceStruct.position = light->GetPosition();
 		lightResourceStruct.enabled = light->GetIsEnabled();
 		lightResourceStruct.color = light->GetLightColor();
 		lightResourceStruct.direction = light->GetDirection();
 		lightResourceStruct.brightness = light->GetBrightness();
-		lightResourceStruct.padding = 0.0f;
 	}
 
-	renderingInterface->ConstantBuffersFrameStart(lightResourceStruct);
+	pixelShaderPerFrameResource.directionalLight = lightResourceStruct;
+	pixelShaderPerFrameResource.cameraPosition = world->GetActiveCamera()->GetPosition();
+	renderingInterface->ConstantBuffersFrameStart(pixelShaderPerFrameResource);
 
 	const CameraComponent* camera = world->GetActiveCamera();
 
@@ -55,9 +56,13 @@ void Renderer::RenderWorld(const World* world) const {
 		ObjectProperties properties;
 		properties.wvp = wvpData;
 		properties.worldInverse = worldInverseData;
+		properties.world = mesh->GetWorld();
 
 		MaterialResource materialResource;
 		materialResource.albedo = mesh->GetMaterial()->GetAlbedo();
+		materialResource.specularPower = mesh->GetMaterial()->GetSpecularPower();
+		materialResource.specularColor = mesh->GetMaterial()->GetSpecularColor();
+		materialResource.padding = 0.0f;
 
 		renderingInterface->ConstantBuffersMiddFrame(properties, materialResource);
 		RenderPrimitive(mesh);

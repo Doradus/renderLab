@@ -268,7 +268,7 @@ void D3D11RenderingInterface::CreateConstantBuffer() {
 	ZeroMemory(&dlConstantBufferDesc, sizeof(D3D11_BUFFER_DESC));
 
 	dlConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	dlConstantBufferDesc.ByteWidth = sizeof(DirectionalLightResource);
+	dlConstantBufferDesc.ByteWidth = sizeof(PixelShaderPerFrameResource);
 	dlConstantBufferDesc.CPUAccessFlags = 0;
 	dlConstantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
@@ -290,8 +290,8 @@ void D3D11RenderingInterface::ConstantBuffersMiddFrame(ObjectProperties objectPr
 	d3dImmediateContext->UpdateSubresource(pixelConstantBuffers[MaterialConstBuffer], 0, nullptr, &material, 0, 0);
 }
 
-void D3D11RenderingInterface::ConstantBuffersFrameStart(DirectionalLightResource light) const {
-	d3dImmediateContext->UpdateSubresource(pixelConstantBuffers[DirectionalLightsConstBuffer], 0, nullptr, &light, 0, 0);
+void D3D11RenderingInterface::ConstantBuffersFrameStart(PixelShaderPerFrameResource perFrameResources) const {
+	d3dImmediateContext->UpdateSubresource(pixelConstantBuffers[DirectionalLightsConstBuffer], 0, nullptr, &perFrameResources, 0, 0);
 }
 
 void D3D11RenderingInterface::StartFrame() const {
