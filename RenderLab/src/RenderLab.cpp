@@ -11,6 +11,7 @@ RenderLab::RenderLab(HWND window) :
 	plane(nullptr),
 	world(nullptr),
 	light(nullptr),
+	pointLight(nullptr),
 	boxMaterial(nullptr),
 	box2Material(nullptr),
 	sphereMaterial(nullptr),
@@ -75,6 +76,9 @@ RenderLab::~RenderLab() {
 
 	delete light;
 	light = nullptr;
+
+	delete pointLight;
+	pointLight = nullptr;
 
 	delete world;
 	world = nullptr;
@@ -277,10 +281,19 @@ void RenderLab::CreateLights() {
 	light->SetPosition(-10, 20, -10);
 	light->SetDirection(-0.8f, -.8f, -1.0f);
 	light->SetLightColor(1.0f, 1.0f, 1.0f);
-	light->SetBrightness(0.7f);
+	light->SetBrightness(0.1f);
 	light->SetIsEnabled(true);
 
+	pointLight = new PointLightComponent();
+	pointLight->SetPosition(0, 8, 5);
+	pointLight->SetAttenuation(0, 0.3f, 0);
+	pointLight->SetLightColor(1.0f, 1.0f, 1.0f);
+	pointLight->SetRange(100.0f);
+	pointLight->SetBrightness(0.7f);
+	pointLight->SetIsEnabled(true);
+
 	world->AddDirectionalLight(light);
+	world->AddPointLight(pointLight);
 }
 
 void RenderLab::Draw() {

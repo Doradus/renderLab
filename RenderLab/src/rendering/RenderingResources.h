@@ -38,9 +38,20 @@ struct DirectionalLightResource {
 	float brightness;
 };
 
+struct PointLightResources {
+	PointLightResources() {};
+	XMFLOAT3 color;
+	bool enabled;
+	XMFLOAT3 position;
+	float range;
+	XMFLOAT3 attenuation;
+	float brightness;
+};
+
 struct PixelShaderPerFrameResource {
 	PixelShaderPerFrameResource() {};
 	DirectionalLightResource directionalLight;
+	PointLightResources pointLight;
 	XMFLOAT3 cameraPosition;
 	float padding;
 };

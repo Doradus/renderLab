@@ -19,6 +19,7 @@ void Renderer::RenderWorld(const World* world) const {
 	PixelShaderPerFrameResource pixelShaderPerFrameResource;
 
 	DirectionalLightResource lightResourceStruct;
+	PointLightResources pointLightResource;
 	
 	for (const DirectionalLightComponent* light : world->GetAllDirectionalLights()) {
 		lightResourceStruct.enabled = light->GetIsEnabled();
@@ -27,7 +28,17 @@ void Renderer::RenderWorld(const World* world) const {
 		lightResourceStruct.brightness = light->GetBrightness();
 	}
 
+	for (const PointLightComponent* light : world->GetAllPointLights()) {
+		pointLightResource.enabled = light->GetIsEnabled();
+		pointLightResource.color = light->GetLightColor();
+		pointLightResource.position = light->GetPosition();
+		pointLightResource.range = light->GetRange();
+		pointLightResource.attenuation = light->GetAttenuation();
+		pointLightResource.brightness = light->GetBrightness();
+	}
+
 	pixelShaderPerFrameResource.directionalLight = lightResourceStruct;
+	pixelShaderPerFrameResource.pointLight = pointLightResource;
 	pixelShaderPerFrameResource.cameraPosition = world->GetActiveCamera()->GetPosition();
 	renderingInterface->ConstantBuffersFrameStart(pixelShaderPerFrameResource);
 
@@ -53,10 +64,12 @@ void Renderer::RenderWorld(const World* world) const {
 		XMFLOAT4X4 worldInverseData;
 		XMStoreFloat4x4(&worldInverseData, worldInverse);
 
+		XMMATRIX worldTranspose = XMMatrixTranspose(world);
+
 		ObjectProperties properties;
 		properties.wvp = wvpData;
 		properties.worldInverse = worldInverseData;
-		properties.world = mesh->GetWorld();
+		XMStoreFloat4x4(&properties.world, worldTranspose);
 
 		MaterialResource materialResource;
 		materialResource.albedo = mesh->GetMaterial()->GetAlbedo();

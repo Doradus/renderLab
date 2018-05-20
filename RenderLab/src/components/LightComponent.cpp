@@ -26,8 +26,14 @@ void LightComponent::SetBrightness(float value) {
 	brightness = value;
 }
 
-void LightComponent::SetAttenuation(float value) {
+void LightComponent::SetAttenuation(XMFLOAT3 value) {
 	attenuation = value;
+}
+
+void LightComponent::SetAttenuation(float value1, float value2, float value3) {
+	attenuation.x = value1;
+	attenuation.y = value2;
+	attenuation.z = value3;
 }
 
 void LightComponent::SetCastsShadows(bool value) {
@@ -50,7 +56,7 @@ float LightComponent::GetBrightness() const {
 	return brightness;
 }
 
-float LightComponent::GetAttenuation() const {
+XMFLOAT3 LightComponent::GetAttenuation() const {
 	return attenuation;
 }
 
