@@ -48,17 +48,35 @@ struct PointLightResources {
 	float brightness;
 };
 
+struct LightPropertiesResource {
+	LightPropertiesResource() {};
+	XMFLOAT3 color;
+	bool enabled;
+	/* ------------------------- */
+	XMFLOAT3 position;
+	float range;
+	/* ------------------------- */
+	XMFLOAT3 attenuation;
+	float brightness;
+	/* ------------------------- */
+	XMFLOAT3 direction;
+	float type;
+	/* ------------------------- */
+	float coneAngle;
+	float penumbraAngle;
+	float padding1;
+	float padding2;
+};
+
 struct PixelShaderPerFrameResource {
 	PixelShaderPerFrameResource() {};
-	DirectionalLightResource directionalLight;
-	PointLightResources pointLight;
+	LightPropertiesResource lightResources[8];
 	XMFLOAT3 cameraPosition;
-	float padding;
+	unsigned int activeLights;
 };
 
 struct MaterialResource {
 	MaterialResource() {};
-
 	XMFLOAT3 albedo;
 	float specularPower;
 	XMFLOAT3 specularColor;

@@ -9,10 +9,10 @@ public:
 	void		UpdateView();
 	void		UpdateProjection();
 
-	void		SetLightColor(XMFLOAT3 color);
+	void		SetLightColor(const XMFLOAT3& color);
 	void		SetLightColor(float r, float g, float b);
 	void		SetBrightness(float value);
-	void		SetAttenuation(XMFLOAT3 value);
+	void		SetAttenuation(const XMFLOAT3& value);
 	void		SetAttenuation(float value1, float value2, float value3);
 	void		SetCastsShadows(bool value);
 	void		SetCastDynamicShadows(bool value);
@@ -25,7 +25,7 @@ public:
 	bool		GetsCastsDynamicShadows() const;
 	bool		GetIsEnabled() const;
 
-private:
+protected:
 	XMFLOAT4X4 viewMatrix;
 	XMFLOAT4X4 projectionMatrix;
 	XMFLOAT3 lightColor;

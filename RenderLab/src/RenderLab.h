@@ -49,6 +49,7 @@ private:
 	StaticMesh*					sphere;
 	DirectionalLightComponent*	light;
 	PointLightComponent*		pointLight;
+	SpotLightComponent*			spotLight;
 	Timer						timer;
 
 	//material

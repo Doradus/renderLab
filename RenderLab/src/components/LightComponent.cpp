@@ -12,7 +12,7 @@ void LightComponent::UpdateView() {
 void LightComponent::UpdateProjection() {
 }
 
-void LightComponent::SetLightColor(XMFLOAT3 color) {
+void LightComponent::SetLightColor(const XMFLOAT3& color) {
 	lightColor = color;
 }
 
@@ -26,7 +26,7 @@ void LightComponent::SetBrightness(float value) {
 	brightness = value;
 }
 
-void LightComponent::SetAttenuation(XMFLOAT3 value) {
+void LightComponent::SetAttenuation(const XMFLOAT3& value) {
 	attenuation = value;
 }
 

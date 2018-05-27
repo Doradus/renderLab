@@ -21,6 +21,10 @@ void World::AddPointLight(const PointLightComponent * light) {
 	pointLights.push_back(light);
 }
 
+void World::AddSpotLight(const SpotLightComponent * light) {
+	spotLights.push_back(light);
+}
+
 void World::AddCamera(const CameraComponent* inCamera) {
 	camera = inCamera;
 }
@@ -35,6 +39,10 @@ std::vector<const DirectionalLightComponent*> World::GetAllDirectionalLights() c
 
 std::vector<const PointLightComponent*> World::GetAllPointLights() const {
 	return pointLights;
+}
+
+std::vector<const SpotLightComponent*> World::GetAllSpotLights() const {
+	return spotLights;
 }
 
 const CameraComponent* World::GetActiveCamera() const {

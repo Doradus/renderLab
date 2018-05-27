@@ -17,28 +17,48 @@ void Renderer::CreateHardwareRenderingInterface(int screenWidth, int screenHeigh
 void Renderer::RenderWorld(const World* world) const {
 	//update the start frame const buffer
 	PixelShaderPerFrameResource pixelShaderPerFrameResource;
-
-	DirectionalLightResource lightResourceStruct;
-	PointLightResources pointLightResource;
 	
+	const unsigned int activeLights = world->GetAllDirectionalLights().size() + world->GetAllPointLights().size() + world->GetAllSpotLights().size();
+	unsigned int lightIndex = 0;
+	pixelShaderPerFrameResource.activeLights = activeLights;
+
 	for (const DirectionalLightComponent* light : world->GetAllDirectionalLights()) {
-		lightResourceStruct.enabled = light->GetIsEnabled();
-		lightResourceStruct.color = light->GetLightColor();
-		lightResourceStruct.direction = light->GetDirection();
-		lightResourceStruct.brightness = light->GetBrightness();
+		LightPropertiesResource lightResource;
+		lightResource.enabled = light->GetIsEnabled();
+		lightResource.color = light->GetLightColor();
+		lightResource.direction = light->GetDirection();
+		lightResource.brightness = light->GetBrightness();
+		lightResource.type = 0;
+		pixelShaderPerFrameResource.lightResources[lightIndex++] = lightResource;
 	}
 
 	for (const PointLightComponent* light : world->GetAllPointLights()) {
-		pointLightResource.enabled = light->GetIsEnabled();
-		pointLightResource.color = light->GetLightColor();
-		pointLightResource.position = light->GetPosition();
-		pointLightResource.range = light->GetRange();
-		pointLightResource.attenuation = light->GetAttenuation();
-		pointLightResource.brightness = light->GetBrightness();
+		LightPropertiesResource lightResource;
+		lightResource.enabled = light->GetIsEnabled();
+		lightResource.color = light->GetLightColor();
+		lightResource.position = light->GetPosition();
+		lightResource.range = light->GetRange();
+		lightResource.attenuation = light->GetAttenuation();
+		lightResource.brightness = light->GetBrightness();
+		lightResource.type = 1;
+		pixelShaderPerFrameResource.lightResources[lightIndex++] = lightResource;
 	}
 
-	pixelShaderPerFrameResource.directionalLight = lightResourceStruct;
-	pixelShaderPerFrameResource.pointLight = pointLightResource;
+	for (const SpotLightComponent* light : world->GetAllSpotLights()) {
+		LightPropertiesResource lightResource;
+		lightResource.enabled = light->GetIsEnabled();
+		lightResource.color = light->GetLightColor();
+		lightResource.position = light->GetPosition();
+		lightResource.range = light->GetRange();
+		lightResource.attenuation = light->GetAttenuation();
+		lightResource.brightness = light->GetBrightness();
+		lightResource.type = 2;
+		lightResource.coneAngle = light->GetConeAngleRadians();
+		lightResource.penumbraAngle = light->GetPenumbraAngleRadians();
+		lightResource.direction = light->GetDirection();
+		pixelShaderPerFrameResource.lightResources[lightIndex++] = lightResource;
+	}
+
 	pixelShaderPerFrameResource.cameraPosition = world->GetActiveCamera()->GetPosition();
 	renderingInterface->ConstantBuffersFrameStart(pixelShaderPerFrameResource);
 

@@ -12,6 +12,7 @@ RenderLab::RenderLab(HWND window) :
 	world(nullptr),
 	light(nullptr),
 	pointLight(nullptr),
+	spotLight(nullptr),
 	boxMaterial(nullptr),
 	box2Material(nullptr),
 	sphereMaterial(nullptr),
@@ -79,6 +80,9 @@ RenderLab::~RenderLab() {
 
 	delete pointLight;
 	pointLight = nullptr;
+
+	delete spotLight;
+	spotLight = nullptr;
 
 	delete world;
 	world = nullptr;
@@ -239,8 +243,8 @@ void RenderLab::BuildGeometry() {
 
 	sphereMaterial = new Material();
 	sphereMaterial->SetAlbedo(0.74f, 0.9f, 0.533f);
-	sphereMaterial->SetSpecularColor(0.1f, 0.1f, 0.1f);
-	sphereMaterial->SetSpecularPower(2.0f);
+	sphereMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
+	sphereMaterial->SetSpecularPower(18.0f);
 	sphere->SetMaterial(sphereMaterial);
 
 	world->AddStaticMesh(box);
@@ -278,11 +282,10 @@ void RenderLab::CreateWorld() {
 
 void RenderLab::CreateLights() {
 	light = new DirectionalLightComponent();
-	light->SetPosition(-10, 20, -10);
-	light->SetDirection(-0.8f, -.8f, -1.0f);
-	light->SetLightColor(1.0f, 1.0f, 1.0f);
-	light->SetBrightness(0.1f);
-	light->SetIsEnabled(true);
+	light->SetDirection(-0.4f, -.8f, -1.0f);
+	light->SetLightColor(0.8f, 0.6f, 0.1f);
+	light->SetBrightness(0.6f);
+	light->SetIsEnabled(false);
 
 	pointLight = new PointLightComponent();
 	pointLight->SetPosition(0, 8, 5);
@@ -290,10 +293,22 @@ void RenderLab::CreateLights() {
 	pointLight->SetLightColor(1.0f, 1.0f, 1.0f);
 	pointLight->SetRange(100.0f);
 	pointLight->SetBrightness(0.7f);
-	pointLight->SetIsEnabled(true);
+	pointLight->SetIsEnabled(false);
+
+	spotLight = new SpotLightComponent();
+	spotLight->SetPosition(0, 8, 10);
+	spotLight->SetDirection(0.0f, -1.0f, -0.5f);
+	spotLight->SetAttenuation(0, 0.3f, 0);
+	spotLight->SetLightColor(1.0f, 0.3f, 1.0f);
+	spotLight->SetRange(100.0f);
+	spotLight->SetBrightness(0.7f);
+	spotLight->SetConeAngle(45);
+	spotLight->SetPenumbraAngle(-15);
+	spotLight->SetIsEnabled(true);
 
 	world->AddDirectionalLight(light);
 	world->AddPointLight(pointLight);
+	world->AddSpotLight(spotLight);
 }
 
 void RenderLab::Draw() {
