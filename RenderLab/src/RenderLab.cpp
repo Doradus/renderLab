@@ -177,7 +177,7 @@ void RenderLab::BuildGeometry() {
 	box->SetRotation(0, 30, 0);
 
 	boxMaterial = new Material();
-	boxMaterial->SetAlbedo(0.87f, 0.53f, 0.9f);
+	boxMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
 	boxMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	boxMaterial->SetSpecularPower(0.1f);
 
@@ -198,7 +198,7 @@ void RenderLab::BuildGeometry() {
 	box2->SetRotation(0, 145, 0);
 
 	box2Material = new Material();
-	box2Material->SetAlbedo(0.533f, 0.72f, 0.9f);
+	box2Material->SetAlbedo(0.8f, 0.8f, 0.8f);
 	box2Material->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	box2Material->SetSpecularPower(0.1f);
 
@@ -220,7 +220,7 @@ void RenderLab::BuildGeometry() {
 	plane->SetPosition(0, 0, 0);
 
 	planeMaterial = new Material();
-	planeMaterial->SetAlbedo(0.92f, 0.7f, 0.35f);
+	planeMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
 	planeMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	planeMaterial->SetSpecularPower(0.1f);
 
@@ -242,7 +242,7 @@ void RenderLab::BuildGeometry() {
 	sphere->SetPosition(-4.0, 3.0f, 3.0f);
 
 	sphereMaterial = new Material();
-	sphereMaterial->SetAlbedo(0.74f, 0.9f, 0.533f);
+	sphereMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
 	sphereMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
 	sphereMaterial->SetSpecularPower(18.0f);
 	sphere->SetMaterial(sphereMaterial);
@@ -283,9 +283,9 @@ void RenderLab::CreateWorld() {
 void RenderLab::CreateLights() {
 	light = new DirectionalLightComponent();
 	light->SetDirection(-0.4f, -.8f, -1.0f);
-	light->SetLightColor(0.8f, 0.6f, 0.1f);
-	light->SetBrightness(0.6f);
-	light->SetIsEnabled(false);
+	light->SetLightColor(0.85f, 0.85f, 0.85f);
+	light->SetBrightness(0.8f);
+	light->SetIsEnabled(true);
 
 	pointLight = new PointLightComponent();
 	pointLight->SetPosition(0, 8, 5);

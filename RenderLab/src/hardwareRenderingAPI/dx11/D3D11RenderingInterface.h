@@ -8,6 +8,7 @@
 #include "D3D11IndexBuffer.h"
 #include "D3D11VertexShader.h"
 #include "D3D11PixelShader.h"
+#include "D3D11Resources.h"
 
 class D3D11RenderingInterface : public RenderingInterface {
 public :
@@ -37,13 +38,12 @@ public :
 	void			EndFrame() const final override;
 
 private :
-	ID3D11Texture2D*		CreateTexture2D(D3D11_TEXTURE2D_DESC* desc) const;
-
+	D3D11Texture2d*			CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags) const;
 	ID3D11Device*			d3dDevice;
 	ID3D11DeviceContext*	d3dImmediateContext;
 	ID3D11RenderTargetView*	d3dRenderTargetView;
-	ID3D11Texture2D*		depthStencilBuffer;
-	ID3D11DepthStencilView* depthStencilView;
+	D3D11Texture*			depthStencilBuffer;
+
 	IDXGISwapChain*			swapChain;
 	D3D_DRIVER_TYPE			driverType;
 

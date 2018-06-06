@@ -4,6 +4,7 @@
 
 using namespace DirectX;
 
+
 struct Vertex {
 	Vertex() {}
 	Vertex(const XMFLOAT3 &inPos, const XMFLOAT3 &inNormal) :

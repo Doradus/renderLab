@@ -8,6 +8,7 @@
 #include "PixelShader.h"
 #include "RenderingResources.h"
 #include "RenderData.h"
+#include "RenderUtils.h"
 
 class RenderingInterface {
 public:

@@ -22,7 +22,7 @@ HRESULT hr = x;																	\
 	}																			\
 }																				\
 
-#define RELEASE(x) { x->Release(); x = nullptr;}
+#define RELEASE(x) {if (x != nullptr) x->Release(); x = nullptr;}
 
 inline std::wstring AnsiToWString(const std::string& str) {
 	WCHAR buffer[512];
