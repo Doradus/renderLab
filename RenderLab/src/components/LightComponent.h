@@ -1,6 +1,5 @@
 #pragma once
 #include "SceneComponent.h"
-
 class LightComponent : public SceneComponent  {
 public:
 	LightComponent();

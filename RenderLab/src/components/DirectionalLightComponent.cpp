@@ -19,3 +19,7 @@ void DirectionalLightComponent::SetDirection(float x, float y, float z) {
 XMFLOAT3 DirectionalLightComponent::GetDirection() const {
 	return direction;
 }
+
+Texture2D * DirectionalLightComponent::GetShadowMap() const {
+	return shadowMap;
+}
