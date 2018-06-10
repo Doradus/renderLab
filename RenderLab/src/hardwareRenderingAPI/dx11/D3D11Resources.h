@@ -1,5 +1,6 @@
 #pragma once
 #include "D3D11Utils.h"
+#include "RenderingInterfaceResources.h"
 
 class D3D11Texture {
 public:
@@ -39,7 +40,7 @@ protected:
 };
 
 
-class D3D11Texture2d : public D3D11Texture {
+class D3D11Texture2d : public Texture2DRI, public D3D11Texture {
 public:
 	D3D11Texture2d(
 		ID3D11DepthStencilView* inDepthStencileView,
