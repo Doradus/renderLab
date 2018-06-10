@@ -13,6 +13,7 @@ D3D11RenderingInterface::D3D11RenderingInterface(int screenWidth, int screenHeig
 	windowHandle(window),
 	enable4xMsaa(true),
 	xmsaaQuality(0),
+	stateCache(nullptr),
 	driverType(D3D_DRIVER_TYPE_HARDWARE)
 {
 	GTextureFormatInfo[UNKNOWN].platformFormat = DXGI_FORMAT_UNKNOWN;
@@ -38,6 +39,9 @@ D3D11RenderingInterface::~D3D11RenderingInterface() {
 	}
 
 	delete depthStencilBuffer;
+	depthStencilBuffer = nullptr;
+	delete stateCache;
+	stateCache = nullptr;
 	RELEASE(d3dRenderTargetView);
 	RELEASE(d3dImmediateContext);
 	RELEASE(swapChain);
@@ -80,6 +84,9 @@ bool D3D11RenderingInterface::CreateDevice() {
 		if (featureLevel != D3D_FEATURE_LEVEL_11_0) {
 			return false;
 		}
+
+	stateCache = new RenderStateCache();
+	stateCache->SetContext(d3dImmediateContext);
 
 	return true;
 }
@@ -212,6 +219,49 @@ PixelShader* D3D11RenderingInterface::CreatePixelShader(const unsigned char* sha
 	return shader;
 }
 
+SamplerState* D3D11RenderingInterface::CreateSamplerState(const SamplerConfig & config) const {
+	D3D11_SAMPLER_DESC samplerDesc = {};
+
+	switch (config.filter) {
+	case ANISOTROPIC_FILTERING:
+		samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+		break;
+	case POINT_FILTERING:
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		break;
+	case BILINEAR_FILTERING:
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		break;
+	case TRILINEAR_FILTERING:
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		break;
+	default:
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		break;
+	}
+
+	samplerDesc.AddressU = GetAddressMode(config.addressModeU);
+	samplerDesc.AddressV = GetAddressMode(config.addressModeV);
+	samplerDesc.AddressW = GetAddressMode(config.addressModeW);
+	samplerDesc.MipLODBias = config.mipLODBias;
+	samplerDesc.ComparisonFunc = GetSamplerCompareFunction(config.comparisonFunction);
+	samplerDesc.BorderColor[0] = config.borderColor[0];
+	samplerDesc.BorderColor[1] = config.borderColor[1];
+	samplerDesc.BorderColor[2] = config.borderColor[2];
+	samplerDesc.BorderColor[3] = config.borderColor[3];
+
+	samplerDesc.MinLOD = config.minLOD;
+	samplerDesc.MaxLOD = config.maxLOD;
+
+	ID3D11SamplerState* samplerState = nullptr;
+	VERIFY_D3D_RESULT(d3dDevice->CreateSamplerState(&samplerDesc, &samplerState));
+
+	D3D11SamplerState* d3d11SamplerState = new D3D11SamplerState();
+	d3d11SamplerState->samplerState = samplerState;
+
+	return d3d11SamplerState;
+}
+
 D3D11Texture2d * D3D11RenderingInterface::CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags) const {
 	unsigned int numSamples;
 	unsigned int actualXmsaaQuality;
@@ -271,6 +321,44 @@ D3D11Texture2d * D3D11RenderingInterface::CreateTexture2d(unsigned int width, un
 	return new D3D11Texture2d(depthStencileView, shaderResourceView, renderTargetView);
 }
 
+D3D11_TEXTURE_ADDRESS_MODE D3D11RenderingInterface::GetAddressMode(AddressModes mode) const {
+	switch (mode) {
+		case WRAP:
+			return D3D11_TEXTURE_ADDRESS_WRAP;
+		case CLAMP:
+			return D3D11_TEXTURE_ADDRESS_CLAMP;
+		case BORDER:
+			return D3D11_TEXTURE_ADDRESS_BORDER;
+		case MIRROR:
+			return D3D11_TEXTURE_ADDRESS_MIRROR;
+		default:
+			return D3D11_TEXTURE_ADDRESS_WRAP;
+	}
+}
+
+D3D11_COMPARISON_FUNC D3D11RenderingInterface::GetSamplerCompareFunction(SamplerCompareFunction compare) const {
+	switch (compare) {
+		case NEVER:
+			return D3D11_COMPARISON_NEVER;
+		case LESS:
+			return D3D11_COMPARISON_LESS;
+		case LESS_OR_EQUAL:
+			return D3D11_COMPARISON_LESS_EQUAL;
+		case EQUAL:
+			return D3D11_COMPARISON_EQUAL;
+		case NOT_EQUAL:
+			return D3D11_COMPARISON_NOT_EQUAL;
+		case GREAT_OR_EQUAL:
+			return D3D11_COMPARISON_GREATER_EQUAL;
+		case GREATER:
+			return D3D11_COMPARISON_GREATER;
+		case ALWAYS:
+			return D3D11_COMPARISON_ALWAYS;
+		default:
+			return D3D11_COMPARISON_NEVER;
+	}
+}
+
 void D3D11RenderingInterface::CreateInputLayout(const unsigned char* shaderSource, size_t size) {
 
 	// hardcoded values for now
@@ -282,7 +370,6 @@ void D3D11RenderingInterface::CreateInputLayout(const unsigned char* shaderSourc
 	};
 
 	VERIFY_D3D_RESULT(d3dDevice->CreateInputLayout(vertexDesc, 3, shaderSource, size, &inputLayout));
-
 }
 
 void D3D11RenderingInterface::CreateConstantBuffer() {
@@ -332,8 +419,8 @@ void D3D11RenderingInterface::StartFrame() const {
 	d3dImmediateContext->ClearRenderTargetView(d3dRenderTargetView, black);
 	d3dImmediateContext->ClearDepthStencilView(depthStencilBuffer->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	d3dImmediateContext->IASetInputLayout(inputLayout);
-	d3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	stateCache->SetInputLayout(inputLayout);
+	stateCache->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void D3D11RenderingInterface::Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) {
@@ -350,14 +437,14 @@ void D3D11RenderingInterface::Draw(RenderData* renderData, VertexShader* vertexS
 	//vertex shader
 	D3D11VertexShader* vShader = static_cast<D3D11VertexShader*>(vertexShader);
 
-	d3dImmediateContext->VSSetShader(vShader->resource, nullptr, 0);
+	stateCache->SetVertexShader(vShader->resource);
 	d3dImmediateContext->VSSetConstantBuffers(0, 1, &vertexConstantBuffers[WorldViewPorjectionConstBuffer]);
 
 	//rasterizer
 
 	//pixel shader
 	D3D11PixelShader* pShader = static_cast<D3D11PixelShader*>(pixelShader);
-	d3dImmediateContext->PSSetShader(pShader->resource, nullptr, 0);
+	stateCache->SetPixelShader(pShader->resource);
 	d3dImmediateContext->PSSetConstantBuffers(0, 2, pixelConstantBuffers);
 
 	d3dImmediateContext->DrawIndexed(renderData->GetNumIndices(), 0, 0);

@@ -9,6 +9,8 @@
 #include "D3D11VertexShader.h"
 #include "D3D11PixelShader.h"
 #include "D3D11Resources.h"
+#include "RenderState.h"
+#include "D3D11SamplerState.h"
 
 class D3D11RenderingInterface : public RenderingInterface {
 public :
@@ -28,6 +30,7 @@ public :
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
 	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
+	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
@@ -39,6 +42,7 @@ public :
 
 private :
 	D3D11Texture2d*			CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags) const;
+	//D3D11Texture2d*			CreateTexture2dFromResource(ID3D11Texture2D* inResource, unsigned char format, unsigned int flags) const;
 	ID3D11Device*			d3dDevice;
 	ID3D11DeviceContext*	d3dImmediateContext;
 	ID3D11RenderTargetView*	d3dRenderTargetView;
@@ -52,12 +56,16 @@ private :
 	ID3D11Buffer*			pixelConstantBuffers[NumPixelConstantBuffers];
 
 	HWND					windowHandle;
+	RenderStateCache*		stateCache;
 
 	bool					enable4xMsaa;
 	UINT					xmsaaQuality;
 
 	int						screenWidth;
 	int						screenHeight;
+
+	D3D11_TEXTURE_ADDRESS_MODE	GetAddressMode(AddressModes mode) const;
+	D3D11_COMPARISON_FUNC		GetSamplerCompareFunction(SamplerCompareFunction compare) const;
 };
 
 #endif
