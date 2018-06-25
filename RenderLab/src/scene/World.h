@@ -21,12 +21,15 @@ public:
 	std::vector<const DirectionalLightComponent*> GetAllDirectionalLights() const;
 	std::vector<const PointLightComponent*> GetAllPointLights() const;
 	std::vector<const SpotLightComponent*> GetAllSpotLights() const;
+	TextureRI* GetShadowMap() const;
 	const CameraComponent* GetActiveCamera() const;
 
 private:
+	void CreateShadowMap();
 	std::vector<const StaticMesh*> staticMeshes;
 	std::vector<const DirectionalLightComponent*> directionalLight;
 	std::vector<const PointLightComponent*> pointLights;
 	std::vector<const SpotLightComponent*> spotLights;
+	TextureRI* shadowMap;
 	const CameraComponent* camera;
 };

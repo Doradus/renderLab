@@ -44,7 +44,7 @@ enum Filtering {
 class TextureRI {
 public:
 	TextureRI() {};
-	~TextureRI() {};
+	virtual ~TextureRI() {};
 
 private:
 

@@ -6,7 +6,10 @@ World::World() {
 }
 
 World::~World() {
-
+	if (shadowMap) {
+		delete shadowMap;
+		shadowMap = nullptr;
+	}
 }
 
 void World::AddStaticMesh(const StaticMesh* mesh)  {
@@ -15,6 +18,7 @@ void World::AddStaticMesh(const StaticMesh* mesh)  {
 
 void World::AddDirectionalLight(const DirectionalLightComponent* light) {
 	directionalLight.push_back(light);
+	CreateShadowMap();
 }
 
 void World::AddPointLight(const PointLightComponent * light) {
@@ -45,6 +49,14 @@ std::vector<const SpotLightComponent*> World::GetAllSpotLights() const {
 	return spotLights;
 }
 
+TextureRI * World::GetShadowMap() const {
+	return shadowMap;
+}
+
 const CameraComponent* World::GetActiveCamera() const {
 	return camera;
+}
+
+void World::CreateShadowMap() {
+	shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
 }

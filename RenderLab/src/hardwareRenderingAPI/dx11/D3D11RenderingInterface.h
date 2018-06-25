@@ -20,9 +20,6 @@ public :
 
 	void			InitRenderer() final override;
 
-	void			CreateDepthAndStencilBuffer();
-	void			CreateRenderTarget();
-
 	bool			CreateDevice();
 	bool			CreateSwapChain();
 
@@ -31,6 +28,11 @@ public :
 	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
 	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;
+	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
+	void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const;
+	void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) const;
+	void			SetVertexShader(VertexShader* shader) const;
+	void			SetPixelShader(PixelShader* shader) const;
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
@@ -41,12 +43,16 @@ public :
 	void			EndFrame() const final override;
 
 private :
-	D3D11Texture2d*			CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags) const;
+	D3D11Texture2d*			CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const;
 	//D3D11Texture2d*			CreateTexture2dFromResource(ID3D11Texture2D* inResource, unsigned char format, unsigned int flags) const;
+	D3D11Texture2d*			CreateBackBuffer() const;
+	D3D11Texture2d*			CreateDepthAndStencilBuffer();
+	void					InitDefaultRenderTargets();
 	ID3D11Device*			d3dDevice;
 	ID3D11DeviceContext*	d3dImmediateContext;
-	ID3D11RenderTargetView*	d3dRenderTargetView;
-	D3D11Texture*			depthStencilBuffer;
+
+	D3D11Texture*			defaultRenderTargetView;
+	D3D11Texture*			defaultDepthStencilBuffer;
 
 	IDXGISwapChain*			swapChain;
 	D3D_DRIVER_TYPE			driverType;
@@ -66,6 +72,7 @@ private :
 
 	D3D11_TEXTURE_ADDRESS_MODE	GetAddressMode(AddressModes mode) const;
 	D3D11_COMPARISON_FUNC		GetSamplerCompareFunction(SamplerCompareFunction compare) const;
+	DXGI_FORMAT					GetDepthStencilFormat(DXGI_FORMAT inFormat) const;
 };
 
 #endif

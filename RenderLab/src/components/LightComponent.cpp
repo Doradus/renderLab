@@ -6,12 +6,6 @@ LightComponent::LightComponent() {
 LightComponent::~LightComponent() {
 }
 
-void LightComponent::UpdateView() {
-}
-
-void LightComponent::UpdateProjection() {
-}
-
 void LightComponent::SetLightColor(const XMFLOAT3& color) {
 	lightColor = color;
 }

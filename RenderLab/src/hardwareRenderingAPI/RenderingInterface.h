@@ -23,6 +23,11 @@ public:
 	virtual VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual SamplerState*	CreateSamplerState(const SamplerConfig& config) const = 0;
+	virtual Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const = 0;
+	virtual void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const = 0;
+	virtual void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) const = 0;
+	virtual void			SetVertexShader(VertexShader* shader) const = 0;
+	virtual void			SetPixelShader(PixelShader* shader) const = 0;
 
 	// todo: refactor to shader state
 	virtual void			CreateInputLayout(const unsigned char* shaderSource, size_t size) = 0;
@@ -35,4 +40,5 @@ public:
 	virtual void			EndFrame() const = 0;
 };
 
+extern RenderingInterface* renderingInterface;
 #endif

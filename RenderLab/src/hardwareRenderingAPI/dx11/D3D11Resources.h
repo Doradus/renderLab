@@ -1,8 +1,8 @@
-#pragma once
+ #pragma once
 #include "D3D11Utils.h"
 #include "RenderingInterfaceResources.h"
 
-class D3D11Texture {
+class D3D11Texture : public TextureRI {
 public:
 	D3D11Texture(
 		ID3D11DepthStencilView* inDepthStencileView,
@@ -12,7 +12,7 @@ public:
 		: 
 		depthStencileView (inDepthStencileView),
 		shaderResourceView (inShaderResourceView),
-		renderTargetView (renderTargetView) {}
+		renderTargetView (inRenderTargetView) {}
 
 
 	virtual ~D3D11Texture() {

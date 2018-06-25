@@ -25,5 +25,7 @@ public:
 	void			CreateConstantBuffer() const;
 
 private:
-	RenderingInterface* renderingInterface;
+	void InitShaders();
+	void RenderShadows(const World* world) const;
+	VertexShader* shadowPassVS; 
 };

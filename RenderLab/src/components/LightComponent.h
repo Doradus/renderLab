@@ -5,9 +5,6 @@ public:
 	LightComponent();
 	virtual ~LightComponent();
 
-	void		UpdateView();
-	void		UpdateProjection();
-
 	void		SetLightColor(const XMFLOAT3& color);
 	void		SetLightColor(float r, float g, float b);
 	void		SetBrightness(float value);
@@ -25,8 +22,6 @@ public:
 	bool		GetIsEnabled() const;
 
 protected:
-	XMFLOAT4X4 viewMatrix;
-	XMFLOAT4X4 projectionMatrix;
 	XMFLOAT3 lightColor;
 	XMFLOAT3 attenuation;
 	float brightness;

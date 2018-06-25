@@ -1,20 +1,29 @@
 #include "Renderer.h"
+#include "ShadowPassVS.h"
 
-Renderer::Renderer(): 
-renderingInterface (nullptr) {
-}
+Renderer::Renderer() :
+	shadowPassVS (nullptr) {}
 
 Renderer::~Renderer() {
 	delete renderingInterface;
 	renderingInterface = nullptr;
+
+	delete shadowPassVS;
+	shadowPassVS = nullptr;
 }
 
 void Renderer::CreateHardwareRenderingInterface(int screenWidth, int screenHeight, HWND mainWindow) {
 	renderingInterface = new D3D11RenderingInterface(screenWidth, screenHeight, mainWindow);
 	renderingInterface->InitRenderer();
+
+	InitShaders();
 }
 
 void Renderer::RenderWorld(const World* world) const {
+	// render the shadows
+
+
+
 	//update the start frame const buffer
 	PixelShaderPerFrameResource pixelShaderPerFrameResource;
 	
@@ -130,4 +139,47 @@ void Renderer::CreateInputLayout(const unsigned char * shaderSource, size_t size
 
 void Renderer::CreateConstantBuffer() const {
 	renderingInterface->CreateConstantBuffer();
+}
+
+void Renderer::InitShaders() {
+	size_t size = sizeof(g_shadow_pass_vs);
+	shadowPassVS = CreateVertexShader(g_shadow_pass_vs, size);
+}
+
+void Renderer::RenderShadows(const World* world) const {
+	float sceneRadius = 15.0f;
+	const XMFLOAT3 sceneCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	//generate view matrix
+	const DirectionalLightComponent* light = world->GetAllDirectionalLights()[0];
+
+	const XMFLOAT3 lightDirectionStorage = light->GetDirection();
+	const XMVECTOR lightDirection = XMLoadFloat3(&lightDirectionStorage);
+	const XMVECTOR lightPosition = XMVectorScale(lightDirection , -2.0f * sceneRadius);
+	const XMVECTOR targetPostion = XMLoadFloat3(&sceneCenter);
+	const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	const XMMATRIX lightView = XMMatrixLookAtLH(lightPosition, targetPostion, up);
+
+	//generate projection matrix
+	XMFLOAT3 sphereCenterLS;
+	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPostion, lightView));
+	const float left = sceneCenter.x - sceneRadius;
+	const float right = sceneCenter.x + sceneRadius;
+	const float bottom = sceneCenter.y - sceneRadius;
+	const float top = sceneCenter.y + sceneRadius;
+	const float nearPlane = sceneCenter.z - sceneRadius;
+	const float farPlane = sceneCenter.z + sceneRadius;
+
+	XMMATRIX proj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
+
+	//update const buffer
+
+	//bind render target
+	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMap());
+
+	//bind shader resource
+	renderingInterface->SetVertexShader(shadowPassVS);
+
+	//draw
 }

@@ -109,6 +109,13 @@ public:
 		}
 	}
 
+	void SetViewPort(D3D11_VIEWPORT viewPort) {
+		if (memcmp(&currentViewPort, &viewPort, sizeof(D3D11_VIEWPORT)) != 0) {
+			memcpy(&currentViewPort, &viewPort, sizeof(D3D11_VIEWPORT));
+			d3dImmediateContext->RSSetViewports(1, &currentViewPort);
+		}
+	}
+
 private:
 	ID3D11DeviceContext*		d3dImmediateContext;
 	ID3D11InputLayout*			currentInputLayout;
@@ -117,4 +124,5 @@ private:
 	ID3D11ShaderResourceView*	currentShaderResourceView[SHADER_TYPES][D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT];
 	ID3D11SamplerState*			currentSamplerState[SHADER_TYPES][D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
 	D3D11_PRIMITIVE_TOPOLOGY	currentTopology;
+	D3D11_VIEWPORT				currentViewPort;
 };
