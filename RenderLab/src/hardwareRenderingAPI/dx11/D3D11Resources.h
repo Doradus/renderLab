@@ -21,15 +21,15 @@ public:
 		RELEASE(renderTargetView);
 	};
 
-	ID3D11DepthStencilView* GetDepthStencilView() const {
+	virtual ID3D11DepthStencilView* GetDepthStencilView() const {
 		return depthStencileView;
 	}
 
-	ID3D11ShaderResourceView* GetShaderResourceView() const {
+	virtual ID3D11ShaderResourceView* GetShaderResourceView() const {
 		return shaderResourceView;
 	}
 
-	ID3D11RenderTargetView* GetRenderTargetView() const {
+	virtual ID3D11RenderTargetView* GetRenderTargetView() const {
 		return renderTargetView;
 	}
 
@@ -40,7 +40,7 @@ protected:
 };
 
 
-class D3D11Texture2d : public Texture2DRI, public D3D11Texture {
+class D3D11Texture2d : public D3D11Texture, public Texture2DRI {
 public:
 	D3D11Texture2d(
 		ID3D11DepthStencilView* inDepthStencileView,

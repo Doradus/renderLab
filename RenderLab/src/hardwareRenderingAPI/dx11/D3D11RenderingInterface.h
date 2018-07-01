@@ -30,13 +30,16 @@ public :
 	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;
 	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
 	void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const;
-	void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) const;
+	void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) final override;
+	void			BindBackBuffer() final override;
 	void			SetVertexShader(VertexShader* shader) const;
 	void			SetPixelShader(PixelShader* shader) const;
+	void			ClearActiveRenderTarget() const;
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
 	void			ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const final override;
+	void			UpdateShadowConstantBuffer(VertexShaderShadowResources shadowResources) const final override;
 	void			ConstantBuffersFrameStart(PixelShaderPerFrameResource perFrameResources) const final override;
 	void			StartFrame() const final override;
 	void			Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) final override;
@@ -53,6 +56,9 @@ private :
 
 	D3D11Texture*			defaultRenderTargetView;
 	D3D11Texture*			defaultDepthStencilBuffer;
+
+	D3D11Texture*			activeRenderTargetView;
+	D3D11Texture*			activeDepthStencilBuffer;
 
 	IDXGISwapChain*			swapChain;
 	D3D_DRIVER_TYPE			driverType;

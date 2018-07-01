@@ -149,7 +149,7 @@ void D3D11RenderingInterface::InitDefaultRenderTargets() {
 	defaultRenderTargetView = CreateBackBuffer();
 	defaultDepthStencilBuffer = CreateDepthAndStencilBuffer();
 
-	SetRenderTarget(defaultRenderTargetView, defaultDepthStencilBuffer);
+	BindBackBuffer();
 	SetViewPort(0.0f, 0.0f, 0.0f, static_cast<float>(screenWidth), static_cast<float>(screenHeight), 1.0f);
 }
 
@@ -285,10 +285,31 @@ void D3D11RenderingInterface::SetViewPort(float minX, float minY, float minZ, fl
 	stateCache->SetViewPort(vp);
 }
 
-void D3D11RenderingInterface::SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) const {
-	ID3D11RenderTargetView* renderTargetView = static_cast<D3D11Texture*>(renderTarget)->GetRenderTargetView();
-	ID3D11DepthStencilView* depthStencilView = static_cast<D3D11Texture*>(depthTarget)->GetDepthStencilView();
-	d3dImmediateContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+void D3D11RenderingInterface::SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) {
+	ID3D11RenderTargetView* renderTargetView = nullptr;
+	ID3D11DepthStencilView* depthStencilView = nullptr;
+
+	unsigned int renderTargets = 0;
+
+	if (renderTarget) {
+		renderTargets = 1;
+		renderTargetView = dynamic_cast<D3D11Texture*>(renderTarget)->GetRenderTargetView();
+	}
+
+	if (depthTarget) {
+		dynamic_cast<D3D11Texture*>(depthTarget)->GetDepthStencilView();
+	}
+	
+	
+	//depthStencilView = static_cast<D3D11Texture*>(depthTarget)->GetDepthStencilView();
+	activeRenderTargetView = dynamic_cast<D3D11Texture*>(renderTarget);
+	activeDepthStencilBuffer = dynamic_cast<D3D11Texture*>(depthTarget);
+
+	d3dImmediateContext->OMSetRenderTargets(renderTargets, &renderTargetView, dynamic_cast<D3D11Texture*>(depthTarget)->GetDepthStencilView());
+}
+
+void D3D11RenderingInterface::BindBackBuffer() {
+	SetRenderTarget(defaultRenderTargetView, defaultDepthStencilBuffer);
 }
 
 void D3D11RenderingInterface::SetVertexShader(VertexShader * shader) const {
@@ -298,7 +319,12 @@ void D3D11RenderingInterface::SetVertexShader(VertexShader * shader) const {
 
 void D3D11RenderingInterface::SetPixelShader(PixelShader * shader) const {
 	D3D11PixelShader* pShader = static_cast<D3D11PixelShader*>(shader);
-	stateCache->SetPixelShader(pShader->resource);
+	if (pShader) {
+		stateCache->SetPixelShader(pShader->resource);
+	}
+	else {
+		stateCache->SetPixelShader(nullptr);
+	}
 }
 
 D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
@@ -432,52 +458,86 @@ void D3D11RenderingInterface::CreateInputLayout(const unsigned char* shaderSourc
 }
 
 void D3D11RenderingInterface::CreateConstantBuffer() {
-	D3D11_BUFFER_DESC wvpConstantBufferDesc;
-	ZeroMemory(&wvpConstantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	D3D11_BUFFER_DESC wvpConstantBufferDesc = {};
 
 	wvpConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	wvpConstantBufferDesc.ByteWidth = sizeof(ObjectProperties);
-	wvpConstantBufferDesc.CPUAccessFlags = 0;
-	wvpConstantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	wvpConstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	wvpConstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
 	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&wvpConstantBufferDesc, nullptr, &vertexConstantBuffers[WorldViewPorjectionConstBuffer]));
 
-	D3D11_BUFFER_DESC dlConstantBufferDesc;
-	ZeroMemory(&dlConstantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	D3D11_BUFFER_DESC shadowConstantBufferDesc = {};
+
+	shadowConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	shadowConstantBufferDesc.ByteWidth = sizeof(VertexShaderShadowResources);
+	shadowConstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	shadowConstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&shadowConstantBufferDesc, nullptr, &vertexConstantBuffers[ShadowConstantBuffer]));
+
+	D3D11_BUFFER_DESC dlConstantBufferDesc = {};
 
 	dlConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	dlConstantBufferDesc.ByteWidth = sizeof(PixelShaderPerFrameResource);
-	dlConstantBufferDesc.CPUAccessFlags = 0;
-	dlConstantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	dlConstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	dlConstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
 	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&dlConstantBufferDesc, nullptr, &pixelConstantBuffers[DirectionalLightsConstBuffer]));
 
-	D3D11_BUFFER_DESC materialConstantBufferDesc;
-	ZeroMemory(&materialConstantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	D3D11_BUFFER_DESC materialConstantBufferDesc = {};
 
 	materialConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	materialConstantBufferDesc.ByteWidth = sizeof(MaterialResource);
-	materialConstantBufferDesc.CPUAccessFlags = 0;
-	materialConstantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	materialConstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	materialConstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
 	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&materialConstantBufferDesc, nullptr, &pixelConstantBuffers[MaterialConstBuffer]));
+
+	d3dImmediateContext->VSSetConstantBuffers(0, 2, vertexConstantBuffers);
+	d3dImmediateContext->PSSetConstantBuffers(0, 2, pixelConstantBuffers);
 }
 
 void D3D11RenderingInterface::ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const {
-	d3dImmediateContext->UpdateSubresource(vertexConstantBuffers[WorldViewPorjectionConstBuffer], 0, nullptr, &objectProperties, 0, 0);
-	d3dImmediateContext->UpdateSubresource(pixelConstantBuffers[MaterialConstBuffer], 0, nullptr, &material, 0, 0);
+	D3D11_MAPPED_SUBRESOURCE objecResources;
+	VERIFY_D3D_RESULT(d3dImmediateContext->Map(vertexConstantBuffers[WorldViewPorjectionConstBuffer], 0, D3D11_MAP_WRITE_DISCARD, 0, &objecResources));
+	memcpy(objecResources.pData, &objectProperties, sizeof(objectProperties));
+	d3dImmediateContext->Unmap(vertexConstantBuffers[WorldViewPorjectionConstBuffer], 0);
+
+	D3D11_MAPPED_SUBRESOURCE materialResources;
+	VERIFY_D3D_RESULT(d3dImmediateContext->Map(pixelConstantBuffers[MaterialConstBuffer], 0, D3D11_MAP_WRITE_DISCARD, 0, &materialResources));
+	memcpy(materialResources.pData, &material, sizeof(material));
+	d3dImmediateContext->Unmap(pixelConstantBuffers[MaterialConstBuffer], 0);
+}
+
+void D3D11RenderingInterface::UpdateShadowConstantBuffer(VertexShaderShadowResources shadowResources) const {
+	D3D11_MAPPED_SUBRESOURCE resources;
+	VERIFY_D3D_RESULT(d3dImmediateContext->Map(vertexConstantBuffers[ShadowConstantBuffer], 0, D3D11_MAP_WRITE_DISCARD, 0, &resources));
+	memcpy(resources.pData, &shadowResources, sizeof(shadowResources));
+	d3dImmediateContext->Unmap(vertexConstantBuffers[ShadowConstantBuffer], 0);
 }
 
 void D3D11RenderingInterface::ConstantBuffersFrameStart(PixelShaderPerFrameResource perFrameResources) const {
-	d3dImmediateContext->UpdateSubresource(pixelConstantBuffers[DirectionalLightsConstBuffer], 0, nullptr, &perFrameResources, 0, 0);
+	D3D11_MAPPED_SUBRESOURCE lightResources;
+	VERIFY_D3D_RESULT(d3dImmediateContext->Map(pixelConstantBuffers[DirectionalLightsConstBuffer], 0, D3D11_MAP_WRITE_DISCARD, 0, &lightResources));
+	memcpy(lightResources.pData, &perFrameResources, sizeof(perFrameResources));
+	d3dImmediateContext->Unmap(pixelConstantBuffers[DirectionalLightsConstBuffer], 0);
 }
 
-void D3D11RenderingInterface::StartFrame() const {
-	//clear
+void D3D11RenderingInterface::ClearActiveRenderTarget() const {
 	float black[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	d3dImmediateContext->ClearRenderTargetView(defaultRenderTargetView->GetRenderTargetView(), black);
-	d3dImmediateContext->ClearDepthStencilView(defaultDepthStencilBuffer->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	if (activeRenderTargetView) {
+		d3dImmediateContext->ClearRenderTargetView(activeRenderTargetView->GetRenderTargetView(), black);
+	}
+
+	if (activeDepthStencilBuffer) {
+		d3dImmediateContext->ClearDepthStencilView(activeDepthStencilBuffer->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
+}
+
+
+void D3D11RenderingInterface::StartFrame() const {
 	stateCache->SetInputLayout(inputLayout);
 	stateCache->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -495,13 +555,11 @@ void D3D11RenderingInterface::Draw(RenderData* renderData, VertexShader* vertexS
 
 	//vertex shader
 	SetVertexShader(vertexShader);
-	d3dImmediateContext->VSSetConstantBuffers(0, 1, &vertexConstantBuffers[WorldViewPorjectionConstBuffer]);
 
 	//rasterizer
 
 	//pixel shader
 	SetPixelShader(pixelShader);
-	d3dImmediateContext->PSSetConstantBuffers(0, 2, pixelConstantBuffers);
 
 	d3dImmediateContext->DrawIndexed(renderData->GetNumIndices(), 0, 0);
 }

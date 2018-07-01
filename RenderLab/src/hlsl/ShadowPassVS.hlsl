@@ -8,7 +8,7 @@ struct VertexOut {
     float4 posW : SV_POSITION;
 };
 
-cbuffer PerObject : register(b0) {
+cbuffer PerObject : register(b1) {
     float4x4 lightWVP;
 }
 

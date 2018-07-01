@@ -19,9 +19,10 @@ void Renderer::CreateHardwareRenderingInterface(int screenWidth, int screenHeigh
 	InitShaders();
 }
 
-void Renderer::RenderWorld(const World* world) const {
+void Renderer::RenderWorld(World* world) const {
 	// render the shadows
-
+	renderingInterface->StartFrame();
+	RenderShadows(world);
 
 
 	//update the start frame const buffer
@@ -76,7 +77,8 @@ void Renderer::RenderWorld(const World* world) const {
 	XMMATRIX view = XMLoadFloat4x4(&camera->GetCameraView());
 	XMMATRIX proj = XMLoadFloat4x4(&camera->GetProjection());
 
-	renderingInterface->StartFrame();
+	renderingInterface->BindBackBuffer();
+	renderingInterface->ClearActiveRenderTarget();
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
 		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
@@ -146,7 +148,7 @@ void Renderer::InitShaders() {
 	shadowPassVS = CreateVertexShader(g_shadow_pass_vs, size);
 }
 
-void Renderer::RenderShadows(const World* world) const {
+void Renderer::RenderShadows(World* world) const {
 	float sceneRadius = 15.0f;
 	const XMFLOAT3 sceneCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
@@ -171,15 +173,24 @@ void Renderer::RenderShadows(const World* world) const {
 	const float nearPlane = sceneCenter.z - sceneRadius;
 	const float farPlane = sceneCenter.z + sceneRadius;
 
-	XMMATRIX proj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
-
-	//update const buffer
+	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
 
 	//bind render target
+	//TextureRI* shadowMap = world->GetShadowMap();
 	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMap());
+	renderingInterface->ClearActiveRenderTarget();
 
-	//bind shader resource
-	renderingInterface->SetVertexShader(shadowPassVS);
+	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
+		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
+		XMMATRIX wvp = world * lightView * lightProj;
+		XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
+		XMFLOAT4X4 wvpData;
+		XMStoreFloat4x4(&wvpData, transposedWvp);
 
-	//draw
+		VertexShaderShadowResources properties;
+		properties.lightWorldViewProj = wvpData;
+
+		renderingInterface->UpdateShadowConstantBuffer(properties);
+		renderingInterface->Draw(mesh->GetRenderData(), shadowPassVS, nullptr);
+	}
 }

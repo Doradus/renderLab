@@ -84,8 +84,14 @@ struct MaterialResource {
 	float padding;
 };
 
+struct VertexShaderShadowResources {
+	VertexShaderShadowResources() {};
+	XMFLOAT4X4 lightWorldViewProj;
+};
+
 enum VertexConstBuffers {
 	WorldViewPorjectionConstBuffer,
+	ShadowConstantBuffer,
 	NumVertexConstantBuffers
 };
 

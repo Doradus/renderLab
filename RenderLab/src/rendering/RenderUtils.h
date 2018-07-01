@@ -16,9 +16,10 @@ enum LabTextureFormat {
 };
 
 enum TextureBindFlags {
-	TextureBindAsShaderResource = 0,
-	TextureBindAsRenderTarget = 1 << 0,
-	TextureBindAsDepthStencil = 1 << 1
+	None = 0,
+	TextureBindAsShaderResource = 1 << 0,
+	TextureBindAsRenderTarget = 1 << 1,
+	TextureBindAsDepthStencil = 1 << 2
 };
 
 extern TextureFormatInfo GTextureFormatInfo[32];

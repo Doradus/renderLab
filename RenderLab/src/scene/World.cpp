@@ -1,6 +1,8 @@
 #include "World.h"
 
-World::World() {
+World::World() : 
+shadowMap (nullptr)
+{
 	staticMeshes = {};
 	directionalLight = {};
 }
@@ -58,5 +60,6 @@ const CameraComponent* World::GetActiveCamera() const {
 }
 
 void World::CreateShadowMap() {
-	shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
+	shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 1, SHADOW_DEPTH, TextureBindAsDepthStencil, 1);
+	//shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
 }

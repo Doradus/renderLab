@@ -54,7 +54,7 @@ private:
 class Texture2DRI : public TextureRI {
 public:
 	Texture2DRI() {};
-	~Texture2DRI() {};
+	virtual ~Texture2DRI() {};
 
 private:
 

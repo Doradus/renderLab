@@ -13,7 +13,7 @@ public:
 	Renderer();
 	~Renderer();
 	void CreateHardwareRenderingInterface(int screenWidth, int screenHeight, HWND mainWindow);
-	void RenderWorld(const World* world) const;
+	void RenderWorld(World* world) const;
 	void RenderPrimitive(const StaticMesh* mesh) const;
 
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const;
@@ -26,6 +26,6 @@ public:
 
 private:
 	void InitShaders();
-	void RenderShadows(const World* world) const;
+	void RenderShadows(World* world) const;
 	VertexShader* shadowPassVS; 
 };

@@ -1,3 +1,5 @@
+#include <CommonVS.hlsl>
+
 struct VertexIn {
     float3 pos : POSITION;
     float3 normal : NORMAL;
@@ -9,12 +11,6 @@ struct VertexOut {
     float4 color : COLOR;
     float3 normal : NORMAL;
     float4 posW : SV_POSITION;
-};
-
-cbuffer ObjectProperties : register(b0) {
-    float4x4 worldViewProj;
-    float4x4 worldInverse;
-    float4x4 world;
 };
 
 VertexOut BasicVertexShader(VertexIn vIn) {
