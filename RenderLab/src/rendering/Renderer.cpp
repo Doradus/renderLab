@@ -2,7 +2,8 @@
 #include "ShadowPassVS.h"
 
 Renderer::Renderer() :
-	shadowPassVS (nullptr) {}
+	shadowPassVS (nullptr),
+	samplerState (nullptr) {}
 
 Renderer::~Renderer() {
 	delete renderingInterface;
@@ -10,6 +11,9 @@ Renderer::~Renderer() {
 
 	delete shadowPassVS;
 	shadowPassVS = nullptr;
+
+	delete samplerState;
+	samplerState = nullptr;
 }
 
 void Renderer::CreateHardwareRenderingInterface(int screenWidth, int screenHeight, HWND mainWindow) {
@@ -22,7 +26,54 @@ void Renderer::CreateHardwareRenderingInterface(int screenWidth, int screenHeigh
 void Renderer::RenderWorld(World* world) const {
 	// render the shadows
 	renderingInterface->StartFrame();
-	RenderShadows(world);
+	
+	float sceneRadius = 20.0f;
+	const XMFLOAT3 sceneCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	//generate view matrix
+	const DirectionalLightComponent* light = world->GetAllDirectionalLights()[0];
+
+	const XMFLOAT3 lightDirectionStorage = light->GetDirection();
+	const XMVECTOR lightDirection = XMLoadFloat3(&lightDirectionStorage);
+	const XMVECTOR lightPosition = -2.0f * sceneRadius * lightDirection;
+	const XMVECTOR targetPostion = XMLoadFloat3(&sceneCenter);
+	const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	const XMMATRIX lightView = XMMatrixLookAtLH(lightPosition, targetPostion, up);
+
+	//generate projection matrix
+	XMFLOAT3 sphereCenterLS;
+	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPostion, lightView));
+	const float left = sphereCenterLS.x - sceneRadius;
+	const float right = sphereCenterLS.x + sceneRadius;
+	const float bottom = sphereCenterLS.y - sceneRadius;
+	const float top = sphereCenterLS.y + sceneRadius;
+	const float nearPlane = sphereCenterLS.z - sceneRadius;
+	const float farPlane = sphereCenterLS.z + sceneRadius;
+
+	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
+
+	//bind render target
+	//TextureRI* shadowMap = world->GetShadowMap();
+	renderingInterface->ClearShaderResource();
+	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMap());
+	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1024.0f, 1024.0f, 1.0f);
+	renderingInterface->ClearActiveRenderTarget();
+	renderingInterface->SetShadowRasterState();
+
+	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
+		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
+		XMMATRIX wvp = world * lightView * lightProj;
+		XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
+		XMFLOAT4X4 wvpData;
+		XMStoreFloat4x4(&wvpData, transposedWvp);
+
+		VertexShaderShadowResources properties;
+		properties.lightWorldViewProj = wvpData;
+
+		renderingInterface->UpdateShadowConstantBuffer(properties);
+		renderingInterface->Draw(mesh->GetRenderData(), shadowPassVS, nullptr);
+	}
 
 
 	//update the start frame const buffer
@@ -78,7 +129,12 @@ void Renderer::RenderWorld(World* world) const {
 	XMMATRIX proj = XMLoadFloat4x4(&camera->GetProjection());
 
 	renderingInterface->BindBackBuffer();
+	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1280.0f, 720.0f, 1.0f);
 	renderingInterface->ClearActiveRenderTarget();
+	renderingInterface->SetDeafultRasterState();
+
+	renderingInterface->SetSamplerState(samplerState);
+	renderingInterface->SetShaderResources(world->GetShadowMap());
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
 		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
@@ -97,9 +153,15 @@ void Renderer::RenderWorld(World* world) const {
 
 		XMMATRIX worldTranspose = XMMatrixTranspose(world);
 
+		XMMATRIX lwvp = world * lightView * lightProj;
+		XMMATRIX transposedLightWvp = XMMatrixTranspose(lwvp);
+		XMFLOAT4X4 lwvpData;
+		XMStoreFloat4x4(&lwvpData, transposedLightWvp);
+
 		ObjectProperties properties;
 		properties.wvp = wvpData;
 		properties.worldInverse = worldInverseData;
+		properties.lightWVP = lwvpData;
 		XMStoreFloat4x4(&properties.world, worldTranspose);
 
 		MaterialResource materialResource;
@@ -146,6 +208,15 @@ void Renderer::CreateConstantBuffer() const {
 void Renderer::InitShaders() {
 	size_t size = sizeof(g_shadow_pass_vs);
 	shadowPassVS = CreateVertexShader(g_shadow_pass_vs, size);
+
+	SamplerConfig samplerConfig = {};
+	samplerConfig.addressModeU = BORDER;
+	samplerConfig.addressModeV = BORDER;
+	samplerConfig.addressModeW = BORDER;
+	samplerConfig.filter = COMPARE_BILINEAR_FILTERING;
+	samplerConfig.comparisonFunction = LESS_OR_EQUAL;
+
+	samplerState = renderingInterface->CreateSamplerState(samplerConfig);
 }
 
 void Renderer::RenderShadows(World* world) const {
@@ -178,6 +249,7 @@ void Renderer::RenderShadows(World* world) const {
 	//bind render target
 	//TextureRI* shadowMap = world->GetShadowMap();
 	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMap());
+	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1024.0f, 1024.0f, 1.0f);
 	renderingInterface->ClearActiveRenderTarget();
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {

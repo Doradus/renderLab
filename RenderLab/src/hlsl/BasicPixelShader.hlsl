@@ -7,6 +7,7 @@ struct PixelIn {
     float3 position : POSITION;
     float4 color : COLOR;
     float3 normal : NORMAL;
+    float4 lightSpace : LIGHT_SPACE_POSITION;
 };
 
 struct LightProperties {
@@ -47,6 +48,9 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
+Texture2D shadowMap;
+SamplerComparisonState shadowSampler;
+
 float CalculateAttenuation(LightProperties light, float distance) {
    return 1.0f / dot(light.attenuation, float3(1.0f, distance, distance * distance));
 }
@@ -58,6 +62,21 @@ float CalculateSpotIntensity(LightProperties light, float3 lightVector) {
     float minIntensity = cos(outerBound);
 
     return smoothstep(minIntensity, maxIntensity, dot(light.direction, -lightVector));
+}
+
+float GetShadowFactor(PixelIn input) {
+    float2 shadowTextureCoords;
+    shadowTextureCoords.x = 0.5f + (input.lightSpace.x / input.lightSpace.w * 0.5f);
+    shadowTextureCoords.y = 0.5f - (input.lightSpace.y / input.lightSpace.w * 0.5f);
+    float pixelDepth = input.lightSpace.z / input.lightSpace.w;
+
+    float shadowFactor = 1.0f;
+
+    if ((saturate(shadowTextureCoords.x) == shadowTextureCoords.x) && (saturate(shadowTextureCoords.y) == shadowTextureCoords.y) && (pixelDepth > 0.0f)) {
+        shadowFactor = shadowMap.SampleCmpLevelZero(shadowSampler, shadowTextureCoords, pixelDepth).r;
+    }
+
+    return shadowFactor;
 }
 
 void ComputeDirectionalLight(float3 normal, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor) {
@@ -137,14 +156,17 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
     float3 specularColor = float3(0.0f, 0.0f, 0.0f);
     float3 toEye = normalize(eyePosition - vIn.position);
 
-    
+    float shadowFactor = GetShadowFactor(vIn);
     float3 diffuse, specular;
     for (int i = 0; i < activeLights; i++) {
         switch (lights[i].type) {
             case DIRECTIONAL_LIGHT :
                 ComputeDirectionalLight(vIn.normal, toEye, lights[i], diffuse, specular);
-                diffuseColor += diffuse;
-                specularColor += specular;
+                diffuseColor += diffuse * shadowFactor;
+                specularColor += specular * shadowFactor;
+
+                //diffuseColor = float3(shadowFactor, 0.0f, 0.0f);
+                //specularColor = float3(shadowFactor, 0.0f, 0.0f);
                 break;
             case POINT_LIGHT:
                 ComputePointLight(vIn.normal, vIn.position, toEye, lights[i],  diffuse, specular);

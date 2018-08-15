@@ -28,4 +28,8 @@ private:
 	void InitShaders();
 	void RenderShadows(World* world) const;
 	VertexShader* shadowPassVS; 
+	SamplerState* samplerState;
+
+	int screenWidth;
+	int screenHeight;
 };

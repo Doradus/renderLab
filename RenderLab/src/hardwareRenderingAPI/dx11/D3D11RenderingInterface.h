@@ -35,6 +35,11 @@ public :
 	void			SetVertexShader(VertexShader* shader) const;
 	void			SetPixelShader(PixelShader* shader) const;
 	void			ClearActiveRenderTarget() const;
+	void			SetShaderResources(TextureRI* shaderResource) const;
+	void			SetSamplerState(SamplerState* samplerState) const;
+	void			ClearShaderResource() const;
+	void			SetShadowRasterState() const;
+	void			SetDeafultRasterState() const;
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
 	void			CreateConstantBuffer();
@@ -79,6 +84,11 @@ private :
 	D3D11_TEXTURE_ADDRESS_MODE	GetAddressMode(AddressModes mode) const;
 	D3D11_COMPARISON_FUNC		GetSamplerCompareFunction(SamplerCompareFunction compare) const;
 	DXGI_FORMAT					GetDepthStencilFormat(DXGI_FORMAT inFormat) const;
+	DXGI_FORMAT					GetShaderResourceFormat(DXGI_FORMAT inFormat) const;
+
+	ID3D11RasterizerState*		shadowState;
+	ID3D11RasterizerState*		defaultState;
+	void						CreateRasterStates();
 };
 
 #endif

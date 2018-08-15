@@ -282,7 +282,7 @@ void RenderLab::CreateWorld() {
 
 void RenderLab::CreateLights() {
 	light = new DirectionalLightComponent();
-	light->SetDirection(-0.4f, -.8f, -1.0f);
+	light->SetDirection(-0.4f, -.4f, -1.0f);
 	light->SetLightColor(0.85f, 0.85f, 0.85f);
 	light->SetBrightness(0.8f);
 	light->SetIsEnabled(true);
@@ -307,8 +307,8 @@ void RenderLab::CreateLights() {
 	spotLight->SetIsEnabled(true);
 
 	world->AddDirectionalLight(light);
-	world->AddPointLight(pointLight);
-	world->AddSpotLight(spotLight);
+	//world->AddPointLight(pointLight);
+	//world->AddSpotLight(spotLight);
 }
 
 void RenderLab::Draw() {

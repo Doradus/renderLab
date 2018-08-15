@@ -30,6 +30,11 @@ public:
 	virtual void			SetVertexShader(VertexShader* shader) const = 0;
 	virtual void			SetPixelShader(PixelShader* shader) const = 0;
 	virtual void			ClearActiveRenderTarget() const = 0;
+	virtual void			SetShaderResources(TextureRI* shaderResource) const = 0;
+	virtual void			SetSamplerState(SamplerState* samplerState) const = 0;
+	virtual void			ClearShaderResource() const = 0;
+	virtual void			SetShadowRasterState() const = 0;
+	virtual void			SetDeafultRasterState() const = 0;
 
 	// todo: refactor to shader state
 	virtual void			CreateInputLayout(const unsigned char* shaderSource, size_t size) = 0;

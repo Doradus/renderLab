@@ -14,6 +14,8 @@ D3D11RenderingInterface::D3D11RenderingInterface(int screenWidth, int screenHeig
 	enable4xMsaa(true),
 	xmsaaQuality(0),
 	stateCache(nullptr),
+	shadowState(nullptr),
+	defaultState(nullptr),
 	driverType(D3D_DRIVER_TYPE_HARDWARE)
 {
 	GTextureFormatInfo[UNKNOWN].platformFormat = DXGI_FORMAT_UNKNOWN;
@@ -28,6 +30,8 @@ D3D11RenderingInterface::~D3D11RenderingInterface() {
 		d3dImmediateContext->ClearState();
 	}
 
+	RELEASE(shadowState);
+	RELEASE(defaultState);
 	RELEASE(inputLayout);
 
 	for (int i = 0; i < NumVertexConstantBuffers; i++) {
@@ -242,6 +246,9 @@ SamplerState* D3D11RenderingInterface::CreateSamplerState(const SamplerConfig & 
 	case TRILINEAR_FILTERING:
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		break;
+	case COMPARE_BILINEAR_FILTERING:
+		samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+		break;	
 	default:
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 		break;
@@ -250,7 +257,7 @@ SamplerState* D3D11RenderingInterface::CreateSamplerState(const SamplerConfig & 
 	samplerDesc.AddressU = GetAddressMode(config.addressModeU);
 	samplerDesc.AddressV = GetAddressMode(config.addressModeV);
 	samplerDesc.AddressW = GetAddressMode(config.addressModeW);
-	samplerDesc.MipLODBias = config.mipLODBias;
+	samplerDesc.MipLODBias = config.mipLODBias ? config.mipLODBias : 0.0f;
 	samplerDesc.ComparisonFunc = GetSamplerCompareFunction(config.comparisonFunction);
 	samplerDesc.BorderColor[0] = config.borderColor[0];
 	samplerDesc.BorderColor[1] = config.borderColor[1];
@@ -297,15 +304,13 @@ void D3D11RenderingInterface::SetRenderTarget(TextureRI* renderTarget, TextureRI
 	}
 
 	if (depthTarget) {
-		dynamic_cast<D3D11Texture*>(depthTarget)->GetDepthStencilView();
+		depthStencilView = dynamic_cast<D3D11Texture*>(depthTarget)->GetDepthStencilView();
 	}
 	
-	
-	//depthStencilView = static_cast<D3D11Texture*>(depthTarget)->GetDepthStencilView();
 	activeRenderTargetView = dynamic_cast<D3D11Texture*>(renderTarget);
 	activeDepthStencilBuffer = dynamic_cast<D3D11Texture*>(depthTarget);
 
-	d3dImmediateContext->OMSetRenderTargets(renderTargets, &renderTargetView, dynamic_cast<D3D11Texture*>(depthTarget)->GetDepthStencilView());
+	d3dImmediateContext->OMSetRenderTargets(renderTargets, &renderTargetView, depthStencilView);
 }
 
 void D3D11RenderingInterface::BindBackBuffer() {
@@ -378,7 +383,12 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 	ID3D11RenderTargetView*	renderTargetView = nullptr;
 
 	if (shouldCreateShaderResourceView) {
-		VERIFY_D3D_RESULT(d3dDevice->CreateShaderResourceView(texture, 0, &shaderResourceView));
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = GetShaderResourceFormat(textureFormat);
+		srvDesc.ViewDimension = samples > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		VERIFY_D3D_RESULT(d3dDevice->CreateShaderResourceView(texture, &srvDesc, &shaderResourceView));
 	}
 	
 	if (shouldCreateDepthStencilView) {
@@ -442,6 +452,30 @@ DXGI_FORMAT D3D11RenderingInterface::GetDepthStencilFormat(DXGI_FORMAT inFormat)
 		default :
 			return inFormat;
 		}
+}
+
+DXGI_FORMAT D3D11RenderingInterface::GetShaderResourceFormat(DXGI_FORMAT inFormat) const {
+	switch (inFormat) {
+	case DXGI_FORMAT_R16_TYPELESS:
+		return DXGI_FORMAT_R16_UNORM;
+	default:
+		return inFormat;
+	}
+}
+
+void D3D11RenderingInterface::CreateRasterStates() {
+	D3D11_RASTERIZER_DESC shadowRasterStateDesc = {};
+	shadowRasterStateDesc.DepthBias = 10000;
+	shadowRasterStateDesc.DepthBiasClamp = 0.0f;
+	shadowRasterStateDesc.SlopeScaledDepthBias = 1.0f;
+
+	D3D11_RASTERIZER_DESC defaultStateDesc = {};
+	defaultStateDesc.DepthBias = 0;
+	defaultStateDesc.DepthBiasClamp = 0.0f;
+	defaultStateDesc.SlopeScaledDepthBias = 0.0f;
+
+	VERIFY_D3D_RESULT(d3dDevice->CreateRasterizerState(&shadowRasterStateDesc, &shadowState));
+	VERIFY_D3D_RESULT(d3dDevice->CreateRasterizerState(&defaultStateDesc, &defaultState));
 }
 
 void D3D11RenderingInterface::CreateInputLayout(const unsigned char* shaderSource, size_t size) {
@@ -536,6 +570,28 @@ void D3D11RenderingInterface::ClearActiveRenderTarget() const {
 	}
 }
 
+void D3D11RenderingInterface::SetShaderResources(TextureRI * shaderResource) const {
+	ID3D11ShaderResourceView * shaderResourceView = dynamic_cast<D3D11Texture*>(shaderResource)->GetShaderResourceView();
+	d3dImmediateContext->PSSetShaderResources(0, 1, &shaderResourceView);
+}
+
+void D3D11RenderingInterface::SetSamplerState(SamplerState * samplerState) const {
+	ID3D11SamplerState* sampler = static_cast<D3D11SamplerState*>(samplerState)->samplerState;
+	d3dImmediateContext->PSSetSamplers(0, 1, &sampler);
+}
+
+void D3D11RenderingInterface::ClearShaderResource() const {
+	ID3D11ShaderResourceView* null[] = { nullptr };
+	d3dImmediateContext->PSSetShaderResources(0, 1, null);
+}
+
+void D3D11RenderingInterface::SetShadowRasterState() const {
+	d3dImmediateContext->RSSetState(shadowState);
+}
+
+void D3D11RenderingInterface::SetDeafultRasterState() const {
+	d3dImmediateContext->RSSetState(defaultState);
+}
 
 void D3D11RenderingInterface::StartFrame() const {
 	stateCache->SetInputLayout(inputLayout);

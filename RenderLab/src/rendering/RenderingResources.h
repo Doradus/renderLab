@@ -29,6 +29,7 @@ struct ObjectProperties {
 	XMFLOAT4X4 wvp;
 	XMFLOAT4X4 worldInverse;
 	XMFLOAT4X4 world;
+	XMFLOAT4X4 lightWVP;
 };
 
 struct DirectionalLightResource {

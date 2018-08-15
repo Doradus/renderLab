@@ -20,8 +20,27 @@ enum SamplerCompareFunction {
 	ALWAYS
 };
 
+enum Filtering {
+	POINT_FILTERING,
+	BILINEAR_FILTERING,
+	TRILINEAR_FILTERING,
+	ANISOTROPIC_FILTERING,
+	COMPARE_BILINEAR_FILTERING
+};
+
 struct SamplerConfig {
-	SamplerConfig() {};
+	SamplerConfig():
+		filter (TRILINEAR_FILTERING),
+		addressModeU(WRAP),
+		addressModeV(WRAP),
+		addressModeW(WRAP),
+		mipLODBias (0.0f),
+		maxAnisotropy (1),
+		comparisonFunction (NEVER),
+		minLOD(-FLT_MAX),
+		maxLOD(FLT_MAX),
+		borderColor ()
+		{};
 	unsigned int filter;
 	AddressModes addressModeU;
 	AddressModes addressModeV;
@@ -32,13 +51,6 @@ struct SamplerConfig {
 	float borderColor[4];
 	float minLOD;
 	float maxLOD;
-};
-
-enum Filtering {
-	POINT_FILTERING,
-	BILINEAR_FILTERING,
-	TRILINEAR_FILTERING,
-	ANISOTROPIC_FILTERING
 };
 
 class TextureRI {
