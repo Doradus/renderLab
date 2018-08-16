@@ -164,9 +164,6 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
                 ComputeDirectionalLight(vIn.normal, toEye, lights[i], diffuse, specular);
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
-
-                //diffuseColor = float3(shadowFactor, 0.0f, 0.0f);
-                //specularColor = float3(shadowFactor, 0.0f, 0.0f);
                 break;
             case POINT_LIGHT:
                 ComputePointLight(vIn.normal, vIn.position, toEye, lights[i],  diffuse, specular);
@@ -181,11 +178,13 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
         }
     }
 
+    float3 ambientLight = float3(0.3, 0.3, 0.35);
+    ambientLight *= material.albedo;
     diffuseColor *= material.albedo;
     specularColor *= material.specularColor;
 
     float3 finalDiffuse = saturate(diffuseColor);
     float3 finalSpecular = saturate(specularColor);
 
-    return float4(diffuseColor + specularColor, 1.0f);
+    return float4(ambientLight + diffuseColor + specularColor, 1.0f);
 }

@@ -106,9 +106,10 @@ bool RenderLab::InitLab() {
 void RenderLab::Tick() {
 	timer.Tick();
 
-	testRotation += 50 * timer.GetDeltaTime();
+	testRotation += 10 * timer.GetDeltaTime();
+	//ight->SetDirection(-0.4f, -.5f, testRotation);
 
-	//box->SetRotation(testRotation, testRotation, 0);
+	box2->SetRotation(0, testRotation, 0);
 }
 
 bool RenderLab::CreateRenderer() {
@@ -177,7 +178,7 @@ void RenderLab::BuildGeometry() {
 	box->SetRotation(0, 30, 0);
 
 	boxMaterial = new Material();
-	boxMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
+	boxMaterial->SetAlbedo(0.9f, 0.9f, 0.9f);
 	boxMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	boxMaterial->SetSpecularPower(0.1f);
 
@@ -195,10 +196,10 @@ void RenderLab::BuildGeometry() {
 	box2->SetRenderData(box2RenderData);
 
 	box2->SetPosition(4, 2.5f, 4);
-	box2->SetRotation(0, 145, 0);
+	box2->SetRotation(0, 20, 0);
 
 	box2Material = new Material();
-	box2Material->SetAlbedo(0.8f, 0.8f, 0.8f);
+	box2Material->SetAlbedo(0.9f, 0.9f, 0.9f);
 	box2Material->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	box2Material->SetSpecularPower(0.1f);
 
@@ -220,7 +221,7 @@ void RenderLab::BuildGeometry() {
 	plane->SetPosition(0, 0, 0);
 
 	planeMaterial = new Material();
-	planeMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
+	planeMaterial->SetAlbedo(0.9f, 0.9f, 0.9f);
 	planeMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	planeMaterial->SetSpecularPower(0.1f);
 
@@ -264,7 +265,7 @@ void RenderLab::CreateCamera() {
 	camera->SetNearPlane(1);
 	camera->SetFarPlane(1000);
 
-	camera->SetPosition(0.0f, 8.0f, 25.0f);
+	camera->SetPosition(-2.0f, 12.0f, 25.0f);
 	camera->SetCameraTarget(0, 2.5f, -10);
 
 	camera->UpdateProjection();
@@ -282,8 +283,8 @@ void RenderLab::CreateWorld() {
 
 void RenderLab::CreateLights() {
 	light = new DirectionalLightComponent();
-	light->SetDirection(-0.4f, -.4f, -1.0f);
-	light->SetLightColor(0.85f, 0.85f, 0.85f);
+	light->SetDirection(-0.4f, -.5f, -1.0f);
+	light->SetLightColor(0.86f, 0.72f, 0.9f);
 	light->SetBrightness(0.8f);
 	light->SetIsEnabled(true);
 

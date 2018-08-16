@@ -63,6 +63,7 @@ void D3D11RenderingInterface::InitRenderer() {
 	CreateDevice();
 	CreateSwapChain();
 	InitDefaultRenderTargets();
+	CreateRasterStates();
 }
 
 bool D3D11RenderingInterface::CreateDevice() {
@@ -465,11 +466,17 @@ DXGI_FORMAT D3D11RenderingInterface::GetShaderResourceFormat(DXGI_FORMAT inForma
 
 void D3D11RenderingInterface::CreateRasterStates() {
 	D3D11_RASTERIZER_DESC shadowRasterStateDesc = {};
-	shadowRasterStateDesc.DepthBias = 10000;
+	shadowRasterStateDesc.FillMode = D3D11_FILL_SOLID;
+	shadowRasterStateDesc.CullMode = D3D11_CULL_BACK;
+	shadowRasterStateDesc.DepthClipEnable = true;
+	shadowRasterStateDesc.DepthBias = 50;
 	shadowRasterStateDesc.DepthBiasClamp = 0.0f;
 	shadowRasterStateDesc.SlopeScaledDepthBias = 1.0f;
 
 	D3D11_RASTERIZER_DESC defaultStateDesc = {};
+	defaultStateDesc.FillMode = D3D11_FILL_SOLID;
+	defaultStateDesc.CullMode = D3D11_CULL_BACK;
+	defaultStateDesc.DepthClipEnable = true;
 	defaultStateDesc.DepthBias = 0;
 	defaultStateDesc.DepthBiasClamp = 0.0f;
 	defaultStateDesc.SlopeScaledDepthBias = 0.0f;
