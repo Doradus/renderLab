@@ -15,7 +15,7 @@ void SpotLightComponent::UpdateViewMatrix() {
 }
 
 void SpotLightComponent::UpdateProjectionMatrix() {
-	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(coneAngle + penumbraAngle), 1.0, 0.1f, range);
+	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(coneAngle + penumbraAngle), 1.0, 1.0f, range);
 	XMStoreFloat4x4(&projectionMatrix, projection);
 }
 

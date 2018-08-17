@@ -106,10 +106,10 @@ bool RenderLab::InitLab() {
 void RenderLab::Tick() {
 	timer.Tick();
 
-	testRotation += 10 * timer.GetDeltaTime();
+	testRotation += 5 * timer.GetDeltaTime();
 	//ight->SetDirection(-0.4f, -.5f, testRotation);
 
-	//box2->SetRotation(0, testRotation, 0);
+	box2->SetRotation(0, testRotation, 0);
 }
 
 bool RenderLab::CreateRenderer() {
@@ -196,7 +196,7 @@ void RenderLab::BuildGeometry() {
 	box2->SetRenderData(box2RenderData);
 
 	box2->SetPosition(4, 2.5f, 4);
-	box2->SetRotation(0, 0, 0);
+	box2->SetRotation(0, 52, 0);
 
 	box2Material = new Material();
 	box2Material->SetAlbedo(0.9f, 0.9f, 0.9f);
@@ -218,7 +218,7 @@ void RenderLab::BuildGeometry() {
 	plane->SetPixelShader(pixelShader);
 	plane->SetRenderData(planeRenderData);
 
-	plane->SetPosition(0, 0, 0);
+	plane->SetPosition(0, 0, -5);
 
 	planeMaterial = new Material();
 	planeMaterial->SetAlbedo(0.7f, 0.7f, 0.7f);
@@ -265,7 +265,7 @@ void RenderLab::CreateCamera() {
 	camera->SetNearPlane(1);
 	camera->SetFarPlane(1000);
 
-	camera->SetPosition(0.0f, 30.0f, 25.0f);
+	camera->SetPosition(0.0f, 25.0f, 25.0f);
 	camera->SetCameraTarget(0, 0, 0);
 
 	camera->UpdateProjection();
@@ -297,13 +297,13 @@ void RenderLab::CreateLights() {
 	pointLight->SetIsEnabled(false);
 
 	spotLight = new SpotLightComponent();
-	spotLight->SetPosition(0, 10, 15);
-	spotLight->SetDirection(0.0f, -0.3f, -1.0f);
+	spotLight->SetPosition(0, 10, 20);
+	spotLight->SetDirection(0.0f, -0.4f, -1.0f);
 	spotLight->SetAttenuation(0, 0.3f, 0);
 	spotLight->SetLightColor(0.86f, 0.72f, 0.9f);
 	spotLight->SetRange(100.0f);
 	spotLight->SetBrightness(0.7f);
-	spotLight->SetConeAngle(35);
+	spotLight->SetConeAngle(45);
 	spotLight->SetPenumbraAngle(15);
 	spotLight->SetIsEnabled(true);
 

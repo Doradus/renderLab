@@ -176,7 +176,7 @@ D3D11Texture2d* D3D11RenderingInterface::CreateBackBuffer() const {
 }
 
 D3D11Texture2d* D3D11RenderingInterface::CreateDepthAndStencilBuffer() {
-	return CreateD3D11Texture2d(screenWidth, screenHeight, 1, DEPTH_STENCIL, TextureBindAsDepthStencil, 4);
+	return CreateD3D11Texture2d(screenWidth, screenHeight, 1, false, 1, DEPTH_STENCIL, TextureBindAsDepthStencil, 4);
 }
 
 VertexBuffer* D3D11RenderingInterface::CreateVertexBuffer(unsigned int size, const void * data) const {
@@ -277,8 +277,8 @@ SamplerState* D3D11RenderingInterface::CreateSamplerState(const SamplerConfig & 
 	return d3d11SamplerState;
 }
 
-Texture2DRI * D3D11RenderingInterface::CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
-	return CreateD3D11Texture2d(width, height, numberOfMips, format, flags, samples);
+Texture2DRI * D3D11RenderingInterface::CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
+	return CreateD3D11Texture2d(width, height, arraySize, isCube, numberOfMips, format, flags, samples);
 }
 
 void D3D11RenderingInterface::SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const {
@@ -333,7 +333,7 @@ void D3D11RenderingInterface::SetPixelShader(PixelShader * shader) const {
 	}
 }
 
-D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
+D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
 	unsigned int actualXmsaaQuality;
 
 	if (samples > 1) {
@@ -367,14 +367,14 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 	textureDesc.Width = width;
 	textureDesc.Height = height;
 	textureDesc.MipLevels = numberOfMips;
-	textureDesc.ArraySize = 1;
+	textureDesc.ArraySize = arraySize;
 	textureDesc.Format = textureFormat;
 	textureDesc.SampleDesc.Count = samples;
 	textureDesc.SampleDesc.Quality = actualXmsaaQuality;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = bindFlags;
 	textureDesc.CPUAccessFlags = 0;
-	textureDesc.MiscFlags = 0;
+	textureDesc.MiscFlags = isCube ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0;
 
 	ID3D11Texture2D* texture;
 	VERIFY_D3D_RESULT(d3dDevice->CreateTexture2D(&textureDesc, 0, &texture));
@@ -386,17 +386,34 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 	if (shouldCreateShaderResourceView) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = GetShaderResourceFormat(textureFormat);
-		srvDesc.ViewDimension = samples > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
-		srvDesc.Texture2D.MostDetailedMip = 0;
+
+		if (isCube) {
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+			srvDesc.TextureCube.MipLevels = textureDesc.MipLevels;
+			srvDesc.TextureCube.MostDetailedMip = 0;
+		} else {
+			srvDesc.ViewDimension = samples > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
+			srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
+			srvDesc.Texture2D.MostDetailedMip = 0;
+		}
+
 		VERIFY_D3D_RESULT(d3dDevice->CreateShaderResourceView(texture, &srvDesc, &shaderResourceView));
 	}
 	
 	if (shouldCreateDepthStencilView) {
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 		dsvDesc.Format = GetDepthStencilFormat(textureFormat);
-		dsvDesc.ViewDimension = samples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
-		dsvDesc.Texture2D.MipSlice = 0;
+
+		if (isCube) {
+			dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+			dsvDesc.Texture2DArray.FirstArraySlice = 0;
+			dsvDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;
+			dsvDesc.Texture2DArray.MipSlice = 0;
+		} else {
+			dsvDesc.ViewDimension = samples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+			dsvDesc.Texture2D.MipSlice = 0;
+		}
+
 		VERIFY_D3D_RESULT(d3dDevice->CreateDepthStencilView(texture, &dsvDesc, &depthStencileView));
 	}
 

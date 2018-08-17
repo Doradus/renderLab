@@ -23,7 +23,7 @@ public:
 	virtual VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual SamplerState*	CreateSamplerState(const SamplerConfig& config) const = 0;
-	virtual Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const = 0;
+	virtual Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const = 0;
 	virtual void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const = 0;
 	virtual void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) = 0;
 	virtual void			BindBackBuffer() = 0;

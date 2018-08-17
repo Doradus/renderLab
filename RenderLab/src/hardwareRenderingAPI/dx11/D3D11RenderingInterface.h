@@ -28,7 +28,7 @@ public :
 	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
 	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;
-	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
+	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
 	void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const;
 	void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) final override;
 	void			BindBackBuffer() final override;
@@ -51,7 +51,7 @@ public :
 	void			EndFrame() const final override;
 
 private :
-	D3D11Texture2d*			CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const;
+	D3D11Texture2d*			CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const;
 	//D3D11Texture2d*			CreateTexture2dFromResource(ID3D11Texture2D* inResource, unsigned char format, unsigned int flags) const;
 	D3D11Texture2d*			CreateBackBuffer() const;
 	D3D11Texture2d*			CreateDepthAndStencilBuffer();
