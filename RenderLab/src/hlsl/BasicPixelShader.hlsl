@@ -172,8 +172,8 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
                 break;
             case SPOT_LIGHT:
                 ComputeSpotLight(vIn.normal, vIn.position, toEye, lights[i], diffuse, specular);
-                diffuseColor += diffuse;
-                specularColor += specular;
+                diffuseColor += diffuse * shadowFactor;
+                specularColor += specular * shadowFactor;
                 break;
         }
     }

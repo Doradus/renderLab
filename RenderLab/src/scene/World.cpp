@@ -27,8 +27,9 @@ void World::AddPointLight(const PointLightComponent * light) {
 	pointLights.push_back(light);
 }
 
-void World::AddSpotLight(const SpotLightComponent * light) {
+void World::AddSpotLight(SpotLightComponent * light) {
 	spotLights.push_back(light);
+	CreateShadowMap();
 }
 
 void World::AddCamera(const CameraComponent* inCamera) {
@@ -47,7 +48,7 @@ std::vector<const PointLightComponent*> World::GetAllPointLights() const {
 	return pointLights;
 }
 
-std::vector<const SpotLightComponent*> World::GetAllSpotLights() const {
+std::vector<SpotLightComponent*> World::GetAllSpotLights() const {
 	return spotLights;
 }
 

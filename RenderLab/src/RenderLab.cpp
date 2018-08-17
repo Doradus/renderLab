@@ -265,7 +265,7 @@ void RenderLab::CreateCamera() {
 	camera->SetNearPlane(1);
 	camera->SetFarPlane(1000);
 
-	camera->SetPosition(0.0f, 20.0f, 25.0f);
+	camera->SetPosition(0.0f, 30.0f, 25.0f);
 	camera->SetCameraTarget(0, 0, 0);
 
 	camera->UpdateProjection();
@@ -297,19 +297,19 @@ void RenderLab::CreateLights() {
 	pointLight->SetIsEnabled(false);
 
 	spotLight = new SpotLightComponent();
-	spotLight->SetPosition(0, 8, 10);
-	spotLight->SetDirection(0.0f, -1.0f, -0.5f);
+	spotLight->SetPosition(0, 10, 15);
+	spotLight->SetDirection(0.0f, -0.3f, -1.0f);
 	spotLight->SetAttenuation(0, 0.3f, 0);
-	spotLight->SetLightColor(1.0f, 0.3f, 1.0f);
+	spotLight->SetLightColor(0.86f, 0.72f, 0.9f);
 	spotLight->SetRange(100.0f);
 	spotLight->SetBrightness(0.7f);
-	spotLight->SetConeAngle(45);
-	spotLight->SetPenumbraAngle(-15);
+	spotLight->SetConeAngle(35);
+	spotLight->SetPenumbraAngle(15);
 	spotLight->SetIsEnabled(true);
 
-	world->AddDirectionalLight(light);
-	//world->AddPointLight(pointLight);
-	//world->AddSpotLight(spotLight);
+	//world->AddDirectionalLight(light);
+	world->AddPointLight(pointLight);
+	world->AddSpotLight(spotLight);
 }
 
 void RenderLab::Draw() {

@@ -27,6 +27,7 @@ void Renderer::RenderWorld(World* world) const {
 	// render the shadows
 	renderingInterface->StartFrame();
 	
+	/*
 	float sceneRadius = 20.0f;
 	const XMFLOAT3 sceneCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
@@ -52,6 +53,14 @@ void Renderer::RenderWorld(World* world) const {
 	const float farPlane = sphereCenterLS.z + sceneRadius;
 
 	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
+	*/
+
+	SpotLightComponent* spotLight = world->GetAllSpotLights()[0];
+	spotLight->UpdateViewMatrix();
+	spotLight->UpdateProjectionMatrix();
+
+	XMMATRIX lightView = XMLoadFloat4x4(&spotLight->GetViewMatrix());
+	XMMATRIX lightProj = XMLoadFloat4x4(&spotLight->GetProjectionMatrix());
 
 	renderingInterface->ClearShaderResource();
 	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMap());
