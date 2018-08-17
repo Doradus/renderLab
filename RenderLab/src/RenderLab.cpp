@@ -109,7 +109,7 @@ void RenderLab::Tick() {
 	testRotation += 10 * timer.GetDeltaTime();
 	//ight->SetDirection(-0.4f, -.5f, testRotation);
 
-	box2->SetRotation(0, testRotation, 0);
+	//box2->SetRotation(0, testRotation, 0);
 }
 
 bool RenderLab::CreateRenderer() {
@@ -196,7 +196,7 @@ void RenderLab::BuildGeometry() {
 	box2->SetRenderData(box2RenderData);
 
 	box2->SetPosition(4, 2.5f, 4);
-	box2->SetRotation(0, 20, 0);
+	box2->SetRotation(0, 0, 0);
 
 	box2Material = new Material();
 	box2Material->SetAlbedo(0.9f, 0.9f, 0.9f);
@@ -221,7 +221,7 @@ void RenderLab::BuildGeometry() {
 	plane->SetPosition(0, 0, 0);
 
 	planeMaterial = new Material();
-	planeMaterial->SetAlbedo(0.9f, 0.9f, 0.9f);
+	planeMaterial->SetAlbedo(0.7f, 0.7f, 0.7f);
 	planeMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	planeMaterial->SetSpecularPower(0.1f);
 
@@ -265,8 +265,8 @@ void RenderLab::CreateCamera() {
 	camera->SetNearPlane(1);
 	camera->SetFarPlane(1000);
 
-	camera->SetPosition(-2.0f, 12.0f, 25.0f);
-	camera->SetCameraTarget(0, 2.5f, -10);
+	camera->SetPosition(0.0f, 20.0f, 25.0f);
+	camera->SetCameraTarget(0, 0, 0);
 
 	camera->UpdateProjection();
 
@@ -283,7 +283,7 @@ void RenderLab::CreateWorld() {
 
 void RenderLab::CreateLights() {
 	light = new DirectionalLightComponent();
-	light->SetDirection(-0.4f, -.5f, -1.0f);
+	light->SetDirection(0.0f, -0.4f, -1.0f);
 	light->SetLightColor(0.86f, 0.72f, 0.9f);
 	light->SetBrightness(0.8f);
 	light->SetIsEnabled(true);

@@ -53,8 +53,6 @@ void Renderer::RenderWorld(World* world) const {
 
 	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
 
-	//bind render target
-	//TextureRI* shadowMap = world->GetShadowMap();
 	renderingInterface->ClearShaderResource();
 	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMap());
 	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1024.0f, 1024.0f, 1.0f);
