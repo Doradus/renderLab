@@ -3,6 +3,10 @@
 
 Renderer::Renderer() :
 	shadowPassVS (nullptr),
+	objectConstantBuffer(nullptr),
+	shadowConstantBuffer(nullptr),
+	pixelShaderPerFrameBuffer(nullptr),
+	materialBuffer(nullptr),
 	samplerState (nullptr) {}
 
 Renderer::~Renderer() {
@@ -11,6 +15,18 @@ Renderer::~Renderer() {
 
 	delete shadowPassVS;
 	shadowPassVS = nullptr;
+
+	delete objectConstantBuffer;
+	objectConstantBuffer = nullptr;
+
+	delete shadowConstantBuffer;
+	shadowConstantBuffer = nullptr;
+
+	delete pixelShaderPerFrameBuffer;
+	pixelShaderPerFrameBuffer = nullptr;
+
+	delete materialBuffer;
+	materialBuffer = nullptr;
 
 	delete samplerState;
 	samplerState = nullptr;
@@ -21,6 +37,20 @@ void Renderer::CreateHardwareRenderingInterface(int screenWidth, int screenHeigh
 	renderingInterface->InitRenderer();
 
 	InitShaders();
+	CreateConstantBuffers();
+}
+
+void Renderer::CreateConstantBuffers() {
+	objectConstantBuffer = renderingInterface->CreateConstantBuffer(sizeof(ObjectProperties));
+	shadowConstantBuffer = renderingInterface->CreateConstantBuffer(sizeof(VertexShaderShadowResources));
+	pixelShaderPerFrameBuffer = renderingInterface->CreateConstantBuffer(sizeof(PixelShaderPerFrameResource));
+	materialBuffer = renderingInterface->CreateConstantBuffer(sizeof(MaterialResource));
+
+	renderingInterface->SetVSConstantBuffer(objectConstantBuffer, 0);
+	renderingInterface->SetVSConstantBuffer(shadowConstantBuffer, 1);
+
+	renderingInterface->SetPSConstantBuffer(pixelShaderPerFrameBuffer, 0);
+	renderingInterface->SetPSConstantBuffer(materialBuffer, 1);
 }
 
 void Renderer::RenderWorld(World* world) const {
@@ -78,7 +108,7 @@ void Renderer::RenderWorld(World* world) const {
 		VertexShaderShadowResources properties;
 		properties.lightWorldViewProj = wvpData;
 
-		renderingInterface->UpdateShadowConstantBuffer(properties);
+		renderingInterface->UpdateConstantBuffer(shadowConstantBuffer, &properties, sizeof(VertexShaderShadowResources));
 		renderingInterface->Draw(mesh->GetRenderData(), shadowPassVS, nullptr);
 	}
 
@@ -128,7 +158,7 @@ void Renderer::RenderWorld(World* world) const {
 	}
 
 	pixelShaderPerFrameResource.cameraPosition = world->GetActiveCamera()->GetPosition();
-	renderingInterface->ConstantBuffersFrameStart(pixelShaderPerFrameResource);
+	renderingInterface->UpdateConstantBuffer(pixelShaderPerFrameBuffer, &pixelShaderPerFrameResource, sizeof(PixelShaderPerFrameResource));
 
 	const CameraComponent* camera = world->GetActiveCamera();
 
@@ -177,7 +207,8 @@ void Renderer::RenderWorld(World* world) const {
 		materialResource.specularColor = mesh->GetMaterial()->GetSpecularColor();
 		materialResource.padding = 0.0f;
 
-		renderingInterface->ConstantBuffersMiddFrame(properties, materialResource);
+		renderingInterface->UpdateConstantBuffer(objectConstantBuffer, &properties, sizeof(ObjectProperties));
+		renderingInterface->UpdateConstantBuffer(materialBuffer, &materialResource, sizeof(MaterialResource));
 		RenderPrimitive(mesh);
 	}
 
@@ -206,10 +237,6 @@ PixelShader * Renderer::CreatePixelShader(const unsigned char * shaderSource, si
 
 void Renderer::CreateInputLayout(const unsigned char * shaderSource, size_t size) const {
 	renderingInterface->CreateInputLayout(shaderSource, size);
-}
-
-void Renderer::CreateConstantBuffer() const {
-	renderingInterface->CreateConstantBuffer();
 }
 
 void Renderer::InitShaders() {

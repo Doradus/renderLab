@@ -22,13 +22,19 @@ public:
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const;
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) const;
-	void			CreateConstantBuffer() const;
 
 private:
 	void InitShaders();
 	void RenderShadows(World* world) const;
+	void CreateConstantBuffers();
+private:
 	VertexShader* shadowPassVS; 
 	SamplerState* samplerState;
+
+	ConstantBuffer* objectConstantBuffer;
+	ConstantBuffer* shadowConstantBuffer;
+	ConstantBuffer* pixelShaderPerFrameBuffer;
+	ConstantBuffer* materialBuffer;
 
 	int screenWidth;
 	int screenHeight;
