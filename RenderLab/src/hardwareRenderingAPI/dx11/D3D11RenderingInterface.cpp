@@ -344,8 +344,7 @@ void D3D11RenderingInterface::SetPixelShader(PixelShader * shader) const {
 	D3D11PixelShader* pShader = static_cast<D3D11PixelShader*>(shader);
 	if (pShader) {
 		stateCache->SetPixelShader(pShader->resource);
-	}
-	else {
+	} else {
 		stateCache->SetPixelShader(nullptr);
 	}
 }
