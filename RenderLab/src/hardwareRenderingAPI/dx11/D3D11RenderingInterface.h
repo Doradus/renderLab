@@ -6,6 +6,7 @@
 #include "RenderingInterface.h"
 #include "D3D11VertexBuffer.h"
 #include "D3D11IndexBuffer.h"
+#include "D3D11ConstantBuffer.h"
 #include "D3D11VertexShader.h"
 #include "D3D11PixelShader.h"
 #include "D3D11GeometryShader.h"
@@ -26,11 +27,16 @@ public :
 
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const final override;
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
+	ConstantBuffer*	CreateConstantBuffer(unsigned int size) const final override;
 	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
 	GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const final override;
 	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;
 	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
+	void			UpdateConstantBuffer(ConstantBuffer* buffer, void* data, unsigned int size) const;
+	void			SetVSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
+	void			SetGSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
+	void			SetPSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const;
 	void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) final override;
 	void			BindBackBuffer() final override;
@@ -45,7 +51,6 @@ public :
 	void			SetDeafultRasterState() const;
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) final override;
-	void			CreateConstantBuffer();
 	void			ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const final override;
 	void			UpdateShadowConstantBuffer(VertexShaderShadowResources shadowResources) const final override;
 	void			ConstantBuffersFrameStart(PixelShaderPerFrameResource perFrameResources) const final override;

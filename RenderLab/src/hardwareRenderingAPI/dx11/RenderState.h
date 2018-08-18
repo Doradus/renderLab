@@ -8,7 +8,7 @@ enum ShaderTypes {
 	GEOMETRY_SHADER,
 	PIXEL_SHADER,
 	COMPUTE_SHADER,
-	SHADER_TYPES
+	NUM_SHADER_TYPES
 };
 
 class RenderStateCache {
@@ -92,6 +92,7 @@ public:
 
 	void SetSamplerState(ID3D11SamplerState* sampler, ShaderTypes type, unsigned int slot) {
 		if (currentSamplerState[type][slot] != sampler) {
+			currentSamplerState[type][slot] = sampler;
 			switch (type) {
 			case VERTEX_SHADER:
 				d3dImmediateContext->VSSetSamplers(slot, 1, &sampler);
@@ -124,14 +125,44 @@ public:
 		}
 	}
 
+	template <ShaderTypes shaderType>
+	void SetConstantBuffer(ID3D11Buffer* buffer, unsigned int slot) {
+		if (currentConstantBuffers[shaderType][slot] != buffer) {
+			currentConstantBuffers[shaderType][slot] = buffer;
+			switch (shaderType) {
+			case VERTEX_SHADER:
+				d3dImmediateContext->VSSetConstantBuffers(slot, 1, &buffer);
+				break;
+			case HULL_SHADER:
+				d3dImmediateContext->HSSetConstantBuffers(slot, 1, &buffer);
+				break;
+			case DOMAIN_SHADER:
+				d3dImmediateContext->DSSetConstantBuffers(slot, 1, &buffer);
+				break;
+			case GEOMETRY_SHADER:
+				d3dImmediateContext->GSSetConstantBuffers(slot, 1, &buffer);
+				break;
+			case PIXEL_SHADER:
+				d3dImmediateContext->PSSetConstantBuffers(slot, 1, &buffer);
+				break;
+			case COMPUTE_SHADER:
+				d3dImmediateContext->CSSetConstantBuffers(slot, 1, &buffer);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
 private:
 	ID3D11DeviceContext*		d3dImmediateContext;
 	ID3D11InputLayout*			currentInputLayout;
 	ID3D11VertexShader*			currentVertexShader;
 	ID3D11GeometryShader*		currentGeometryShader;
 	ID3D11PixelShader*			currentPixelShader;
-	ID3D11ShaderResourceView*	currentShaderResourceView[SHADER_TYPES][D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT];
-	ID3D11SamplerState*			currentSamplerState[SHADER_TYPES][D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
+	ID3D11ShaderResourceView*	currentShaderResourceView[NUM_SHADER_TYPES][D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT];
+	ID3D11SamplerState*			currentSamplerState[NUM_SHADER_TYPES][D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
+	ID3D11Buffer*				currentConstantBuffers[NUM_SHADER_TYPES][D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
 	D3D11_PRIMITIVE_TOPOLOGY	currentTopology;
 	D3D11_VIEWPORT				currentViewPort;
 };

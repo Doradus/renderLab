@@ -253,8 +253,6 @@ void RenderLab::BuildGeometry() {
 	world->AddStaticMesh(plane);
 	world->AddStaticMesh(sphere);
 
-	renderer->CreateConstantBuffer();
-
 	delete factory;
 }
 

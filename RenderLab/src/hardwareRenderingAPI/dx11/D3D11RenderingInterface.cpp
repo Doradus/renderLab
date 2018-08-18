@@ -215,6 +215,23 @@ IndexBuffer* D3D11RenderingInterface::CreateIndexBuffer(unsigned int size, const
 	return indexBuffer;
 }
 
+ConstantBuffer* D3D11RenderingInterface::CreateConstantBuffer(unsigned int size) const {
+	D3D11_BUFFER_DESC constantBufferDesc = {};
+
+	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constantBufferDesc.ByteWidth = size;
+	constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+	ID3D11Buffer* resource = nullptr;
+
+	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &resource));
+
+	D3D11ConstantBuffer* constantBuffer = new D3D11ConstantBuffer(resource);
+
+	return constantBuffer;
+}
+
 VertexShader* D3D11RenderingInterface::CreateVertexShader(const unsigned char* shaderSource, size_t size) const {
 	D3D11VertexShader* shader = new D3D11VertexShader();
 	VERIFY_D3D_RESULT(d3dDevice->CreateVertexShader(shaderSource, size, nullptr, &shader->resource));
@@ -286,6 +303,25 @@ SamplerState* D3D11RenderingInterface::CreateSamplerState(const SamplerConfig & 
 
 Texture2DRI * D3D11RenderingInterface::CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
 	return CreateD3D11Texture2d(width, height, arraySize, isCube, numberOfMips, format, flags, samples);
+}
+
+void D3D11RenderingInterface::UpdateConstantBuffer(ConstantBuffer* buffer, void * data, unsigned int size) const {
+	D3D11_MAPPED_SUBRESOURCE subResources;
+	VERIFY_D3D_RESULT(d3dImmediateContext->Map(static_cast<D3D11ConstantBuffer*>(buffer)->resource, 0, D3D11_MAP_WRITE_DISCARD, 0, &subResources));
+	memcpy(subResources.pData, data, size);
+	d3dImmediateContext->Unmap(static_cast<D3D11ConstantBuffer*>(buffer)->resource, 0);
+}
+
+void D3D11RenderingInterface::SetVSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const {
+	stateCache->SetConstantBuffer<VERTEX_SHADER>(static_cast<D3D11ConstantBuffer*>(buffer)->resource, slot);
+}
+
+void D3D11RenderingInterface::SetGSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const {
+	stateCache->SetConstantBuffer<GEOMETRY_SHADER>(static_cast<D3D11ConstantBuffer*>(buffer)->resource, slot);
+}
+
+void D3D11RenderingInterface::SetPSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const {
+	stateCache->SetConstantBuffer<PIXEL_SHADER>(static_cast<D3D11ConstantBuffer*>(buffer)->resource, slot);
 }
 
 void D3D11RenderingInterface::SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const {
@@ -531,6 +567,7 @@ void D3D11RenderingInterface::CreateInputLayout(const unsigned char* shaderSourc
 	VERIFY_D3D_RESULT(d3dDevice->CreateInputLayout(vertexDesc, 3, shaderSource, size, &inputLayout));
 }
 
+/*
 void D3D11RenderingInterface::CreateConstantBuffer() {
 	D3D11_BUFFER_DESC wvpConstantBufferDesc = {};
 
@@ -571,6 +608,8 @@ void D3D11RenderingInterface::CreateConstantBuffer() {
 	d3dImmediateContext->VSSetConstantBuffers(0, 2, vertexConstantBuffers);
 	d3dImmediateContext->PSSetConstantBuffers(0, 2, pixelConstantBuffers);
 }
+
+*/
 
 void D3D11RenderingInterface::ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const {
 	D3D11_MAPPED_SUBRESOURCE objecResources;
