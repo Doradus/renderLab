@@ -30,6 +30,7 @@ public:
 	virtual void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) = 0;
 	virtual void			BindBackBuffer() = 0;
 	virtual void			SetVertexShader(VertexShader* shader) const = 0;
+	virtual void			SetGeometryShader(GeometryShader* shader) const = 0;
 	virtual void			SetPixelShader(PixelShader* shader) const = 0;
 	virtual void			ClearActiveRenderTarget() const = 0;
 	virtual void			SetShaderResources(TextureRI* shaderResource) const = 0;

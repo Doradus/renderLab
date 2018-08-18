@@ -35,6 +35,7 @@ public :
 	void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) final override;
 	void			BindBackBuffer() final override;
 	void			SetVertexShader(VertexShader* shader) const;
+	void			SetGeometryShader(GeometryShader* shader) const;
 	void			SetPixelShader(PixelShader* shader) const;
 	void			ClearActiveRenderTarget() const;
 	void			SetShaderResources(TextureRI* shaderResource) const;

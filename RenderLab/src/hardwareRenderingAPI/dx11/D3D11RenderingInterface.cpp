@@ -216,7 +216,6 @@ IndexBuffer* D3D11RenderingInterface::CreateIndexBuffer(unsigned int size, const
 }
 
 VertexShader* D3D11RenderingInterface::CreateVertexShader(const unsigned char* shaderSource, size_t size) const {
-
 	D3D11VertexShader* shader = new D3D11VertexShader();
 	VERIFY_D3D_RESULT(d3dDevice->CreateVertexShader(shaderSource, size, nullptr, &shader->resource));
 
@@ -224,7 +223,6 @@ VertexShader* D3D11RenderingInterface::CreateVertexShader(const unsigned char* s
 }
 
 PixelShader* D3D11RenderingInterface::CreatePixelShader(const unsigned char* shaderSource, size_t size) const {
-
 	D3D11PixelShader* shader = new D3D11PixelShader();
 	VERIFY_D3D_RESULT(d3dDevice->CreatePixelShader(shaderSource, size, nullptr, &shader->resource));
 
@@ -330,6 +328,16 @@ void D3D11RenderingInterface::BindBackBuffer() {
 void D3D11RenderingInterface::SetVertexShader(VertexShader * shader) const {
 	D3D11VertexShader* vShader = static_cast<D3D11VertexShader*>(shader);
 	stateCache->SetVertexShader(vShader->resource);
+}
+
+void D3D11RenderingInterface::SetGeometryShader(GeometryShader * shader) const {
+	D3D11GeometryShader* gShader = static_cast<D3D11GeometryShader*>(shader);
+
+	if (gShader) {
+		stateCache->SetGeometryShader(gShader->resource);
+	} else {
+		stateCache->SetGeometryShader(nullptr);
+	}
 }
 
 void D3D11RenderingInterface::SetPixelShader(PixelShader * shader) const {

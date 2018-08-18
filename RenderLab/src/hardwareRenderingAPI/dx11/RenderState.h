@@ -17,6 +17,7 @@ public:
 	d3dImmediateContext(nullptr),
 	currentInputLayout (nullptr), 
 	currentVertexShader(nullptr),
+	currentGeometryShader(nullptr),
 	currentPixelShader(nullptr)
 	{};
 	~RenderStateCache () {};
@@ -43,6 +44,13 @@ public:
 		if (shader != currentPixelShader) {
 			currentPixelShader = shader;
 			d3dImmediateContext->PSSetShader(shader, nullptr, 0);
+		}
+	}
+
+	void SetGeometryShader(ID3D11GeometryShader* shader) {
+		if (shader != currentGeometryShader) {
+			currentGeometryShader = shader;
+			d3dImmediateContext->GSSetShader(shader, nullptr, 0);
 		}
 	}
 
@@ -120,6 +128,7 @@ private:
 	ID3D11DeviceContext*		d3dImmediateContext;
 	ID3D11InputLayout*			currentInputLayout;
 	ID3D11VertexShader*			currentVertexShader;
+	ID3D11GeometryShader*		currentGeometryShader;
 	ID3D11PixelShader*			currentPixelShader;
 	ID3D11ShaderResourceView*	currentShaderResourceView[SHADER_TYPES][D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT];
 	ID3D11SamplerState*			currentSamplerState[SHADER_TYPES][D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
