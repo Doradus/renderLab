@@ -231,6 +231,15 @@ PixelShader* D3D11RenderingInterface::CreatePixelShader(const unsigned char* sha
 	return shader;
 }
 
+GeometryShader * D3D11RenderingInterface::CreateGeometryShader(const unsigned char * shaderSource, size_t size) const {
+	ID3D11GeometryShader* resource = nullptr;
+	VERIFY_D3D_RESULT(d3dDevice->CreateGeometryShader(shaderSource, size, nullptr, &resource));
+
+	D3D11GeometryShader* shader = new D3D11GeometryShader(resource);
+	
+	return shader;
+}
+
 SamplerState* D3D11RenderingInterface::CreateSamplerState(const SamplerConfig & config) const {
 	D3D11_SAMPLER_DESC samplerDesc = {};
 

@@ -11,6 +11,7 @@
 #include "RenderUtils.h"
 #include "SamplerState.h"
 #include "RenderingInterfaceResources.h"
+#include "GeometryShader.h"
 
 class RenderingInterface {
 public:
@@ -22,6 +23,7 @@ public:
 	virtual IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const = 0;
 	virtual VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const = 0;
+	virtual GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual SamplerState*	CreateSamplerState(const SamplerConfig& config) const = 0;
 	virtual Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const = 0;
 	virtual void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const = 0;

@@ -8,6 +8,7 @@
 #include "D3D11IndexBuffer.h"
 #include "D3D11VertexShader.h"
 #include "D3D11PixelShader.h"
+#include "D3D11GeometryShader.h"
 #include "D3D11Resources.h"
 #include "RenderState.h"
 #include "D3D11SamplerState.h"
@@ -27,6 +28,7 @@ public :
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
 	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
+	GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const final override;
 	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;
 	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
 	void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const;
