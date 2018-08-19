@@ -35,6 +35,8 @@ private:
 	ConstantBuffer* shadowConstantBuffer;
 	ConstantBuffer* pixelShaderPerFrameBuffer;
 	ConstantBuffer* materialBuffer;
+	ConstantBuffer* omniDirectionalShadowPassVSBuffer;
+	ConstantBuffer* omniDirectionalShadowPassGSBuffer;
 
 	int screenWidth;
 	int screenHeight;

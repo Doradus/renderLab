@@ -85,6 +85,14 @@ struct MaterialResource {
 	float padding;
 };
 
+struct OminDirectionalShadowPassVSResources {
+	XMFLOAT4X4 worldMatrix;
+};
+
+struct OmniDirectionalShadowPassGSResources {
+	XMFLOAT4X4 lightVPMatrix[6];
+};
+
 struct VertexShaderShadowResources {
 	VertexShaderShadowResources() {};
 	XMFLOAT4X4 lightWorldViewProj;

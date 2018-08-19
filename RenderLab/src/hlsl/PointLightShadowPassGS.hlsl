@@ -13,7 +13,7 @@ struct GeoOut
     float4 posW : SV_POSITION;
 };
 
-cbuffer PerFrame : register(b1)
+cbuffer PerFrame : register(b0)
 {
     float4x4 lightVP [6];
 }

@@ -7,6 +7,8 @@ Renderer::Renderer() :
 	shadowConstantBuffer(nullptr),
 	pixelShaderPerFrameBuffer(nullptr),
 	materialBuffer(nullptr),
+	omniDirectionalShadowPassVSBuffer(nullptr),
+	omniDirectionalShadowPassGSBuffer(nullptr),
 	samplerState (nullptr) {}
 
 Renderer::~Renderer() {
@@ -28,6 +30,12 @@ Renderer::~Renderer() {
 	delete materialBuffer;
 	materialBuffer = nullptr;
 
+	delete omniDirectionalShadowPassVSBuffer;
+	omniDirectionalShadowPassVSBuffer = nullptr;
+
+	delete omniDirectionalShadowPassGSBuffer;
+	omniDirectionalShadowPassGSBuffer = nullptr;
+
 	delete samplerState;
 	samplerState = nullptr;
 }
@@ -45,9 +53,14 @@ void Renderer::CreateConstantBuffers() {
 	shadowConstantBuffer = renderingInterface->CreateConstantBuffer(sizeof(VertexShaderShadowResources));
 	pixelShaderPerFrameBuffer = renderingInterface->CreateConstantBuffer(sizeof(PixelShaderPerFrameResource));
 	materialBuffer = renderingInterface->CreateConstantBuffer(sizeof(MaterialResource));
+	omniDirectionalShadowPassVSBuffer = renderingInterface->CreateConstantBuffer(sizeof(OminDirectionalShadowPassVSResources));
+	omniDirectionalShadowPassGSBuffer = renderingInterface->CreateConstantBuffer(sizeof(OmniDirectionalShadowPassGSResources));
 
 	renderingInterface->SetVSConstantBuffer(objectConstantBuffer, 0);
 	renderingInterface->SetVSConstantBuffer(shadowConstantBuffer, 1);
+	renderingInterface->SetVSConstantBuffer(omniDirectionalShadowPassVSBuffer, 2);
+
+	renderingInterface->SetGSConstantBuffer(omniDirectionalShadowPassGSBuffer, 0);
 
 	renderingInterface->SetPSConstantBuffer(pixelShaderPerFrameBuffer, 0);
 	renderingInterface->SetPSConstantBuffer(materialBuffer, 1);
