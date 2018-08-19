@@ -28,8 +28,10 @@ private:
 	void RenderShadows(World* world) const;
 	void CreateConstantBuffers();
 private:
-	VertexShader* shadowPassVS; 
-	SamplerState* samplerState;
+	VertexShader*	shadowPassVS; 
+	VertexShader*	omniDirectionalShadowPassVS;
+	GeometryShader* omniDirectionalShadowPassGS;
+	SamplerState*	samplerState;
 
 	ConstantBuffer* objectConstantBuffer;
 	ConstantBuffer* shadowConstantBuffer;

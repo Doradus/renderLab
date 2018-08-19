@@ -48,8 +48,8 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
-Texture2D shadowMap;
-SamplerComparisonState shadowSampler;
+TextureCube omniDirectionalShadowMap;
+SamplerState trilinearSampler;
 
 float CalculateAttenuation(LightProperties light, float distance) {
    return 1.0f / dot(light.attenuation, float3(1.0f, distance, distance * distance));
@@ -64,6 +64,7 @@ float CalculateSpotIntensity(LightProperties light, float3 lightVector) {
     return smoothstep(minIntensity, maxIntensity, dot(light.direction, -lightVector));
 }
 
+/*
 float GetShadowFactor(PixelIn input) {
     float2 shadowTextureCoords;
     shadowTextureCoords.x = 0.5f + (input.lightSpace.x / input.lightSpace.w * 0.5f);
@@ -74,6 +75,30 @@ float GetShadowFactor(PixelIn input) {
 
     if ((saturate(shadowTextureCoords.x) == shadowTextureCoords.x) && (saturate(shadowTextureCoords.y) == shadowTextureCoords.y) && (pixelDepth > 0.0f)) {
         shadowFactor = shadowMap.SampleCmpLevelZero(shadowSampler, shadowTextureCoords, pixelDepth).r;
+    }
+
+    return shadowFactor;
+}
+*/
+
+float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light)
+{
+    float3 distance = input.position - light.position;
+    float nearest = omniDirectionalShadowMap.Sample(trilinearSampler, distance).r;
+
+    float3 absVec = abs(distance);
+    float localZcomp = max(absVec.x, max(absVec.y, absVec.z));
+
+    const float f = light.range;
+    const float n = 1.0;
+    float normZComp = (f + n) / (f - n) - (2 * f * n) / (f - n) / localZcomp;
+    normZComp = (normZComp + 1.0) * 0.5;
+
+    float shadowFactor;
+    if (normZComp > nearest) {
+        shadowFactor = 0.0f;
+    } else {
+        shadowFactor = 1.0f;
     }
 
     return shadowFactor;
@@ -156,7 +181,7 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
     float3 specularColor = float3(0.0f, 0.0f, 0.0f);
     float3 toEye = normalize(eyePosition - vIn.position);
 
-    float shadowFactor = GetShadowFactor(vIn);
+    float shadowFactor = 1.0f;
     float3 diffuse, specular;
     for (int i = 0; i < activeLights; i++) {
         switch (lights[i].type) {
@@ -167,8 +192,9 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
                 break;
             case POINT_LIGHT:
                 ComputePointLight(vIn.normal, vIn.position, toEye, lights[i],  diffuse, specular);
-                diffuseColor += diffuse;
-                specularColor += specular;
+                shadowFactor = GetOmniDirectionalShadowFactor(vIn, lights[i]);
+                diffuseColor += diffuse * shadowFactor;
+                specularColor += specular * shadowFactor;
                 break;
             case SPOT_LIGHT:
                 ComputeSpotLight(vIn.normal, vIn.position, toEye, lights[i], diffuse, specular);
