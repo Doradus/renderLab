@@ -29,7 +29,7 @@ void World::AddDirectionalLight(const DirectionalLightComponent* light) {
 	CreateShadowMap();
 }
 
-void World::AddPointLight(const PointLightComponent * light) {
+void World::AddPointLight(PointLightComponent * light) {
 	pointLights.push_back(light);
 	CreateShadowMapCube();
 }
@@ -51,7 +51,7 @@ std::vector<const DirectionalLightComponent*> World::GetAllDirectionalLights() c
 	return directionalLight;
 }
 
-std::vector<const PointLightComponent*> World::GetAllPointLights() const {
+std::vector<PointLightComponent*> World::GetAllPointLights() const {
 	return pointLights;
 }
 

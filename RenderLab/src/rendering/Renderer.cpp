@@ -1,8 +1,12 @@
 #include "Renderer.h"
 #include "ShadowPassVS.h"
+#include "PointLightShadowPassVS.h"
+#include "PointLightShadowPassGS.h"
 
 Renderer::Renderer() :
 	shadowPassVS (nullptr),
+	omniDirectionalShadowPassVS (nullptr),
+	omniDirectionalShadowPassGS (nullptr),
 	objectConstantBuffer(nullptr),
 	shadowConstantBuffer(nullptr),
 	pixelShaderPerFrameBuffer(nullptr),
@@ -17,6 +21,12 @@ Renderer::~Renderer() {
 
 	delete shadowPassVS;
 	shadowPassVS = nullptr;
+
+	delete omniDirectionalShadowPassVS;
+	omniDirectionalShadowPassVS = nullptr;
+
+	delete omniDirectionalShadowPassGS;
+	omniDirectionalShadowPassGS = nullptr;
 
 	delete objectConstantBuffer;
 	objectConstantBuffer = nullptr;
@@ -98,33 +108,94 @@ void Renderer::RenderWorld(World* world) const {
 	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
 	*/
 
-	SpotLightComponent* spotLight = world->GetAllSpotLights()[0];
-	spotLight->UpdateViewMatrix();
-	spotLight->UpdateProjectionMatrix();
+	//SpotLightComponent* spotLight = world->GetAllSpotLights()[0];
+	//spotLight->UpdateViewMatrix();
+	//spotLight->UpdateProjectionMatrix();
 
-	XMMATRIX lightView = XMLoadFloat4x4(&spotLight->GetViewMatrix());
-	XMMATRIX lightProj = XMLoadFloat4x4(&spotLight->GetProjectionMatrix());
+	//XMMATRIX lightView = XMLoadFloat4x4(&spotLight->GetViewMatrix());
+	//XMMATRIX lightProj = XMLoadFloat4x4(&spotLight->GetProjectionMatrix());
+
+	PointLightComponent* pointLight = world->GetAllPointLights()[0];
+	pointLight->UpdateViewMatrix();
+	pointLight->UpdateProjectionMatrix();
+
+	XMMATRIX lightProj = XMLoadFloat4x4(&pointLight->GetProjectionMatrix());
+	XMMATRIX lightView1 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[0]);
+	XMMATRIX lightView2 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[1]);
+	XMMATRIX lightView3 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[2]);
+	XMMATRIX lightView4 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[3]);
+	XMMATRIX lightView5 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[4]);
+	XMMATRIX lightView6 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[5]);
+
+	XMMATRIX lightVP1 = lightView1 * lightProj;
+	XMMATRIX lightVP2 = lightView2 * lightProj;
+	XMMATRIX lightVP3 = lightView3 * lightProj;
+	XMMATRIX lightVP4 = lightView4 * lightProj;
+	XMMATRIX lightVP5 = lightView5 * lightProj;
+	XMMATRIX lightVP6 = lightView6 * lightProj;
+
+	XMMATRIX transposedLightVP1 = XMMatrixTranspose(lightVP1);
+	XMMATRIX transposedLightVP2 = XMMatrixTranspose(lightVP2);
+	XMMATRIX transposedLightVP3 = XMMatrixTranspose(lightVP3);
+	XMMATRIX transposedLightVP4 = XMMatrixTranspose(lightVP4);
+	XMMATRIX transposedLightVP5 = XMMatrixTranspose(lightVP5);
+	XMMATRIX transposedLightVP6 = XMMatrixTranspose(lightVP6);
+
+	XMFLOAT4X4 lightVP1Data;
+	XMFLOAT4X4 lightVP2Data;
+	XMFLOAT4X4 lightVP3Data;
+	XMFLOAT4X4 lightVP4Data;
+	XMFLOAT4X4 lightVP5Data;
+	XMFLOAT4X4 lightVP6Data;
+
+	XMStoreFloat4x4(&lightVP1Data, transposedLightVP1);
+	XMStoreFloat4x4(&lightVP2Data, transposedLightVP2);
+	XMStoreFloat4x4(&lightVP3Data, transposedLightVP3);
+	XMStoreFloat4x4(&lightVP4Data, transposedLightVP4);
+	XMStoreFloat4x4(&lightVP5Data, transposedLightVP5);
+	XMStoreFloat4x4(&lightVP6Data, transposedLightVP6);
+
+
+	OmniDirectionalShadowPassGSResources gsResources = {};
+	gsResources.lightVPMatrix[0] = lightVP1Data;
+	gsResources.lightVPMatrix[1] = lightVP2Data;
+	gsResources.lightVPMatrix[2] = lightVP3Data;
+	gsResources.lightVPMatrix[3] = lightVP4Data;
+	gsResources.lightVPMatrix[4] = lightVP5Data;
+	gsResources.lightVPMatrix[5] = lightVP6Data;
 
 	renderingInterface->ClearShaderResource();
-	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMap());
+	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMapCube());
 	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1024.0f, 1024.0f, 1.0f);
 	renderingInterface->ClearActiveRenderTarget();
 	renderingInterface->SetShadowRasterState();
+	renderingInterface->UpdateConstantBuffer(omniDirectionalShadowPassGSBuffer, &gsResources, sizeof(OmniDirectionalShadowPassGSResources));
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
 		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
-		XMMATRIX wvp = world * lightView * lightProj;
-		XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
-		XMFLOAT4X4 wvpData;
-		XMStoreFloat4x4(&wvpData, transposedWvp);
+		XMMATRIX transposedWorld = XMMatrixTranspose(world);
+		XMFLOAT4X4 worldData;
+		XMStoreFloat4x4(&worldData, transposedWorld);
 
-		VertexShaderShadowResources properties;
-		properties.lightWorldViewProj = wvpData;
+		OminDirectionalShadowPassVSResources vsResources = {};
+		vsResources.worldMatrix = worldData;
+		renderingInterface->UpdateConstantBuffer(omniDirectionalShadowPassVSBuffer, &vsResources, sizeof(OminDirectionalShadowPassVSResources));
+		renderingInterface->SetGeometryShader(omniDirectionalShadowPassGS);
 
-		renderingInterface->UpdateConstantBuffer(shadowConstantBuffer, &properties, sizeof(VertexShaderShadowResources));
-		renderingInterface->Draw(mesh->GetRenderData(), shadowPassVS, nullptr);
+		//XMMATRIX wvp = world * lightView * lightProj;
+		//XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
+		//XMFLOAT4X4 wvpData;
+		//XMStoreFloat4x4(&wvpData, transposedWvp);
+
+		//VertexShaderShadowResources properties;
+		//properties.lightWorldViewProj = wvpData;
+
+		//renderingInterface->UpdateConstantBuffer(shadowConstantBuffer, &properties, sizeof(VertexShaderShadowResources));
+		//renderingInterface->Draw(mesh->GetRenderData(), shadowPassVS, nullptr);
+		renderingInterface->Draw(mesh->GetRenderData(), omniDirectionalShadowPassVS, nullptr);
 	}
 
+	renderingInterface->SetGeometryShader(nullptr);
 
 	//update the start frame const buffer
 	PixelShaderPerFrameResource pixelShaderPerFrameResource;
@@ -184,7 +255,7 @@ void Renderer::RenderWorld(World* world) const {
 	renderingInterface->SetDeafultRasterState();
 
 	renderingInterface->SetSamplerState(samplerState);
-	renderingInterface->SetShaderResources(world->GetShadowMap());
+	renderingInterface->SetShaderResources(world->GetShadowMapCube());
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
 		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
@@ -203,7 +274,8 @@ void Renderer::RenderWorld(World* world) const {
 
 		XMMATRIX worldTranspose = XMMatrixTranspose(world);
 
-		XMMATRIX lwvp = world * lightView * lightProj;
+		//XMMATRIX lwvp = world * lightView * lightProj;
+		XMMATRIX lwvp = world * lightProj;
 		XMMATRIX transposedLightWvp = XMMatrixTranspose(lwvp);
 		XMFLOAT4X4 lwvpData;
 		XMStoreFloat4x4(&lwvpData, transposedLightWvp);
@@ -256,12 +328,26 @@ void Renderer::InitShaders() {
 	size_t size = sizeof(g_shadow_pass_vs);
 	shadowPassVS = CreateVertexShader(g_shadow_pass_vs, size);
 
+	size = sizeof(g_point_light_shadow_pass_vs);
+	omniDirectionalShadowPassVS = CreateVertexShader(g_point_light_shadow_pass_vs, size);
+
+	size = sizeof(g_point_light_shadow_pass_gs);
+	omniDirectionalShadowPassGS = renderingInterface->CreateGeometryShader(g_point_light_shadow_pass_gs, size);
+
 	SamplerConfig samplerConfig = {};
+	/*
 	samplerConfig.addressModeU = BORDER;
 	samplerConfig.addressModeV = BORDER;
 	samplerConfig.addressModeW = BORDER;
 	samplerConfig.filter = COMPARE_BILINEAR_FILTERING;
 	samplerConfig.comparisonFunction = LESS_OR_EQUAL;
+	*/
+
+	samplerConfig.addressModeU = WRAP;
+	samplerConfig.addressModeV = WRAP;
+	samplerConfig.addressModeW = WRAP;
+	samplerConfig.filter = TRILINEAR_FILTERING;
+	//samplerConfig.comparisonFunction = LESS_OR_EQUAL;
 
 	samplerState = renderingInterface->CreateSamplerState(samplerConfig);
 }

@@ -18,37 +18,39 @@ void PointLightComponent::SetRange(const float & inRange) {
 }
 
 void PointLightComponent::UpdateProjectionMatrix() {
-	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(90), 1.0, 1.0f, range);
+	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(90), 1.0f, 1.0f, range);
 	XMStoreFloat4x4(&projectionMatrix, projection);
 }
 
 void PointLightComponent::UpdateViewMatrix() {
 	XMVECTOR lightPosition = XMLoadFloat3(&position);
-	XMVECTOR upDirection = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));
+	XMVECTOR upDirection1 = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));
+	XMVECTOR upDirection2 = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, -1.0f));
+	XMVECTOR upDirection3 = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 1.0f));
 
-	XMVECTOR left = XMLoadFloat3(&XMFLOAT3(range, 0.0f, 0.0f));
-	XMVECTOR right = XMLoadFloat3(&XMFLOAT3(-range, 0.0f, 0.0f));
-	XMVECTOR up = XMLoadFloat3(&XMFLOAT3(0.0f, range, 0.0f));
-	XMVECTOR down = XMLoadFloat3(&XMFLOAT3(0.0f, -range, 0.0f));
-	XMVECTOR front = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, range));
-	XMVECTOR back = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, -range));
+	XMVECTOR left = XMLoadFloat3(&XMFLOAT3(position.x + range,	position.y + 0.0f, position.z + 0.0f));
+	XMVECTOR right = XMLoadFloat3(&XMFLOAT3(position.x + -range, position.y + 0.0f, position.z + 0.0f));
+	XMVECTOR up = XMLoadFloat3(&XMFLOAT3(position.x + 0.0f, position.y + range, position.z + 0.0f));
+	XMVECTOR down = XMLoadFloat3(&XMFLOAT3(position.x + 0.0f, position.y + -range, position.z + 0.0f));
+	XMVECTOR front = XMLoadFloat3(&XMFLOAT3(position.x + 0.0f, position.y + 0.0f, position.z + range));
+	XMVECTOR back = XMLoadFloat3(&XMFLOAT3(position.x + 0.0f, position.y + 0.0f, position.z + -range));
 
-	XMMATRIX leftView = XMMatrixLookToLH(lightPosition, left, upDirection);
+	XMMATRIX leftView = XMMatrixLookAtLH(lightPosition, left, upDirection1);
 	XMStoreFloat4x4(&viewMatrix[0], leftView);
 
-	XMMATRIX rightView = XMMatrixLookToLH(lightPosition, right, upDirection);
+	XMMATRIX rightView = XMMatrixLookAtLH(lightPosition, right, upDirection1);
 	XMStoreFloat4x4(&viewMatrix[1], rightView);
 
-	XMMATRIX upView = XMMatrixLookToLH(lightPosition, up, upDirection);
+	XMMATRIX upView = XMMatrixLookAtLH(lightPosition, up, upDirection2);
 	XMStoreFloat4x4(&viewMatrix[2], upView);
 
-	XMMATRIX downView = XMMatrixLookToLH(lightPosition, down, upDirection);
+	XMMATRIX downView = XMMatrixLookAtLH(lightPosition, down, upDirection3);
 	XMStoreFloat4x4(&viewMatrix[3], downView);
 
-	XMMATRIX frontView = XMMatrixLookToLH(lightPosition, front, upDirection);
+	XMMATRIX frontView = XMMatrixLookAtLH(lightPosition, front, upDirection1);
 	XMStoreFloat4x4(&viewMatrix[4], frontView);
 
-	XMMATRIX backView = XMMatrixLookToLH(lightPosition, back, upDirection);
+	XMMATRIX backView = XMMatrixLookAtLH(lightPosition, back, upDirection1);
 	XMStoreFloat4x4(&viewMatrix[5], backView);
 }
 
