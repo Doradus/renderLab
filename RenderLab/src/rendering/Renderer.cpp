@@ -116,61 +116,15 @@ void Renderer::RenderWorld(World* world) const {
 	//XMMATRIX lightProj = XMLoadFloat4x4(&spotLight->GetProjectionMatrix());
 
 	PointLightComponent* pointLight = world->GetAllPointLights()[0];
-	pointLight->UpdateViewMatrix();
-	pointLight->UpdateProjectionMatrix();
 
-	XMMATRIX lightProj = XMLoadFloat4x4(&pointLight->GetProjectionMatrix());
-	XMMATRIX lightView1 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[0]);
-	XMMATRIX lightView2 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[1]);
-	XMMATRIX lightView3 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[2]);
-	XMMATRIX lightView4 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[3]);
-	XMMATRIX lightView5 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[4]);
-	XMMATRIX lightView6 = XMLoadFloat4x4(&pointLight->GetViewMatrix()[5]);
+	ShadowInfo shadowInfo;
+	shadowInfo.CreateShadowInfo(pointLight);
 
-	XMMATRIX lightVP1 = lightView1 * lightProj;
-	XMMATRIX lightVP2 = lightView2 * lightProj;
-	XMMATRIX lightVP3 = lightView3 * lightProj;
-	XMMATRIX lightVP4 = lightView4 * lightProj;
-	XMMATRIX lightVP5 = lightView5 * lightProj;
-	XMMATRIX lightVP6 = lightView6 * lightProj;
+	if (shadowInfo.GetIsOmniDirectionalShadow()) {
+		RenderProjectedOmniDirectionalShadow(world, shadowInfo);
+	}
 
-	XMMATRIX transposedLightVP1 = XMMatrixTranspose(lightVP1);
-	XMMATRIX transposedLightVP2 = XMMatrixTranspose(lightVP2);
-	XMMATRIX transposedLightVP3 = XMMatrixTranspose(lightVP3);
-	XMMATRIX transposedLightVP4 = XMMatrixTranspose(lightVP4);
-	XMMATRIX transposedLightVP5 = XMMatrixTranspose(lightVP5);
-	XMMATRIX transposedLightVP6 = XMMatrixTranspose(lightVP6);
-
-	XMFLOAT4X4 lightVP1Data;
-	XMFLOAT4X4 lightVP2Data;
-	XMFLOAT4X4 lightVP3Data;
-	XMFLOAT4X4 lightVP4Data;
-	XMFLOAT4X4 lightVP5Data;
-	XMFLOAT4X4 lightVP6Data;
-
-	XMStoreFloat4x4(&lightVP1Data, transposedLightVP1);
-	XMStoreFloat4x4(&lightVP2Data, transposedLightVP2);
-	XMStoreFloat4x4(&lightVP3Data, transposedLightVP3);
-	XMStoreFloat4x4(&lightVP4Data, transposedLightVP4);
-	XMStoreFloat4x4(&lightVP5Data, transposedLightVP5);
-	XMStoreFloat4x4(&lightVP6Data, transposedLightVP6);
-
-
-	OmniDirectionalShadowPassGSResources gsResources = {};
-	gsResources.lightVPMatrix[0] = lightVP1Data;
-	gsResources.lightVPMatrix[1] = lightVP2Data;
-	gsResources.lightVPMatrix[2] = lightVP3Data;
-	gsResources.lightVPMatrix[3] = lightVP4Data;
-	gsResources.lightVPMatrix[4] = lightVP5Data;
-	gsResources.lightVPMatrix[5] = lightVP6Data;
-
-	renderingInterface->ClearShaderResource();
-	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMapCube());
-	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1024.0f, 1024.0f, 1.0f);
-	renderingInterface->ClearActiveRenderTarget();
-	renderingInterface->SetShadowRasterState();
-	renderingInterface->UpdateConstantBuffer(omniDirectionalShadowPassGSBuffer, &gsResources, sizeof(OmniDirectionalShadowPassGSResources));
-
+	/*
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
 		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
 		XMMATRIX transposedWorld = XMMatrixTranspose(world);
@@ -179,23 +133,19 @@ void Renderer::RenderWorld(World* world) const {
 
 		OminDirectionalShadowPassVSResources vsResources = {};
 		vsResources.worldMatrix = worldData;
-		renderingInterface->UpdateConstantBuffer(omniDirectionalShadowPassVSBuffer, &vsResources, sizeof(OminDirectionalShadowPassVSResources));
-		renderingInterface->SetGeometryShader(omniDirectionalShadowPassGS);
 
-		//XMMATRIX wvp = world * lightView * lightProj;
-		//XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
-		//XMFLOAT4X4 wvpData;
-		//XMStoreFloat4x4(&wvpData, transposedWvp);
+		XMMATRIX wvp = world * lightView * lightProj;
+		XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
+		XMFLOAT4X4 wvpData;
+		XMStoreFloat4x4(&wvpData, transposedWvp);
 
-		//VertexShaderShadowResources properties;
-		//properties.lightWorldViewProj = wvpData;
+		VertexShaderShadowResources properties;
+		properties.lightWorldViewProj = wvpData;
 
-		//renderingInterface->UpdateConstantBuffer(shadowConstantBuffer, &properties, sizeof(VertexShaderShadowResources));
-		//renderingInterface->Draw(mesh->GetRenderData(), shadowPassVS, nullptr);
-		renderingInterface->Draw(mesh->GetRenderData(), omniDirectionalShadowPassVS, nullptr);
+		renderingInterface->UpdateConstantBuffer(shadowConstantBuffer, &properties, sizeof(VertexShaderShadowResources));
+		renderingInterface->Draw(mesh->GetRenderData(), shadowPassVS, nullptr);
 	}
-
-	renderingInterface->SetGeometryShader(nullptr);
+	*/
 
 	//update the start frame const buffer
 	PixelShaderPerFrameResource pixelShaderPerFrameResource;
@@ -275,7 +225,7 @@ void Renderer::RenderWorld(World* world) const {
 		XMMATRIX worldTranspose = XMMatrixTranspose(world);
 
 		//XMMATRIX lwvp = world * lightView * lightProj;
-		XMMATRIX lwvp = world * lightProj;
+		XMMATRIX lwvp = world;
 		XMMATRIX transposedLightWvp = XMMatrixTranspose(lwvp);
 		XMFLOAT4X4 lwvpData;
 		XMStoreFloat4x4(&lwvpData, transposedLightWvp);
@@ -352,50 +302,41 @@ void Renderer::InitShaders() {
 	samplerState = renderingInterface->CreateSamplerState(samplerConfig);
 }
 
-void Renderer::RenderShadows(World* world) const {
-	float sceneRadius = 15.0f;
-	const XMFLOAT3 sceneCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
+void Renderer::RenderProjectedOmniDirectionalShadow(World * world, ShadowInfo & shadowInfo) const {
+	const std::vector<XMFLOAT4X4> shadowVoewMatrices = shadowInfo.GetShadowViewProjectionMatrices();
+	OmniDirectionalShadowPassGSResources gsResources = {};
 
-	//generate view matrix
-	const DirectionalLightComponent* light = world->GetAllDirectionalLights()[0];
+	gsResources.lightVPMatrix[0] = shadowVoewMatrices[0];
+	gsResources.lightVPMatrix[1] = shadowVoewMatrices[1];
+	gsResources.lightVPMatrix[2] = shadowVoewMatrices[2];
+	gsResources.lightVPMatrix[3] = shadowVoewMatrices[3];
+	gsResources.lightVPMatrix[4] = shadowVoewMatrices[4];
+	gsResources.lightVPMatrix[5] = shadowVoewMatrices[5];
 
-	const XMFLOAT3 lightDirectionStorage = light->GetDirection();
-	const XMVECTOR lightDirection = XMLoadFloat3(&lightDirectionStorage);
-	const XMVECTOR lightPosition = XMVectorScale(lightDirection , -2.0f * sceneRadius);
-	const XMVECTOR targetPostion = XMLoadFloat3(&sceneCenter);
-	const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	const XMMATRIX lightView = XMMatrixLookAtLH(lightPosition, targetPostion, up);
-
-	//generate projection matrix
-	XMFLOAT3 sphereCenterLS;
-	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPostion, lightView));
-	const float left = sceneCenter.x - sceneRadius;
-	const float right = sceneCenter.x + sceneRadius;
-	const float bottom = sceneCenter.y - sceneRadius;
-	const float top = sceneCenter.y + sceneRadius;
-	const float nearPlane = sceneCenter.z - sceneRadius;
-	const float farPlane = sceneCenter.z + sceneRadius;
-
-	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
-
-	//bind render target
-	//TextureRI* shadowMap = world->GetShadowMap();
-	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMap());
+	renderingInterface->ClearShaderResource();
+	renderingInterface->SetRenderTarget(nullptr, world->GetShadowMapCube());
 	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1024.0f, 1024.0f, 1.0f);
 	renderingInterface->ClearActiveRenderTarget();
+	renderingInterface->SetShadowRasterState();
+	renderingInterface->UpdateConstantBuffer(omniDirectionalShadowPassGSBuffer, &gsResources, sizeof(OmniDirectionalShadowPassGSResources));
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
 		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
-		XMMATRIX wvp = world * lightView * lightProj;
-		XMMATRIX transposedWvp = XMMatrixTranspose(wvp);
-		XMFLOAT4X4 wvpData;
-		XMStoreFloat4x4(&wvpData, transposedWvp);
+		XMMATRIX transposedWorld = XMMatrixTranspose(world);
+		XMFLOAT4X4 worldData;
+		XMStoreFloat4x4(&worldData, transposedWorld);
 
-		VertexShaderShadowResources properties;
-		properties.lightWorldViewProj = wvpData;
+		OminDirectionalShadowPassVSResources vsResources = {};
+		vsResources.worldMatrix = worldData;
+		renderingInterface->UpdateConstantBuffer(omniDirectionalShadowPassVSBuffer, &vsResources, sizeof(OminDirectionalShadowPassVSResources));
+		renderingInterface->SetGeometryShader(omniDirectionalShadowPassGS);
 
-		renderingInterface->UpdateShadowConstantBuffer(properties);
-		renderingInterface->Draw(mesh->GetRenderData(), shadowPassVS, nullptr);
+		renderingInterface->Draw(mesh->GetRenderData(), omniDirectionalShadowPassVS, nullptr);
 	}
+
+	renderingInterface->SetGeometryShader(nullptr);
+}
+
+void Renderer::RenderProjectedShadow(World * world, ShadowInfo & shadowInfo) const {
+
 }

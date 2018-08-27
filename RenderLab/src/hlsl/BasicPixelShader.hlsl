@@ -48,8 +48,10 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
+Texture2D shadowMap;
 TextureCube omniDirectionalShadowMap;
 SamplerState trilinearSampler;
+SamplerComparisonState shadowSampler;
 
 float CalculateAttenuation(LightProperties light, float distance) {
    return 1.0f / dot(light.attenuation, float3(1.0f, distance, distance * distance));
@@ -64,7 +66,7 @@ float CalculateSpotIntensity(LightProperties light, float3 lightVector) {
     return smoothstep(minIntensity, maxIntensity, dot(light.direction, -lightVector));
 }
 
-/*
+
 float GetShadowFactor(PixelIn input) {
     float2 shadowTextureCoords;
     shadowTextureCoords.x = 0.5f + (input.lightSpace.x / input.lightSpace.w * 0.5f);
@@ -79,10 +81,9 @@ float GetShadowFactor(PixelIn input) {
 
     return shadowFactor;
 }
-*/
 
-float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light)
-{
+
+float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
     float3 distance = input.position - light.position;
     float nearest = omniDirectionalShadowMap.Sample(trilinearSampler, distance).r;
 
@@ -204,7 +205,7 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
         }
     }
 
-    float3 ambientLight = float3(0.3, 0.3, 0.35);
+    float3 ambientLight = float3(0.2, 0.2, 0.25);
     ambientLight *= material.albedo;
     diffuseColor *= material.albedo;
     specularColor *= material.specularColor;

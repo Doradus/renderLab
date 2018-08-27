@@ -7,6 +7,7 @@
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "World.h"
+#include "ShadowInfo.h"
 
 class Renderer {
 public:
@@ -25,7 +26,8 @@ public:
 
 private:
 	void InitShaders();
-	void RenderShadows(World* world) const;
+	void RenderOmniDirectionalShadows(World* world, ShadowInfo& shadowInfo) const;
+	void RenderProjectedShadow(World* world, ShadowInfo& shadowInfo) const;
 	void CreateConstantBuffers();
 private:
 	VertexShader*	shadowPassVS; 

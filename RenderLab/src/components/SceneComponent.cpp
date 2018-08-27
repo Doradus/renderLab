@@ -75,7 +75,6 @@ void SceneComponent::UpdateTransform() {
 	XMStoreFloat4x4(&worldMatrix, world);
 
 	isDirty = false;
-
 }
 
 XMFLOAT4X4 SceneComponent::GetWorld() const {

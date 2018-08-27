@@ -65,3 +65,7 @@ bool LightComponent::GetsCastsDynamicShadows() const {
 bool LightComponent::GetIsEnabled() const {
 	return isEnabled;
 }
+
+LightType LightComponent::GetLightType() const {
+	return lightType;
+}
