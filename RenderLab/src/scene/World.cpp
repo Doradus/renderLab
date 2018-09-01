@@ -24,7 +24,7 @@ void World::AddStaticMesh(const StaticMesh* mesh)  {
 	staticMeshes.push_back(mesh);
 }
 
-void World::AddDirectionalLight(const DirectionalLightComponent* light) {
+void World::AddDirectionalLight(DirectionalLightComponent* light) {
 	directionalLight.push_back(light);
 	CreateShadowMap();
 }
@@ -47,7 +47,7 @@ std::vector<const StaticMesh*> World::GetAllStaticMeshes() const {
 	return staticMeshes;
 }
 
-std::vector<const DirectionalLightComponent*> World::GetAllDirectionalLights() const {
+std::vector<DirectionalLightComponent*> World::GetAllDirectionalLights() const {
 	return directionalLight;
 }
 

@@ -26,7 +26,7 @@ public:
 
 private:
 	void InitShaders();
-	void RenderOmniDirectionalShadows(World* world, ShadowInfo& shadowInfo) const;
+	void RenderProjectedOmniDirectionalShadow(World* world, ShadowInfo& shadowInfo) const;
 	void RenderProjectedShadow(World* world, ShadowInfo& shadowInfo) const;
 	void CreateConstantBuffers();
 private:

@@ -49,8 +49,8 @@ cbuffer MaterialProperties : register(b1) {
 };
 
 Texture2D shadowMap;
-TextureCube omniDirectionalShadowMap;
-SamplerState trilinearSampler;
+//TextureCube omniDirectionalShadowMap;
+//SamplerState trilinearSampler;
 SamplerComparisonState shadowSampler;
 
 float CalculateAttenuation(LightProperties light, float distance) {
@@ -58,8 +58,8 @@ float CalculateAttenuation(LightProperties light, float distance) {
 }
 
 float CalculateSpotIntensity(LightProperties light, float3 lightVector) {
-    float outerBound = max(light.coneAngle, light.coneAngle + light.penumbraAngle);
-    float innerBound = min(light.coneAngle, light.coneAngle + light.penumbraAngle);
+    float outerBound = max(light.coneAngle, light.coneAngle + light.penumbraAngle * 2.0f);
+    float innerBound = min(light.coneAngle, light.coneAngle + light.penumbraAngle * 2.0f);
     float maxIntensity = cos(innerBound);
     float minIntensity = cos(outerBound);
 
@@ -84,6 +84,7 @@ float GetShadowFactor(PixelIn input) {
 
 
 float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
+    /*
     float3 distance = input.position - light.position;
     float nearest = omniDirectionalShadowMap.Sample(trilinearSampler, distance).r;
 
@@ -101,8 +102,9 @@ float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
     } else {
         shadowFactor = 1.0f;
     }
+*/
 
-    return shadowFactor;
+    return 1.0f;
 }
 
 void ComputeDirectionalLight(float3 normal, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor) {
@@ -188,6 +190,7 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
         switch (lights[i].type) {
             case DIRECTIONAL_LIGHT :
                 ComputeDirectionalLight(vIn.normal, toEye, lights[i], diffuse, specular);
+                shadowFactor = GetShadowFactor(vIn);
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
                 break;
@@ -199,6 +202,7 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
                 break;
             case SPOT_LIGHT:
                 ComputeSpotLight(vIn.normal, vIn.position, toEye, lights[i], diffuse, specular);
+                shadowFactor = GetShadowFactor(vIn);
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
                 break;

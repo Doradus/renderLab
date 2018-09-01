@@ -1,9 +1,10 @@
 #include "ShadowInfo.h"
-#include "PointLightComponent.h"
 
 ShadowInfo::ShadowInfo() : 
 	isCascadingShadow (false),
 	isOmniDirectionalShadow(false),
+	isProjectedShadow(false),
+	isDirectional(false),
 	shadowId(0)
 {
 	shadowViewProjectionMatrices = {};
@@ -13,15 +14,22 @@ ShadowInfo::~ShadowInfo() {
 }
 
 void ShadowInfo::CreateShadowInfo(LightComponent * lightComponent) {
+	bool isSpot = false;
+
 	switch (lightComponent->GetLightType()) {
-	case SPOT_LIGHT : 
-		isSpot = true;
-		break;
-	case POINT_LIGHT :
-		isOmniDirectionalShadow = true;
-		break;
-	default:
-		break;
+		case SPOT_LIGHT : 
+			isSpot = true;
+			isProjectedShadow = true;
+			break;
+		case POINT_LIGHT :
+			isOmniDirectionalShadow = true;
+			break;
+		case DIRECTIONAL_LIGHT :
+			isDirectional = true;
+			isProjectedShadow = true;
+			break;
+		default:
+			break;
 	}
 
 	if (isSpot) {
@@ -35,13 +43,15 @@ void ShadowInfo::CreateShadowInfo(LightComponent * lightComponent) {
 
 		XMVECTOR lightPosition = XMLoadFloat3(&position);
 		XMVECTOR lightDirection = XMLoadFloat3(&direction);
-		XMVECTOR up = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));
+		XMVECTOR focus = { position.x + (direction.x * range), position.y + (direction.y * range), position.z + (direction.z * range) };
+		XMVECTOR up = { 0.0f, 1.0f, 0.0f };
 
-		XMMATRIX view = XMMatrixLookToLH(lightPosition, lightDirection, up);
+		XMMATRIX view = XMMatrixLookAtLH(lightPosition, focus, up);
 
-		XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(coneAngle + penumbraAngle), 1.0, 1.0f, range);
+		XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians((coneAngle + penumbraAngle) * 2), 1.0, 0.5f, 500);
 
-		XMStoreFloat4x4(&shadowViewProjectionMatrix, XMMatrixTranspose(view * projection));
+		XMStoreFloat4x4(&shadowViewMatrix, view);
+		XMStoreFloat4x4(&shadowViewProjectionMatrix, projection);
 	}
 
 	if (isOmniDirectionalShadow) {
@@ -80,10 +90,52 @@ void ShadowInfo::CreateShadowInfo(LightComponent * lightComponent) {
 
 		shadowViewProjectionMatrices.assign(&viewProjectionMatrices[0], &viewProjectionMatrices[6]);
 	}
+
+	if (isDirectional) {
+		float sceneRadius = 20.0f;
+		const XMFLOAT3 sceneCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+		//generate view matrix
+		const DirectionalLightComponent* light = static_cast<DirectionalLightComponent*>(lightComponent);
+
+		const XMFLOAT3 lightDirectionStorage = light->GetDirection();
+		const XMVECTOR lightDirection = XMLoadFloat3(&lightDirectionStorage);
+		const XMVECTOR lightPosition = -2.0f * sceneRadius * lightDirection;
+		const XMVECTOR targetPostion = XMLoadFloat3(&sceneCenter);
+		const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+		const XMMATRIX lightView = XMMatrixLookAtLH(lightPosition, targetPostion, up);
+
+		//generate projection matrix
+		XMFLOAT3 sphereCenterLS;
+		XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPostion, lightView));
+		const float left = sphereCenterLS.x - sceneRadius;
+		const float right = sphereCenterLS.x + sceneRadius;
+		const float bottom = sphereCenterLS.y - sceneRadius;
+		const float top = sphereCenterLS.y + sceneRadius;
+		const float nearPlane = sphereCenterLS.z - sceneRadius;
+		const float farPlane = sphereCenterLS.z + sceneRadius;
+
+		XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
+		XMStoreFloat4x4(&shadowViewMatrix, lightView);
+		XMStoreFloat4x4(&shadowViewProjectionMatrix, lightProj);
+	}
 }
 
 bool ShadowInfo::GetIsOmniDirectionalShadow() const {
 	return isOmniDirectionalShadow;
+}
+
+bool ShadowInfo::GetIsProjectedShadow() const {
+	return isProjectedShadow;
+}
+
+XMFLOAT4X4 ShadowInfo::GetShadowViewProjectionMatrix() const {
+	return shadowViewProjectionMatrix;
+}
+
+XMFLOAT4X4 ShadowInfo::GetShadowViewMatrix() const {
+	return shadowViewMatrix;
 }
 
 std::vector<XMFLOAT4X4> ShadowInfo::GetShadowViewProjectionMatrices() const {
