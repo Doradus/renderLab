@@ -110,7 +110,7 @@ void RenderLab::Tick() {
 	const float x = 15 * sinf(testRotation);
 
 	//ight->SetDirection(-0.4f, -.5f, testRotation);
-	//pointLight->SetPosition(x, 8, -5);
+	pointLight->SetPosition(x, 8, -5);
 	//box2->SetRotation(0, testRotation, 0);
 }
 
@@ -300,16 +300,16 @@ void RenderLab::CreateLights() {
 	spotLight->SetPosition(7, 10, 12);
 	spotLight->SetDirection(-0.5f, -0.5f, -0.7f);
 	spotLight->SetAttenuation(0, 0.3f, 0);
-	spotLight->SetLightColor(0.9f, 0.78f, 0.72f);
+	spotLight->SetLightColor(0.3f, 0.5f, 1.0f);
 	spotLight->SetRange(100.0f);
 	spotLight->SetBrightness(0.9f);
 	spotLight->SetConeAngle(22);
 	spotLight->SetPenumbraAngle(10);
 	spotLight->SetIsEnabled(true);
 
-	world->AddDirectionalLight(light);
-	//world->AddPointLight(pointLight);
-	//world->AddSpotLight(spotLight);
+	//world->AddDirectionalLight(light);
+	world->AddPointLight(pointLight);
+	world->AddSpotLight(spotLight);
 }
 
 void RenderLab::Draw() {

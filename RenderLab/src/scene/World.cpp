@@ -72,9 +72,9 @@ const CameraComponent* World::GetActiveCamera() const {
 }
 
 void World::CreateShadowMap() {
-	shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 1, false, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
+	shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 1, false, true, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
 }
 
 void World::CreateShadowMapCube() {
-	shadowMapCube = renderingInterface->CreateTexture2d(1024, 1024, 6, true, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
+	shadowMapCube = renderingInterface->CreateTexture2d(1024, 1024, 6, true, false, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
 }

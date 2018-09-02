@@ -176,7 +176,7 @@ D3D11Texture2d* D3D11RenderingInterface::CreateBackBuffer() const {
 }
 
 D3D11Texture2d* D3D11RenderingInterface::CreateDepthAndStencilBuffer() {
-	return CreateD3D11Texture2d(screenWidth, screenHeight, 1, false, 1, DEPTH_STENCIL, TextureBindAsDepthStencil, 4);
+	return CreateD3D11Texture2d(screenWidth, screenHeight, 1, false, false, 1, DEPTH_STENCIL, TextureBindAsDepthStencil, 4);
 }
 
 VertexBuffer* D3D11RenderingInterface::CreateVertexBuffer(unsigned int size, const void * data) const {
@@ -301,8 +301,8 @@ SamplerState* D3D11RenderingInterface::CreateSamplerState(const SamplerConfig & 
 	return d3d11SamplerState;
 }
 
-Texture2DRI * D3D11RenderingInterface::CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
-	return CreateD3D11Texture2d(width, height, arraySize, isCube, numberOfMips, format, flags, samples);
+Texture2DRI * D3D11RenderingInterface::CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
+	return CreateD3D11Texture2d(width, height, arraySize, isCube, isTextureArray, numberOfMips, format, flags, samples);
 }
 
 void D3D11RenderingInterface::UpdateConstantBuffer(ConstantBuffer* buffer, void * data, unsigned int size) const {
@@ -385,7 +385,7 @@ void D3D11RenderingInterface::SetPixelShader(PixelShader * shader) const {
 	}
 }
 
-D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
+D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
 	unsigned int actualXmsaaQuality;
 
 	if (samples > 1) {
@@ -439,10 +439,18 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = GetShaderResourceFormat(textureFormat);
 
-		if (isCube) {
+		if (isCube && isTextureArray) {
+			//not done
+		} else if (isCube) {
 			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 			srvDesc.TextureCube.MipLevels = textureDesc.MipLevels;
 			srvDesc.TextureCube.MostDetailedMip = 0;
+		} else if (isTextureArray) {
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+			srvDesc.Texture2DArray.MostDetailedMip = 0;
+			srvDesc.Texture2DArray.MipLevels = textureDesc.MipLevels;
+			srvDesc.Texture2DArray.FirstArraySlice = 0;
+			srvDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;
 		} else {
 			srvDesc.ViewDimension = samples > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
 			srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
@@ -456,7 +464,7 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 		dsvDesc.Format = GetDepthStencilFormat(textureFormat);
 
-		if (isCube) {
+		if (isCube || isTextureArray) {
 			dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
 			dsvDesc.Texture2DArray.FirstArraySlice = 0;
 			dsvDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;
@@ -567,50 +575,6 @@ void D3D11RenderingInterface::CreateInputLayout(const unsigned char* shaderSourc
 	VERIFY_D3D_RESULT(d3dDevice->CreateInputLayout(vertexDesc, 3, shaderSource, size, &inputLayout));
 }
 
-/*
-void D3D11RenderingInterface::CreateConstantBuffer() {
-	D3D11_BUFFER_DESC wvpConstantBufferDesc = {};
-
-	wvpConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	wvpConstantBufferDesc.ByteWidth = sizeof(ObjectProperties);
-	wvpConstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	wvpConstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&wvpConstantBufferDesc, nullptr, &vertexConstantBuffers[WorldViewPorjectionConstBuffer]));
-
-	D3D11_BUFFER_DESC shadowConstantBufferDesc = {};
-
-	shadowConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	shadowConstantBufferDesc.ByteWidth = sizeof(VertexShaderShadowResources);
-	shadowConstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	shadowConstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&shadowConstantBufferDesc, nullptr, &vertexConstantBuffers[ShadowConstantBuffer]));
-
-	D3D11_BUFFER_DESC dlConstantBufferDesc = {};
-
-	dlConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	dlConstantBufferDesc.ByteWidth = sizeof(PixelShaderPerFrameResource);
-	dlConstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	dlConstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&dlConstantBufferDesc, nullptr, &pixelConstantBuffers[DirectionalLightsConstBuffer]));
-
-	D3D11_BUFFER_DESC materialConstantBufferDesc = {};
-
-	materialConstantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	materialConstantBufferDesc.ByteWidth = sizeof(MaterialResource);
-	materialConstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	materialConstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-	VERIFY_D3D_RESULT(d3dDevice->CreateBuffer(&materialConstantBufferDesc, nullptr, &pixelConstantBuffers[MaterialConstBuffer]));
-
-	d3dImmediateContext->VSSetConstantBuffers(0, 2, vertexConstantBuffers);
-	d3dImmediateContext->PSSetConstantBuffers(0, 2, pixelConstantBuffers);
-}
-
-*/
-
 void D3D11RenderingInterface::ConstantBuffersMiddFrame(ObjectProperties objectProperties, MaterialResource material) const {
 	D3D11_MAPPED_SUBRESOURCE objecResources;
 	VERIFY_D3D_RESULT(d3dImmediateContext->Map(vertexConstantBuffers[WorldViewPorjectionConstBuffer], 0, D3D11_MAP_WRITE_DISCARD, 0, &objecResources));
@@ -649,19 +613,19 @@ void D3D11RenderingInterface::ClearActiveRenderTarget() const {
 	}
 }
 
-void D3D11RenderingInterface::SetShaderResources(TextureRI * shaderResource) const {
+void D3D11RenderingInterface::SetShaderResources(TextureRI * shaderResource, unsigned int slot) const {
 	ID3D11ShaderResourceView * shaderResourceView = dynamic_cast<D3D11Texture*>(shaderResource)->GetShaderResourceView();
-	d3dImmediateContext->PSSetShaderResources(0, 1, &shaderResourceView);
+	d3dImmediateContext->PSSetShaderResources(slot, 1, &shaderResourceView);
 }
 
-void D3D11RenderingInterface::SetSamplerState(SamplerState * samplerState) const {
+void D3D11RenderingInterface::SetSamplerState(SamplerState * samplerState, unsigned int slot) const {
 	ID3D11SamplerState* sampler = static_cast<D3D11SamplerState*>(samplerState)->samplerState;
-	d3dImmediateContext->PSSetSamplers(0, 1, &sampler);
+	d3dImmediateContext->PSSetSamplers(slot, 1, &sampler);
 }
 
-void D3D11RenderingInterface::ClearShaderResource() const {
+void D3D11RenderingInterface::ClearShaderResource(unsigned int slot) const {
 	ID3D11ShaderResourceView* null[] = { nullptr };
-	d3dImmediateContext->PSSetShaderResources(0, 1, null);
+	d3dImmediateContext->PSSetShaderResources(slot, 1, null);
 }
 
 void D3D11RenderingInterface::SetShadowRasterState() const {

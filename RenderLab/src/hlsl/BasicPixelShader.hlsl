@@ -48,10 +48,13 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
-Texture2D shadowMap;
-//TextureCube omniDirectionalShadowMap;
-//SamplerState trilinearSampler;
+Texture2DArray shadowMap;
+//Texture2D shadowMap;
 SamplerComparisonState shadowSampler;
+
+TextureCube omniDirectionalShadowMap;
+SamplerState trilinearSampler;
+
 
 float CalculateAttenuation(LightProperties light, float distance) {
    return 1.0f / dot(light.attenuation, float3(1.0f, distance, distance * distance));
@@ -68,9 +71,10 @@ float CalculateSpotIntensity(LightProperties light, float3 lightVector) {
 
 
 float GetShadowFactor(PixelIn input) {
-    float2 shadowTextureCoords;
+    float3 shadowTextureCoords;
     shadowTextureCoords.x = 0.5f + (input.lightSpace.x / input.lightSpace.w * 0.5f);
     shadowTextureCoords.y = 0.5f - (input.lightSpace.y / input.lightSpace.w * 0.5f);
+    shadowTextureCoords.z = 0.0f;
     float pixelDepth = input.lightSpace.z / input.lightSpace.w;
 
     float shadowFactor = 1.0f;
@@ -84,7 +88,6 @@ float GetShadowFactor(PixelIn input) {
 
 
 float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
-    /*
     float3 distance = input.position - light.position;
     float nearest = omniDirectionalShadowMap.Sample(trilinearSampler, distance).r;
 
@@ -102,9 +105,9 @@ float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
     } else {
         shadowFactor = 1.0f;
     }
-*/
 
-    return 1.0f;
+
+    return shadowFactor;
 }
 
 void ComputeDirectionalLight(float3 normal, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor) {

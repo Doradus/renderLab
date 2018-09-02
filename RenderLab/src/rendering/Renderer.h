@@ -34,6 +34,7 @@ private:
 	VertexShader*	omniDirectionalShadowPassVS;
 	GeometryShader* omniDirectionalShadowPassGS;
 	SamplerState*	samplerState;
+	SamplerState*	omniDirectionalShadowSampler;
 
 	ConstantBuffer* objectConstantBuffer;
 	ConstantBuffer* shadowConstantBuffer;
