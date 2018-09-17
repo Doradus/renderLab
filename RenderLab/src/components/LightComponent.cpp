@@ -54,7 +54,7 @@ XMFLOAT3 LightComponent::GetAttenuation() const {
 	return attenuation;
 }
 
-bool LightComponent::GetsCastsShadows() const {
+bool LightComponent::GetCastsShadows() const {
 	return castsShadows;
 }
 

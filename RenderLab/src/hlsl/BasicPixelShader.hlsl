@@ -25,6 +25,7 @@ struct LightProperties {
 /* ------------------------- */
     float coneAngle;
     float penumbraAngle;
+    bool useShadow;
 };
 
 struct Material {
@@ -49,7 +50,6 @@ cbuffer MaterialProperties : register(b1) {
 };
 
 Texture2DArray shadowMap;
-//Texture2D shadowMap;
 SamplerComparisonState shadowSampler;
 
 TextureCube omniDirectionalShadowMap;
@@ -105,7 +105,6 @@ float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
     } else {
         shadowFactor = 1.0f;
     }
-
 
     return shadowFactor;
 }
@@ -187,25 +186,31 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
     float3 specularColor = float3(0.0f, 0.0f, 0.0f);
     float3 toEye = normalize(eyePosition - vIn.position);
 
-    float shadowFactor = 1.0f;
     float3 diffuse, specular;
     for (int i = 0; i < activeLights; i++) {
+        float shadowFactor = 1.0f;
         switch (lights[i].type) {
             case DIRECTIONAL_LIGHT :
                 ComputeDirectionalLight(vIn.normal, toEye, lights[i], diffuse, specular);
-                shadowFactor = GetShadowFactor(vIn);
+                if (lights[i].useShadow) {
+                    shadowFactor = GetShadowFactor(vIn);
+                }              
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
                 break;
             case POINT_LIGHT:
                 ComputePointLight(vIn.normal, vIn.position, toEye, lights[i],  diffuse, specular);
-                shadowFactor = GetOmniDirectionalShadowFactor(vIn, lights[i]);
+                if (lights[i].useShadow) {
+                    shadowFactor = GetOmniDirectionalShadowFactor(vIn, lights[i]);
+                }              
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
                 break;
             case SPOT_LIGHT:
                 ComputeSpotLight(vIn.normal, vIn.position, toEye, lights[i], diffuse, specular);
-                shadowFactor = GetShadowFactor(vIn);
+                if (lights[i].useShadow) {
+                    shadowFactor = GetShadowFactor(vIn);
+                }
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
                 break;

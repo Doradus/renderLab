@@ -66,7 +66,7 @@ struct LightPropertiesResource {
 	/* ------------------------- */
 	float coneAngle;
 	float penumbraAngle;
-	float padding1;
+	int useShadow;
 	float padding2;
 };
 

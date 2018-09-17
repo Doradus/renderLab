@@ -24,7 +24,7 @@ public:
 	XMFLOAT3		GetLightColor() const;
 	float			GetBrightness() const;
 	XMFLOAT3		GetAttenuation() const;
-	bool			GetsCastsShadows() const;
+	bool			GetCastsShadows() const;
 	bool			GetsCastsDynamicShadows() const;
 	bool			GetIsEnabled() const;
 	LightType		GetLightType() const;

@@ -287,6 +287,7 @@ void RenderLab::CreateLights() {
 	light->SetLightColor(0.86f, 0.72f, 0.9f);
 	light->SetBrightness(0.8f);
 	light->SetIsEnabled(true);
+	light->SetCastsShadows(false);
 
 	pointLight = new PointLightComponent();
 	pointLight->SetPosition(15, 6, -5);
@@ -295,6 +296,7 @@ void RenderLab::CreateLights() {
 	pointLight->SetRange(100.0f);
 	pointLight->SetBrightness(0.9f);
 	pointLight->SetIsEnabled(true);
+	pointLight->SetCastsShadows(true);
 
 	spotLight = new SpotLightComponent();
 	spotLight->SetPosition(7, 10, 12);
@@ -306,6 +308,7 @@ void RenderLab::CreateLights() {
 	spotLight->SetConeAngle(22);
 	spotLight->SetPenumbraAngle(10);
 	spotLight->SetIsEnabled(true);
+	spotLight->SetCastsShadows(true);
 
 	//world->AddDirectionalLight(light);
 	world->AddPointLight(pointLight);
