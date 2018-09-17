@@ -38,7 +38,7 @@ public :
 	void			SetGSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetPSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const;
-	void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) final override;
+	void			SetRenderTarget(unsigned int numberOfRenderTargets, RenderTargetInfo* renderTarget, TextureRI* depthTarget) final override;
 	void			BindBackBuffer() final override;
 	void			SetVertexShader(VertexShader* shader) const;
 	void			SetGeometryShader(GeometryShader* shader) const;
@@ -61,16 +61,16 @@ public :
 private :
 	D3D11Texture2d*			CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const;
 	//D3D11Texture2d*			CreateTexture2dFromResource(ID3D11Texture2D* inResource, unsigned char format, unsigned int flags) const;
-	D3D11Texture2d*			CreateBackBuffer() const;
+	D3D11Texture2d*			CreateBackBuffer();
 	D3D11Texture2d*			CreateDepthAndStencilBuffer();
 	void					InitDefaultRenderTargets();
 	ID3D11Device*			d3dDevice;
 	ID3D11DeviceContext*	d3dImmediateContext;
 
-	D3D11Texture*			defaultRenderTargetView;
+	RenderTargetInfo*		defaultRenderTargetView;
 	D3D11Texture*			defaultDepthStencilBuffer;
 
-	D3D11Texture*			activeRenderTargetView;
+	ID3D11RenderTargetView* activeRenderTargetView[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
 	D3D11Texture*			activeDepthStencilBuffer;
 
 	IDXGISwapChain*			swapChain;
@@ -88,6 +88,7 @@ private :
 
 	int						screenWidth;
 	int						screenHeight;
+	D3D11Texture2d*			backBuffer;
 
 	D3D11_TEXTURE_ADDRESS_MODE	GetAddressMode(AddressModes mode) const;
 	D3D11_COMPARISON_FUNC		GetSamplerCompareFunction(SamplerCompareFunction compare) const;
@@ -97,6 +98,8 @@ private :
 	ID3D11RasterizerState*		shadowState;
 	ID3D11RasterizerState*		defaultState;
 	void						CreateRasterStates();
+
+	void						ReportLiveObjects();
 };
 
 #endif
