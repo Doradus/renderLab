@@ -1,23 +1,12 @@
 #include "World.h"
 
-World::World() : 
-shadowMap (nullptr),
-shadowMapCube (nullptr)
+World::World()
 {
 	staticMeshes = {};
 	directionalLight = {};
 }
 
 World::~World() {
-	if (shadowMap) {
-		delete shadowMap;
-		shadowMap = nullptr;
-	}
-
-	if (shadowMapCube) {
-		delete shadowMapCube;
-		shadowMapCube = nullptr;
-	}
 }
 
 void World::AddStaticMesh(const StaticMesh* mesh)  {
@@ -26,17 +15,14 @@ void World::AddStaticMesh(const StaticMesh* mesh)  {
 
 void World::AddDirectionalLight(DirectionalLightComponent* light) {
 	directionalLight.push_back(light);
-	CreateShadowMap();
 }
 
 void World::AddPointLight(PointLightComponent * light) {
 	pointLights.push_back(light);
-	CreateShadowMapCube();
 }
 
 void World::AddSpotLight(SpotLightComponent * light) {
 	spotLights.push_back(light);
-	CreateShadowMap();
 }
 
 void World::AddCamera(const CameraComponent* inCamera) {
@@ -59,22 +45,6 @@ std::vector<SpotLightComponent*> World::GetAllSpotLights() const {
 	return spotLights;
 }
 
-TextureRI * World::GetShadowMap() const {
-	return shadowMap;
-}
-
-TextureRI * World::GetShadowMapCube() const {
-	return shadowMapCube;
-}
-
 const CameraComponent* World::GetActiveCamera() const {
 	return camera;
-}
-
-void World::CreateShadowMap() {
-	shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 1, false, true, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
-}
-
-void World::CreateShadowMapCube() {
-	shadowMapCube = renderingInterface->CreateTexture2d(1024, 1024, 6, true, false, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
 }

@@ -20,6 +20,7 @@ public:
 	void			SetCastsShadows(bool value);
 	void			SetCastDynamicShadows(bool value);
 	void			SetIsEnabled(bool value);
+	void			SetShadowMapId(unsigned int id);
 
 	XMFLOAT3		GetLightColor() const;
 	float			GetBrightness() const;
@@ -28,6 +29,7 @@ public:
 	bool			GetsCastsDynamicShadows() const;
 	bool			GetIsEnabled() const;
 	LightType		GetLightType() const;
+	unsigned int	GetShadowMapId() const;
 
 protected:
 	XMFLOAT3 lightColor;
@@ -37,5 +39,6 @@ protected:
 	bool castsShadows;
 	bool castDynamicShadows;
 	bool isEnabled;
+	unsigned int shadowMapId;
 	LightType lightType;
 };

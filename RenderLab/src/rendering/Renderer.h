@@ -14,6 +14,7 @@ public:
 	Renderer();
 	~Renderer();
 	void CreateHardwareRenderingInterface(int screenWidth, int screenHeight, HWND mainWindow);
+	void AllocateShadowRenderTargets(World* world);
 	void RenderWorld(World* world) const;
 	void RenderPrimitive(const StaticMesh* mesh) const;
 
@@ -42,6 +43,9 @@ private:
 	ConstantBuffer* materialBuffer;
 	ConstantBuffer* omniDirectionalShadowPassVSBuffer;
 	ConstantBuffer* omniDirectionalShadowPassGSBuffer;
+
+	TextureRI* shadowMap;
+	TextureRI* shadowMapCube;
 
 	int screenWidth;
 	int screenHeight;

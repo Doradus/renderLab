@@ -326,6 +326,7 @@ void RenderLab::Draw() {
 
 void RenderLab::PrepareStart() {
 	timer.Reset();
+	renderer->AllocateShadowRenderTargets(world);
 }
 
 void RenderLab::ShutDown() {
