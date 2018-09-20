@@ -494,20 +494,36 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 	}
 
 	if (shouldCreateRenderTargetView) {
-		ID3D11RenderTargetView* renderTargetView = nullptr;
-		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 		if (flags & CreateRTVArraySlicesIndividualy && (isTextureArray || isCube)) {
+			for (unsigned int arraySlice = 0; arraySlice < textureDesc.ArraySize; arraySlice++) {
+				D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+				rtvDesc.Format = GetShaderResourceFormat(textureFormat);
+				rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+				rtvDesc.Texture2DArray.FirstArraySlice = arraySlice;
+				rtvDesc.Texture2DArray.ArraySize = 1;
 
+				ID3D11RenderTargetView* renderTargetView = nullptr;
+				VERIFY_D3D_RESULT(d3dDevice->CreateRenderTargetView(texture, &rtvDesc, &renderTargetView));
+				renderTargetViews.push_back(renderTargetView);
+			}
 		} else if (isTextureArray || isCube) {
+			D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+			rtvDesc.Format = GetShaderResourceFormat(textureFormat);
 			rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
 			rtvDesc.Texture2DArray.FirstArraySlice = 0;
 			rtvDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;
-		} else {
-			rtvDesc.ViewDimension = samples > 1 ? D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
-		}
 
-		VERIFY_D3D_RESULT(d3dDevice->CreateRenderTargetView(texture, &rtvDesc, &renderTargetView));
-		renderTargetViews.push_back(renderTargetView);
+			ID3D11RenderTargetView* renderTargetView = nullptr;
+			VERIFY_D3D_RESULT(d3dDevice->CreateRenderTargetView(texture, &rtvDesc, &renderTargetView));
+			renderTargetViews.push_back(renderTargetView);
+		} else {
+			D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+			rtvDesc.Format = GetShaderResourceFormat(textureFormat);
+			rtvDesc.ViewDimension = samples > 1 ? D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
+			ID3D11RenderTargetView* renderTargetView = nullptr;
+			VERIFY_D3D_RESULT(d3dDevice->CreateRenderTargetView(texture, &rtvDesc, &renderTargetView));
+			renderTargetViews.push_back(renderTargetView);
+		}
 	} else {
 		renderTargetViews.push_back(nullptr);
 	}
