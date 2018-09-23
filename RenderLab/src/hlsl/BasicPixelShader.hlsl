@@ -7,7 +7,7 @@ struct PixelIn {
     float3 position : POSITION;
     float4 color : COLOR;
     float3 normal : NORMAL;
-    float4 lightSpace : LIGHT_SPACE_POSITION;
+    float4 lightSpace [2] : LIGHT_SPACE_POSITION;
 };
 
 struct LightProperties {
@@ -25,6 +25,8 @@ struct LightProperties {
 /* ------------------------- */
     float coneAngle;
     float penumbraAngle;
+    bool useShadow;
+    float shadowMapId;
 };
 
 struct Material {
@@ -48,28 +50,34 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
+Texture2DArray shadowMap;
+SamplerComparisonState shadowSampler;
+
 TextureCube omniDirectionalShadowMap;
 SamplerState trilinearSampler;
+
 
 float CalculateAttenuation(LightProperties light, float distance) {
    return 1.0f / dot(light.attenuation, float3(1.0f, distance, distance * distance));
 }
 
 float CalculateSpotIntensity(LightProperties light, float3 lightVector) {
-    float outerBound = max(light.coneAngle, light.coneAngle + light.penumbraAngle);
-    float innerBound = min(light.coneAngle, light.coneAngle + light.penumbraAngle);
+    float outerBound = max(light.coneAngle, light.coneAngle + light.penumbraAngle * 2.0f);
+    float innerBound = min(light.coneAngle, light.coneAngle + light.penumbraAngle * 2.0f);
     float maxIntensity = cos(innerBound);
     float minIntensity = cos(outerBound);
 
     return smoothstep(minIntensity, maxIntensity, dot(light.direction, -lightVector));
 }
 
-/*
-float GetShadowFactor(PixelIn input) {
-    float2 shadowTextureCoords;
-    shadowTextureCoords.x = 0.5f + (input.lightSpace.x / input.lightSpace.w * 0.5f);
-    shadowTextureCoords.y = 0.5f - (input.lightSpace.y / input.lightSpace.w * 0.5f);
-    float pixelDepth = input.lightSpace.z / input.lightSpace.w;
+
+float GetShadowFactor(PixelIn input, LightProperties light) {
+    float3 shadowTextureCoords;
+    float4 lightSpacePos = input.lightSpace[light.shadowMapId];
+    shadowTextureCoords.x = 0.5f + (lightSpacePos.x / lightSpacePos.w * 0.5f);
+    shadowTextureCoords.y = 0.5f - (lightSpacePos.y / lightSpacePos.w * 0.5f);
+    shadowTextureCoords.z = light.shadowMapId;
+    float pixelDepth = lightSpacePos.z / lightSpacePos.w;
 
     float shadowFactor = 1.0f;
 
@@ -79,10 +87,9 @@ float GetShadowFactor(PixelIn input) {
 
     return shadowFactor;
 }
-*/
 
-float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light)
-{
+
+float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
     float3 distance = input.position - light.position;
     float nearest = omniDirectionalShadowMap.Sample(trilinearSampler, distance).r;
 
@@ -181,30 +188,39 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
     float3 specularColor = float3(0.0f, 0.0f, 0.0f);
     float3 toEye = normalize(eyePosition - vIn.position);
 
-    float shadowFactor = 1.0f;
     float3 diffuse, specular;
     for (int i = 0; i < activeLights; i++) {
+        float shadowFactor = 1.0f;
         switch (lights[i].type) {
             case DIRECTIONAL_LIGHT :
                 ComputeDirectionalLight(vIn.normal, toEye, lights[i], diffuse, specular);
+                if (lights[i].useShadow) {
+                    shadowFactor = GetShadowFactor(vIn, lights[i]);
+                }              
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
                 break;
             case POINT_LIGHT:
                 ComputePointLight(vIn.normal, vIn.position, toEye, lights[i],  diffuse, specular);
-                shadowFactor = GetOmniDirectionalShadowFactor(vIn, lights[i]);
+                if (lights[i].useShadow) {
+                    shadowFactor = GetOmniDirectionalShadowFactor(vIn, lights[i]);
+                }              
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
                 break;
             case SPOT_LIGHT:
                 ComputeSpotLight(vIn.normal, vIn.position, toEye, lights[i], diffuse, specular);
+                if (lights[i].useShadow)
+                {
+                    shadowFactor = GetShadowFactor(vIn, lights[i]);
+                }
                 diffuseColor += diffuse * shadowFactor;
                 specularColor += specular * shadowFactor;
                 break;
         }
     }
 
-    float3 ambientLight = float3(0.3, 0.3, 0.35);
+    float3 ambientLight = float3(0.2, 0.2, 0.25);
     ambientLight *= material.albedo;
     diffuseColor *= material.albedo;
     specularColor *= material.specularColor;

@@ -1,6 +1,8 @@
 #include "PointLightComponent.h"
 
-PointLightComponent::PointLightComponent() {
+PointLightComponent::PointLightComponent()
+{
+	lightType = POINT_LIGHT;
 	viewMatrix.push_back(XMFLOAT4X4());
 	viewMatrix.push_back(XMFLOAT4X4());
 	viewMatrix.push_back(XMFLOAT4X4());
@@ -15,6 +17,36 @@ PointLightComponent::~PointLightComponent() {
 
 void PointLightComponent::SetRange(const float & inRange) {
 	range = inRange;
+	isDirty = true;
+}
+
+void PointLightComponent::UpdateTransform() {
+	if (isDirty) {
+		XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(90), 1.0f, 1.0f, range);
+
+		XMVECTOR lightPosition = XMLoadFloat3(&position);
+		XMVECTOR upDirection1 = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));
+		XMVECTOR upDirection2 = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, -1.0f));
+		XMVECTOR upDirection3 = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 1.0f));
+
+		XMVECTOR left = XMLoadFloat3(&XMFLOAT3(position.x + range, position.y + 0.0f, position.z + 0.0f));
+		XMVECTOR right = XMLoadFloat3(&XMFLOAT3(position.x + -range, position.y + 0.0f, position.z + 0.0f));
+		XMVECTOR up = XMLoadFloat3(&XMFLOAT3(position.x + 0.0f, position.y + range, position.z + 0.0f));
+		XMVECTOR down = XMLoadFloat3(&XMFLOAT3(position.x + 0.0f, position.y + -range, position.z + 0.0f));
+		XMVECTOR front = XMLoadFloat3(&XMFLOAT3(position.x + 0.0f, position.y + 0.0f, position.z + range));
+		XMVECTOR back = XMLoadFloat3(&XMFLOAT3(position.x + 0.0f, position.y + 0.0f, position.z + -range));
+
+		XMMATRIX leftView = XMMatrixLookAtLH(lightPosition, left, upDirection1);
+		XMMATRIX rightView = XMMatrixLookAtLH(lightPosition, right, upDirection1);
+		XMMATRIX upView = XMMatrixLookAtLH(lightPosition, up, upDirection2);
+		XMMATRIX downView = XMMatrixLookAtLH(lightPosition, down, upDirection3);
+		XMMATRIX frontView = XMMatrixLookAtLH(lightPosition, front, upDirection1);
+		XMMATRIX backView = XMMatrixLookAtLH(lightPosition, back, upDirection1);
+
+
+
+		isDirty = false;
+	}
 }
 
 void PointLightComponent::UpdateProjectionMatrix() {

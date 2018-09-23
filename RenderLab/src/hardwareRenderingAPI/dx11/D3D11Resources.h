@@ -2,53 +2,59 @@
 #include "D3D11Utils.h"
 #include "RenderingInterfaceResources.h"
 
-class D3D11Texture : public TextureRI {
+class D3D11Texture : virtual public TextureRI {
 public:
 	D3D11Texture(
-		ID3D11DepthStencilView* inDepthStencileView,
+		std::vector<ID3D11DepthStencilView*> inDepthStencileViews,
 		ID3D11ShaderResourceView* inShaderResourceView,
-		ID3D11RenderTargetView*	inRenderTargetView
+		std::vector<ID3D11RenderTargetView*> inRenderTargetViews
 		) 
 		: 
-		depthStencileView (inDepthStencileView),
+		depthStencileViews (inDepthStencileViews),
 		shaderResourceView (inShaderResourceView),
-		renderTargetView (inRenderTargetView) {}
+		renderTargetViews (inRenderTargetViews) {}
 
 
 	virtual ~D3D11Texture() {
-		RELEASE(depthStencileView);
 		RELEASE(shaderResourceView);
-		RELEASE(renderTargetView);
+
+		for (ID3D11DepthStencilView* dsv : depthStencileViews) {
+			RELEASE(dsv);
+		}
+
+		for (ID3D11RenderTargetView* rtv : renderTargetViews) {
+			RELEASE(rtv);
+		}
 	};
 
-	virtual ID3D11DepthStencilView* GetDepthStencilView() const {
-		return depthStencileView;
+	virtual ID3D11DepthStencilView* GetDepthStencilView(unsigned int arraySlize) const {
+		return depthStencileViews[arraySlize];
 	}
 
 	virtual ID3D11ShaderResourceView* GetShaderResourceView() const {
 		return shaderResourceView;
 	}
 
-	virtual ID3D11RenderTargetView* GetRenderTargetView() const {
-		return renderTargetView;
+	virtual ID3D11RenderTargetView* GetRenderTargetViews(unsigned int arraySlize) const {
+		return renderTargetViews[arraySlize];
 	}
 
 protected:
-	ID3D11DepthStencilView*		depthStencileView;
-	ID3D11ShaderResourceView*	shaderResourceView;
-	ID3D11RenderTargetView*		renderTargetView;
+	std::vector<ID3D11DepthStencilView*>	depthStencileViews;
+	ID3D11ShaderResourceView*				shaderResourceView;
+	std::vector<ID3D11RenderTargetView*>	renderTargetViews;
 };
 
 
 class D3D11Texture2d : public D3D11Texture, public Texture2DRI {
 public:
 	D3D11Texture2d(
-		ID3D11DepthStencilView* inDepthStencileView,
+		std::vector<ID3D11DepthStencilView*> inDepthStencileViews,
 		ID3D11ShaderResourceView* inShaderResourceView,
-		ID3D11RenderTargetView*	inRenderTargetView
+		std::vector<ID3D11RenderTargetView*>	inRenderTargetView
 	)
 		: D3D11Texture(
-			inDepthStencileView,
+			inDepthStencileViews,
 			inShaderResourceView,
 			inRenderTargetView
 		) {}

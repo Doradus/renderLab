@@ -1,6 +1,8 @@
 #include "SpotLightComponent.h"
 
-SpotLightComponent::SpotLightComponent() {}
+SpotLightComponent::SpotLightComponent() {
+	lightType = SPOT_LIGHT;
+}
 
 SpotLightComponent::~SpotLightComponent() {
 }

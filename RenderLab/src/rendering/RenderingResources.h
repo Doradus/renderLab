@@ -29,7 +29,7 @@ struct ObjectProperties {
 	XMFLOAT4X4 wvp;
 	XMFLOAT4X4 worldInverse;
 	XMFLOAT4X4 world;
-	XMFLOAT4X4 lightWVP;
+	//XMFLOAT4X4 lightWVP;
 };
 
 struct DirectionalLightResource {
@@ -66,8 +66,8 @@ struct LightPropertiesResource {
 	/* ------------------------- */
 	float coneAngle;
 	float penumbraAngle;
-	float padding1;
-	float padding2;
+	int useShadow;
+	float shadowMapId;
 };
 
 struct PixelShaderPerFrameResource {
@@ -91,6 +91,11 @@ struct OminDirectionalShadowPassVSResources {
 
 struct OmniDirectionalShadowPassGSResources {
 	XMFLOAT4X4 lightVPMatrix[6];
+};
+
+struct LightSpaceTransformBuffer {
+	XMFLOAT4X4 lightViewProjection [8];
+	//XMFLOAT4X4 lightProjection;
 };
 
 struct VertexShaderShadowResources {

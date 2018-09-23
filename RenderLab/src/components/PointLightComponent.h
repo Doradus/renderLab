@@ -8,6 +8,7 @@ public:
 	~PointLightComponent();
 
 	void SetRange(const float& inRange);
+	void UpdateTransform() override;
 	void UpdateProjectionMatrix();
 	void UpdateViewMatrix();
 
@@ -15,6 +16,9 @@ public:
 
 	std::vector<XMFLOAT4X4> GetViewMatrix() const;
 	XMFLOAT4X4 GetProjectionMatrix() const;
+
+protected:
+	XMFLOAT4X4 transformCache;
 
 private:
 	float range;

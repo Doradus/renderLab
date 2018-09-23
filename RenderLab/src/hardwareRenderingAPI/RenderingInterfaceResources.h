@@ -1,6 +1,7 @@
 #pragma once
 #ifndef RENDERING_INTERFACE_RESOURCES_H
 #define RENDERING_INTERFACE_RESOURCES_H
+#include <float.h>
 
 enum AddressModes {
 	WRAP,
@@ -63,13 +64,25 @@ private:
 };
 
 
-class Texture2DRI : public TextureRI {
+class Texture2DRI : virtual public TextureRI {
 public:
 	Texture2DRI() {};
 	virtual ~Texture2DRI() {};
 
 private:
 
+};
+
+class RenderTargetInfo {
+public :
+	RenderTargetInfo(TextureRI* inTexture, unsigned int inArraySlice) :
+		texture(inTexture),
+		arraySlice (inArraySlice)
+	{};
+	~RenderTargetInfo() {};
+
+	TextureRI* texture;
+	unsigned int arraySlice;
 };
 
 #endif

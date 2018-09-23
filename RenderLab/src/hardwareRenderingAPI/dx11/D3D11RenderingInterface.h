@@ -32,21 +32,21 @@ public :
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
 	GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const final override;
 	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;
-	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
+	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
 	void			UpdateConstantBuffer(ConstantBuffer* buffer, void* data, unsigned int size) const;
 	void			SetVSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetGSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetPSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const;
-	void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) final override;
+	void			SetRenderTarget(unsigned int numberOfRenderTargets, RenderTargetInfo* renderTarget, RenderTargetInfo* depthTarget) final override;
 	void			BindBackBuffer() final override;
 	void			SetVertexShader(VertexShader* shader) const;
 	void			SetGeometryShader(GeometryShader* shader) const;
 	void			SetPixelShader(PixelShader* shader) const;
 	void			ClearActiveRenderTarget() const;
-	void			SetShaderResources(TextureRI* shaderResource) const;
-	void			SetSamplerState(SamplerState* samplerState) const;
-	void			ClearShaderResource() const;
+	void			SetShaderResources(TextureRI* shaderResource, unsigned int slot) const;
+	void			SetSamplerState(SamplerState* samplerState, unsigned int slot) const;
+	void			ClearShaderResource(unsigned int slot) const;
 	void			SetShadowRasterState() const;
 	void			SetDeafultRasterState() const;
 
@@ -59,19 +59,19 @@ public :
 	void			EndFrame() const final override;
 
 private :
-	D3D11Texture2d*			CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const;
+	D3D11Texture2d*			CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const;
 	//D3D11Texture2d*			CreateTexture2dFromResource(ID3D11Texture2D* inResource, unsigned char format, unsigned int flags) const;
-	D3D11Texture2d*			CreateBackBuffer() const;
+	D3D11Texture2d*			CreateBackBuffer();
 	D3D11Texture2d*			CreateDepthAndStencilBuffer();
 	void					InitDefaultRenderTargets();
 	ID3D11Device*			d3dDevice;
 	ID3D11DeviceContext*	d3dImmediateContext;
 
-	D3D11Texture*			defaultRenderTargetView;
-	D3D11Texture*			defaultDepthStencilBuffer;
+	RenderTargetInfo*		defaultRenderTargetView;
+	RenderTargetInfo*		defaultDepthStencilBuffer;
 
-	D3D11Texture*			activeRenderTargetView;
-	D3D11Texture*			activeDepthStencilBuffer;
+	ID3D11RenderTargetView* activeRenderTargetView[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
+	ID3D11DepthStencilView*	activeDepthStencilBuffer;
 
 	IDXGISwapChain*			swapChain;
 	D3D_DRIVER_TYPE			driverType;
@@ -88,6 +88,8 @@ private :
 
 	int						screenWidth;
 	int						screenHeight;
+	D3D11Texture2d*			backBuffer;
+	D3D11Texture2d*			backBufferDepthStencil;
 
 	D3D11_TEXTURE_ADDRESS_MODE	GetAddressMode(AddressModes mode) const;
 	D3D11_COMPARISON_FUNC		GetSamplerCompareFunction(SamplerCompareFunction compare) const;
@@ -97,6 +99,8 @@ private :
 	ID3D11RasterizerState*		shadowState;
 	ID3D11RasterizerState*		defaultState;
 	void						CreateRasterStates();
+
+	void						ReportLiveObjects();
 };
 
 #endif

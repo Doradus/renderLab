@@ -42,6 +42,10 @@ void LightComponent::SetIsEnabled(bool value) {
 	isEnabled = value;
 }
 
+void LightComponent::SetShadowMapId(unsigned int id) {
+	shadowMapId = id;
+}
+
 XMFLOAT3 LightComponent::GetLightColor() const {
 	return lightColor;
 }
@@ -54,7 +58,7 @@ XMFLOAT3 LightComponent::GetAttenuation() const {
 	return attenuation;
 }
 
-bool LightComponent::GetsCastsShadows() const {
+bool LightComponent::GetCastsShadows() const {
 	return castsShadows;
 }
 
@@ -64,4 +68,12 @@ bool LightComponent::GetsCastsDynamicShadows() const {
 
 bool LightComponent::GetIsEnabled() const {
 	return isEnabled;
+}
+
+LightType LightComponent::GetLightType() const {
+	return lightType;
+}
+
+unsigned int LightComponent::GetShadowMapId() const {
+	return shadowMapId;
 }

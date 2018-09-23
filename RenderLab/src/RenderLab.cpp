@@ -13,6 +13,7 @@ RenderLab::RenderLab(HWND window) :
 	light(nullptr),
 	pointLight(nullptr),
 	spotLight(nullptr),
+	spotLight2(nullptr),
 	boxMaterial(nullptr),
 	box2Material(nullptr),
 	sphereMaterial(nullptr),
@@ -84,6 +85,9 @@ RenderLab::~RenderLab() {
 	delete spotLight;
 	spotLight = nullptr;
 
+	delete spotLight2;
+	spotLight2 = nullptr;
+
 	delete world;
 	world = nullptr;
 };
@@ -106,10 +110,12 @@ bool RenderLab::InitLab() {
 void RenderLab::Tick() {
 	timer.Tick();
 
-	testRotation += 5 * timer.GetDeltaTime();
-	//ight->SetDirection(-0.4f, -.5f, testRotation);
+	testRotation += timer.GetDeltaTime();
+	const float x = 15 * sinf(testRotation);
 
-	box2->SetRotation(0, testRotation, 0);
+	//ight->SetDirection(-0.4f, -.5f, testRotation);
+	pointLight->SetPosition(x, 8, -5);
+	//box2->SetRotation(0, testRotation, 0);
 }
 
 bool RenderLab::CreateRenderer() {
@@ -178,7 +184,7 @@ void RenderLab::BuildGeometry() {
 	box->SetRotation(0, 30, 0);
 
 	boxMaterial = new Material();
-	boxMaterial->SetAlbedo(0.9f, 0.9f, 0.9f);
+	boxMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
 	boxMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	boxMaterial->SetSpecularPower(0.1f);
 
@@ -199,7 +205,7 @@ void RenderLab::BuildGeometry() {
 	box2->SetRotation(0, 52, 0);
 
 	box2Material = new Material();
-	box2Material->SetAlbedo(0.9f, 0.9f, 0.9f);
+	box2Material->SetAlbedo(0.8f, 0.8f, 0.8f);
 	box2Material->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	box2Material->SetSpecularPower(0.1f);
 
@@ -221,7 +227,7 @@ void RenderLab::BuildGeometry() {
 	plane->SetPosition(0, 0, -5);
 
 	planeMaterial = new Material();
-	planeMaterial->SetAlbedo(0.7f, 0.7f, 0.7f);
+	planeMaterial->SetAlbedo(0.75f, 0.75f, 0.75f);
 	planeMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
 	planeMaterial->SetSpecularPower(0.1f);
 
@@ -285,29 +291,45 @@ void RenderLab::CreateLights() {
 	light->SetLightColor(0.86f, 0.72f, 0.9f);
 	light->SetBrightness(0.8f);
 	light->SetIsEnabled(true);
+	light->SetCastsShadows(false);
 
 	pointLight = new PointLightComponent();
-	pointLight->SetPosition(0, 8, 0);
+	pointLight->SetPosition(15, 6, -5);
 	pointLight->SetAttenuation(0, 0.3f, 0);
-	pointLight->SetLightColor(1.0f, 1.0f, 1.0f);
+	pointLight->SetLightColor(0.9f, 0.6f, 0.72f);
 	pointLight->SetRange(100.0f);
-	pointLight->SetBrightness(0.7f);
+	pointLight->SetBrightness(0.9f);
 	pointLight->SetIsEnabled(true);
+	pointLight->SetCastsShadows(true);
 
 	spotLight = new SpotLightComponent();
-	spotLight->SetPosition(0, 10, 20);
-	spotLight->SetDirection(0.0f, -0.4f, -1.0f);
+	spotLight->SetPosition(7, 10, 12);
+	spotLight->SetDirection(-0.5f, -0.5f, -0.7f);
 	spotLight->SetAttenuation(0, 0.3f, 0);
-	spotLight->SetLightColor(0.86f, 0.72f, 0.9f);
+	spotLight->SetLightColor(0.3f, 0.5f, 1.0f);
 	spotLight->SetRange(100.0f);
-	spotLight->SetBrightness(0.7f);
-	spotLight->SetConeAngle(45);
-	spotLight->SetPenumbraAngle(15);
+	spotLight->SetBrightness(0.9f);
+	spotLight->SetConeAngle(22);
+	spotLight->SetPenumbraAngle(10);
 	spotLight->SetIsEnabled(true);
+	spotLight->SetCastsShadows(true);
+
+	spotLight2 = new SpotLightComponent();
+	spotLight2->SetPosition(-7, 10, 12);
+	spotLight2->SetDirection(0.5f, -0.5f, -0.7f);
+	spotLight2->SetAttenuation(0, 0.3f, 0);
+	spotLight2->SetLightColor(0.3f, 0.5f, 1.0f);
+	spotLight2->SetRange(100.0f);
+	spotLight2->SetBrightness(0.9f);
+	spotLight2->SetConeAngle(22);
+	spotLight2->SetPenumbraAngle(10);
+	spotLight2->SetIsEnabled(true);
+	spotLight2->SetCastsShadows(true);
 
 	//world->AddDirectionalLight(light);
 	world->AddPointLight(pointLight);
-	//world->AddSpotLight(spotLight);
+	world->AddSpotLight(spotLight);
+	world->AddSpotLight(spotLight2);
 }
 
 void RenderLab::Draw() {
@@ -321,6 +343,7 @@ void RenderLab::Draw() {
 
 void RenderLab::PrepareStart() {
 	timer.Reset();
+	renderer->AllocateShadowRenderTargets(world);
 }
 
 void RenderLab::ShutDown() {

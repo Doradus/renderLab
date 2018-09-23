@@ -19,7 +19,8 @@ enum TextureBindFlags {
 	None = 0,
 	TextureBindAsShaderResource = 1 << 0,
 	TextureBindAsRenderTarget = 1 << 1,
-	TextureBindAsDepthStencil = 1 << 2
+	TextureBindAsDepthStencil = 1 << 2,
+	CreateRTVArraySlicesIndividualy = 1 << 3
 };
 
 extern TextureFormatInfo GTextureFormatInfo[32];

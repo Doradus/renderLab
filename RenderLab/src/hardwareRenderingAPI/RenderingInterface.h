@@ -27,21 +27,21 @@ public:
 	virtual PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual SamplerState*	CreateSamplerState(const SamplerConfig& config) const = 0;
-	virtual Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const = 0;
+	virtual Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const = 0;
 	virtual void			UpdateConstantBuffer(ConstantBuffer* buffer, void* data, unsigned int size) const = 0;
 	virtual void			SetVSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const = 0;
 	virtual void			SetGSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const = 0;
 	virtual void			SetPSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const = 0;
 	virtual void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const = 0;
-	virtual void			SetRenderTarget(TextureRI* renderTarget, TextureRI* depthTarget) = 0;
+	virtual void			SetRenderTarget(unsigned int numberOfRenderTargets, RenderTargetInfo* renderTarget, RenderTargetInfo* depthTarget) = 0;
 	virtual void			BindBackBuffer() = 0;
 	virtual void			SetVertexShader(VertexShader* shader) const = 0;
 	virtual void			SetGeometryShader(GeometryShader* shader) const = 0;
 	virtual void			SetPixelShader(PixelShader* shader) const = 0;
 	virtual void			ClearActiveRenderTarget() const = 0;
-	virtual void			SetShaderResources(TextureRI* shaderResource) const = 0;
-	virtual void			SetSamplerState(SamplerState* samplerState) const = 0;
-	virtual void			ClearShaderResource() const = 0;
+	virtual void			SetShaderResources(TextureRI* shaderResource, unsigned int slot) const = 0;
+	virtual void			SetSamplerState(SamplerState* samplerState, unsigned int slot) const = 0;
+	virtual void			ClearShaderResource(unsigned int slot) const = 0;
 	virtual void			SetShadowRasterState() const = 0;
 	virtual void			SetDeafultRasterState() const = 0;
 
