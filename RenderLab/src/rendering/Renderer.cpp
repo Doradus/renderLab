@@ -16,7 +16,8 @@ Renderer::Renderer() :
 	samplerState (nullptr),
 	omniDirectionalShadowSampler(nullptr),
 	shadowMap(nullptr),
-	shadowMapCube(nullptr)
+	shadowMapCube(nullptr),
+	lightSpaceTransformBuffer(nullptr)
 {}
 
 Renderer::~Renderer() {
@@ -55,6 +56,9 @@ Renderer::~Renderer() {
 
 	delete omniDirectionalShadowSampler;
 	omniDirectionalShadowSampler = nullptr;
+
+	delete lightSpaceTransformBuffer;
+	lightSpaceTransformBuffer = nullptr;
 
 	if (shadowMap) {
 		delete shadowMap;
@@ -107,7 +111,7 @@ void Renderer::AllocateShadowRenderTargets(World * world) {
 	const unsigned int numberOfDirectionalAndSpotLightShadows = shadowCastingSpotLights.size() + shadowCastingDirectionalLights.size();
 
 	if (numberOfDirectionalAndSpotLightShadows > 0) {
-		shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 1, false, true, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
+		shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 2, false, true, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource | CreateRTVArraySlicesIndividualy,  1);
 	}
 
 	for (unsigned int i = 0; i < shadowCastingSpotLights.size(); i++) {
@@ -126,10 +130,12 @@ void Renderer::CreateConstantBuffers() {
 	materialBuffer = renderingInterface->CreateConstantBuffer(sizeof(MaterialResource));
 	omniDirectionalShadowPassVSBuffer = renderingInterface->CreateConstantBuffer(sizeof(OminDirectionalShadowPassVSResources));
 	omniDirectionalShadowPassGSBuffer = renderingInterface->CreateConstantBuffer(sizeof(OmniDirectionalShadowPassGSResources));
+	lightSpaceTransformBuffer = renderingInterface->CreateConstantBuffer(sizeof(LightSpaceTransformBuffer));
 
 	renderingInterface->SetVSConstantBuffer(objectConstantBuffer, 0);
 	renderingInterface->SetVSConstantBuffer(shadowConstantBuffer, 1);
 	renderingInterface->SetVSConstantBuffer(omniDirectionalShadowPassVSBuffer, 2);
+	renderingInterface->SetVSConstantBuffer(lightSpaceTransformBuffer, 3);
 
 	renderingInterface->SetGSConstantBuffer(omniDirectionalShadowPassGSBuffer, 0);
 
@@ -186,7 +192,7 @@ void Renderer::RenderWorld(World* world) const {
 		lightResource.brightness = light->GetBrightness();
 		lightResource.useShadow = light->GetCastsShadows();
 		lightResource.type = 0;
-		lightResource.padding2 = 1.0f;
+		lightResource.shadowMapId = float(light->GetShadowMapId());
 		pixelShaderPerFrameResource.lightResources[lightIndex++] = lightResource;
 	}
 
@@ -200,7 +206,7 @@ void Renderer::RenderWorld(World* world) const {
 		lightResource.brightness = light->GetBrightness();
 		lightResource.useShadow = light->GetCastsShadows();
 		lightResource.type = 1;
-		lightResource.padding2 = 1.0f;
+		lightResource.shadowMapId = float(light->GetShadowMapId());
 		pixelShaderPerFrameResource.lightResources[lightIndex++] = lightResource;
 	}
 
@@ -217,7 +223,7 @@ void Renderer::RenderWorld(World* world) const {
 		lightResource.penumbraAngle = light->GetPenumbraAngleRadians();
 		lightResource.direction = light->GetDirection();
 		lightResource.useShadow = light->GetCastsShadows();
-		lightResource.padding2 = 1.0f;
+		lightResource.shadowMapId = float(light->GetShadowMapId());
 		pixelShaderPerFrameResource.lightResources[lightIndex++] = lightResource;
 	}
 
@@ -234,8 +240,7 @@ void Renderer::RenderWorld(World* world) const {
 	renderingInterface->ClearActiveRenderTarget();
 	renderingInterface->SetDeafultRasterState();
 
-	XMMATRIX lightView = XMMatrixIdentity();
-	XMMATRIX lightProjection = XMMatrixIdentity();
+	LightSpaceTransformBuffer lightSpaceData = {};
 
 	for (ShadowInfo info : allShadowInfo) {
 		if (info.GetIsOmniDirectionalShadow()) {
@@ -244,12 +249,21 @@ void Renderer::RenderWorld(World* world) const {
 		}
 
 		if (info.GetIsProjectedShadow()) {
-			lightView = XMLoadFloat4x4(&info.GetShadowViewMatrix());
-			lightProjection = XMLoadFloat4x4(&info.GetShadowViewProjectionMatrix());
+			XMMATRIX lightView = XMLoadFloat4x4(&info.GetShadowViewMatrix());
+			XMMATRIX lightProjection = XMLoadFloat4x4(&info.GetShadowViewProjectionMatrix());
+
+			XMMATRIX lwvp = lightView * lightProjection;
+			XMMATRIX transposedLightWvp = XMMatrixTranspose(lwvp);
+			XMFLOAT4X4 lwvpData;
+			XMStoreFloat4x4(&lwvpData, transposedLightWvp);
+			lightSpaceData.lightViewProjection[info.GetShadowId()] = lwvpData;
+
 			renderingInterface->SetSamplerState(samplerState, 0);
 			renderingInterface->SetShaderResources(shadowMap, 0);
 		}
 	}
+
+	renderingInterface->UpdateConstantBuffer(lightSpaceTransformBuffer, &lightSpaceData, sizeof(LightSpaceTransformBuffer));
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
 		XMMATRIX world = XMLoadFloat4x4(&mesh->GetWorld());
@@ -268,15 +282,9 @@ void Renderer::RenderWorld(World* world) const {
 
 		XMMATRIX worldTranspose = XMMatrixTranspose(world);
 
-		XMMATRIX lwvp = world * lightView * lightProjection;
-		XMMATRIX transposedLightWvp = XMMatrixTranspose(lwvp);
-		XMFLOAT4X4 lwvpData;
-		XMStoreFloat4x4(&lwvpData, transposedLightWvp);
-
 		ObjectProperties properties;
 		properties.wvp = wvpData;
 		properties.worldInverse = worldInverseData;
-		properties.lightWVP = lwvpData;
 		XMStoreFloat4x4(&properties.world, worldTranspose);
 
 		MaterialResource materialResource;
@@ -360,7 +368,8 @@ void Renderer::RenderProjectedOmniDirectionalShadow(World * world, ShadowInfo & 
 
 	renderingInterface->ClearShaderResource(1);
 	RenderTargetInfo* projectedShadowInfo = new RenderTargetInfo(shadowMapCube, 0);
-	renderingInterface->SetRenderTarget(1, projectedShadowInfo, shadowMapCube);
+	RenderTargetInfo* projectedShadowInfoDepth = new RenderTargetInfo(shadowMapCube, 0);
+	renderingInterface->SetRenderTarget(1, projectedShadowInfo, projectedShadowInfoDepth);
 	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1024.0f, 1024.0f, 1.0f);
 	renderingInterface->ClearActiveRenderTarget();
 	renderingInterface->SetShadowRasterState();
@@ -380,8 +389,8 @@ void Renderer::RenderProjectedOmniDirectionalShadow(World * world, ShadowInfo & 
 		renderingInterface->Draw(mesh->GetRenderData(), omniDirectionalShadowPassVS, nullptr);
 	}
 
-
 	delete projectedShadowInfo;
+	delete projectedShadowInfoDepth;
 	renderingInterface->SetGeometryShader(nullptr);
 }
 
@@ -392,7 +401,8 @@ void Renderer::RenderProjectedShadow(World * world, ShadowInfo & shadowInfo) con
 	renderingInterface->ClearShaderResource(0);
 
 	RenderTargetInfo* projectedShadowInfo = new RenderTargetInfo(shadowMap, 0);
-	renderingInterface->SetRenderTarget(1, projectedShadowInfo, shadowMap);
+	RenderTargetInfo* projectedShadowInfoDepth = new RenderTargetInfo(shadowMap, shadowInfo.GetShadowId());
+	renderingInterface->SetRenderTarget(1, projectedShadowInfo, projectedShadowInfoDepth);
 	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1024.0f, 1024.0f, 1.0f);
 	renderingInterface->ClearActiveRenderTarget();
 	renderingInterface->SetShadowRasterState();
@@ -412,4 +422,5 @@ void Renderer::RenderProjectedShadow(World * world, ShadowInfo & shadowInfo) con
 	}
 
 	delete projectedShadowInfo;
+	delete projectedShadowInfoDepth;
 }

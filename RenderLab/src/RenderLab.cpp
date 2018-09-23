@@ -13,6 +13,7 @@ RenderLab::RenderLab(HWND window) :
 	light(nullptr),
 	pointLight(nullptr),
 	spotLight(nullptr),
+	spotLight2(nullptr),
 	boxMaterial(nullptr),
 	box2Material(nullptr),
 	sphereMaterial(nullptr),
@@ -83,6 +84,9 @@ RenderLab::~RenderLab() {
 
 	delete spotLight;
 	spotLight = nullptr;
+
+	delete spotLight2;
+	spotLight2 = nullptr;
 
 	delete world;
 	world = nullptr;
@@ -310,9 +314,22 @@ void RenderLab::CreateLights() {
 	spotLight->SetIsEnabled(true);
 	spotLight->SetCastsShadows(true);
 
+	spotLight2 = new SpotLightComponent();
+	spotLight2->SetPosition(-7, 10, 12);
+	spotLight2->SetDirection(0.5f, -0.5f, -0.7f);
+	spotLight2->SetAttenuation(0, 0.3f, 0);
+	spotLight2->SetLightColor(0.3f, 0.5f, 1.0f);
+	spotLight2->SetRange(100.0f);
+	spotLight2->SetBrightness(0.9f);
+	spotLight2->SetConeAngle(22);
+	spotLight2->SetPenumbraAngle(10);
+	spotLight2->SetIsEnabled(true);
+	spotLight2->SetCastsShadows(true);
+
 	//world->AddDirectionalLight(light);
 	world->AddPointLight(pointLight);
 	world->AddSpotLight(spotLight);
+	world->AddSpotLight(spotLight2);
 }
 
 void RenderLab::Draw() {

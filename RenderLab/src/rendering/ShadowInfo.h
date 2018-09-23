@@ -18,6 +18,7 @@ public:
 	//bool GetIsCascadingShadow() const;
 	XMFLOAT4X4 GetShadowViewProjectionMatrix() const;
 	XMFLOAT4X4 GetShadowViewMatrix() const;
+	unsigned int GetShadowId() const;
 	std::vector<XMFLOAT4X4> GetShadowViewProjectionMatrices() const;
 
 private:

@@ -38,7 +38,7 @@ public :
 	void			SetGSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetPSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const;
-	void			SetRenderTarget(unsigned int numberOfRenderTargets, RenderTargetInfo* renderTarget, TextureRI* depthTarget) final override;
+	void			SetRenderTarget(unsigned int numberOfRenderTargets, RenderTargetInfo* renderTarget, RenderTargetInfo* depthTarget) final override;
 	void			BindBackBuffer() final override;
 	void			SetVertexShader(VertexShader* shader) const;
 	void			SetGeometryShader(GeometryShader* shader) const;
@@ -68,10 +68,10 @@ private :
 	ID3D11DeviceContext*	d3dImmediateContext;
 
 	RenderTargetInfo*		defaultRenderTargetView;
-	D3D11Texture*			defaultDepthStencilBuffer;
+	RenderTargetInfo*		defaultDepthStencilBuffer;
 
 	ID3D11RenderTargetView* activeRenderTargetView[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
-	D3D11Texture*			activeDepthStencilBuffer;
+	ID3D11DepthStencilView*	activeDepthStencilBuffer;
 
 	IDXGISwapChain*			swapChain;
 	D3D_DRIVER_TYPE			driverType;
@@ -89,6 +89,7 @@ private :
 	int						screenWidth;
 	int						screenHeight;
 	D3D11Texture2d*			backBuffer;
+	D3D11Texture2d*			backBufferDepthStencil;
 
 	D3D11_TEXTURE_ADDRESS_MODE	GetAddressMode(AddressModes mode) const;
 	D3D11_COMPARISON_FUNC		GetSamplerCompareFunction(SamplerCompareFunction compare) const;

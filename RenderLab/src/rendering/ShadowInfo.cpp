@@ -15,7 +15,7 @@ ShadowInfo::~ShadowInfo() {
 
 void ShadowInfo::CreateShadowInfo(LightComponent * lightComponent) {
 	bool isSpot = false;
-
+	shadowId = lightComponent->GetShadowMapId();
 	switch (lightComponent->GetLightType()) {
 		case SPOT_LIGHT : 
 			isSpot = true;
@@ -136,6 +136,10 @@ XMFLOAT4X4 ShadowInfo::GetShadowViewProjectionMatrix() const {
 
 XMFLOAT4X4 ShadowInfo::GetShadowViewMatrix() const {
 	return shadowViewMatrix;
+}
+
+unsigned int ShadowInfo::GetShadowId() const {
+	return shadowId;
 }
 
 std::vector<XMFLOAT4X4> ShadowInfo::GetShadowViewProjectionMatrices() const {

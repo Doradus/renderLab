@@ -50,6 +50,7 @@ private:
 	DirectionalLightComponent*	light;
 	PointLightComponent*		pointLight;
 	SpotLightComponent*			spotLight;
+	SpotLightComponent*			spotLight2;
 	Timer						timer;
 
 	//material

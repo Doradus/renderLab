@@ -43,6 +43,7 @@ private:
 	ConstantBuffer* materialBuffer;
 	ConstantBuffer* omniDirectionalShadowPassVSBuffer;
 	ConstantBuffer* omniDirectionalShadowPassGSBuffer;
+	ConstantBuffer* lightSpaceTransformBuffer;
 
 	TextureRI* shadowMap;
 	TextureRI* shadowMapCube;

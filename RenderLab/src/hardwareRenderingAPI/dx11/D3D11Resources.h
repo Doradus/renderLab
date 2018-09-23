@@ -5,27 +5,30 @@
 class D3D11Texture : virtual public TextureRI {
 public:
 	D3D11Texture(
-		ID3D11DepthStencilView* inDepthStencileView,
+		std::vector<ID3D11DepthStencilView*> inDepthStencileViews,
 		ID3D11ShaderResourceView* inShaderResourceView,
 		std::vector<ID3D11RenderTargetView*> inRenderTargetViews
 		) 
 		: 
-		depthStencileView (inDepthStencileView),
+		depthStencileViews (inDepthStencileViews),
 		shaderResourceView (inShaderResourceView),
 		renderTargetViews (inRenderTargetViews) {}
 
 
 	virtual ~D3D11Texture() {
-		RELEASE(depthStencileView);
 		RELEASE(shaderResourceView);
+
+		for (ID3D11DepthStencilView* dsv : depthStencileViews) {
+			RELEASE(dsv);
+		}
 
 		for (ID3D11RenderTargetView* rtv : renderTargetViews) {
 			RELEASE(rtv);
 		}
 	};
 
-	virtual ID3D11DepthStencilView* GetDepthStencilView() const {
-		return depthStencileView;
+	virtual ID3D11DepthStencilView* GetDepthStencilView(unsigned int arraySlize) const {
+		return depthStencileViews[arraySlize];
 	}
 
 	virtual ID3D11ShaderResourceView* GetShaderResourceView() const {
@@ -37,7 +40,7 @@ public:
 	}
 
 protected:
-	ID3D11DepthStencilView*					depthStencileView;
+	std::vector<ID3D11DepthStencilView*>	depthStencileViews;
 	ID3D11ShaderResourceView*				shaderResourceView;
 	std::vector<ID3D11RenderTargetView*>	renderTargetViews;
 };
@@ -46,12 +49,12 @@ protected:
 class D3D11Texture2d : public D3D11Texture, public Texture2DRI {
 public:
 	D3D11Texture2d(
-		ID3D11DepthStencilView* inDepthStencileView,
+		std::vector<ID3D11DepthStencilView*> inDepthStencileViews,
 		ID3D11ShaderResourceView* inShaderResourceView,
 		std::vector<ID3D11RenderTargetView*>	inRenderTargetView
 	)
 		: D3D11Texture(
-			inDepthStencileView,
+			inDepthStencileViews,
 			inShaderResourceView,
 			inRenderTargetView
 		) {}

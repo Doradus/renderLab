@@ -33,7 +33,7 @@ public:
 	virtual void			SetGSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const = 0;
 	virtual void			SetPSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const = 0;
 	virtual void			SetViewPort(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) const = 0;
-	virtual void			SetRenderTarget(unsigned int numberOfRenderTargets, RenderTargetInfo* renderTarget, TextureRI* depthTarget) = 0;
+	virtual void			SetRenderTarget(unsigned int numberOfRenderTargets, RenderTargetInfo* renderTarget, RenderTargetInfo* depthTarget) = 0;
 	virtual void			BindBackBuffer() = 0;
 	virtual void			SetVertexShader(VertexShader* shader) const = 0;
 	virtual void			SetGeometryShader(GeometryShader* shader) const = 0;
