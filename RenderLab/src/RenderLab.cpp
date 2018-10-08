@@ -1,6 +1,7 @@
 #include "RenderLab.h"
 #include "BasicVertexShader.h"
 #include "BasicPixelShader.h"
+#include "Image.h"
 RenderLab::RenderLab(HWND window) :
 	windowHandle(window),
 	renderer (nullptr),
@@ -119,6 +120,8 @@ void RenderLab::Tick() {
 }
 
 bool RenderLab::CreateRenderer() {
+	Image image = {};
+	image.LoadImageFromFile("tiles.dds", true);
 	renderer = new Renderer();
 	renderer->CreateHardwareRenderingInterface(1280, 720, windowHandle);
 	return true;
@@ -318,7 +321,7 @@ void RenderLab::CreateLights() {
 	spotLight2->SetPosition(-7, 10, 12);
 	spotLight2->SetDirection(0.5f, -0.5f, -0.7f);
 	spotLight2->SetAttenuation(0, 0.3f, 0);
-	spotLight2->SetLightColor(0.3f, 0.5f, 1.0f);
+	spotLight2->SetLightColor(0.9f, 0.3f, 0.3f);
 	spotLight2->SetRange(100.0f);
 	spotLight2->SetBrightness(0.9f);
 	spotLight2->SetConeAngle(22);
