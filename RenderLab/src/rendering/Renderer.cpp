@@ -105,13 +105,13 @@ void Renderer::AllocateShadowRenderTargets(World * world) {
 	const unsigned int numberOfOmniDirectionalShadows = shadowCastingPointLights.size();
 	
 	if (numberOfOmniDirectionalShadows > 0) {
-		shadowMapCube = renderingInterface->CreateTexture2d(1024, 1024, 6, true, false, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
+		shadowMapCube = renderingInterface->CreateTexture2d(1024, 1024, 6, true, false, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1, nullptr);
 	}
 
 	const unsigned int numberOfDirectionalAndSpotLightShadows = shadowCastingSpotLights.size() + shadowCastingDirectionalLights.size();
 
 	if (numberOfDirectionalAndSpotLightShadows > 0) {
-		shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 2, false, true, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource | CreateRTVArraySlicesIndividualy,  1);
+		shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 2, false, true, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource | CreateRTVArraySlicesIndividualy,  1, nullptr);
 	}
 
 	for (unsigned int i = 0; i < shadowCastingSpotLights.size(); i++) {

@@ -4,20 +4,23 @@
 
 using namespace DirectX;
 
-
 struct Vertex {
 	Vertex() {}
-	Vertex(const XMFLOAT3 &inPos, const XMFLOAT3 &inNormal) :
+	Vertex(const XMFLOAT3 &inPos, const XMFLOAT3 &inNormal, const XMFLOAT2 &inUV) :
 		position(inPos),
-		normal(inNormal) {}
+		normal(inNormal),
+		uv (inUV){}
 
 	Vertex(float inPosX, float inPosY, float inPosZ,
-		float inNormX, float inNormY, float inNormZ) :
+		float inNormX, float inNormY, float inNormZ,
+		float u, float v) :
 		position(inPosX, inPosY, inPosZ),
-		normal(inNormX, inNormY, inNormZ) {}
+		normal(inNormX, inNormY, inNormZ),
+		uv(u, v) {}
 
 	XMFLOAT3 position;
 	XMFLOAT3 normal;
+	XMFLOAT2 uv;
 };
 
 struct MeshData {
