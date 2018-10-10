@@ -8,6 +8,7 @@
 #include "PixelShader.h"
 #include "World.h"
 #include "ShadowInfo.h"
+#include "Image.h"
 
 class Renderer {
 public:
@@ -26,6 +27,7 @@ public:
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) const;
 
 private:
+	void InitTextureResources();
 	void InitShaders();
 	void RenderProjectedOmniDirectionalShadow(World* world, ShadowInfo& shadowInfo) const;
 	void RenderProjectedShadow(World* world, ShadowInfo& shadowInfo) const;
@@ -36,6 +38,7 @@ private:
 	GeometryShader* omniDirectionalShadowPassGS;
 	SamplerState*	samplerState;
 	SamplerState*	omniDirectionalShadowSampler;
+	SamplerState*	textureSampler;
 
 	ConstantBuffer* objectConstantBuffer;
 	ConstantBuffer* shadowConstantBuffer;
@@ -47,6 +50,7 @@ private:
 
 	TextureRI* shadowMap;
 	TextureRI* shadowMapCube;
+	TextureRI* diffuseMap;
 
 	int screenWidth;
 	int screenHeight;

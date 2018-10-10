@@ -21,7 +21,7 @@ D3D11RenderingInterface::D3D11RenderingInterface(int screenWidth, int screenHeig
 	driverType(D3D_DRIVER_TYPE_HARDWARE)
 {
 	GTextureFormatInfo[UNKNOWN].platformFormat = DXGI_FORMAT_UNKNOWN;
-	GTextureFormatInfo[R8G8B8].platformFormat = DXGI_FORMAT_R8G8B8A8_UINT;
+	GTextureFormatInfo[R8G8B8].platformFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	GTextureFormatInfo[R8G8B8A8_UINT].platformFormat = DXGI_FORMAT_R8G8B8A8_UINT;
 	GTextureFormatInfo[R8G8B8A8_SNORM].platformFormat = DXGI_FORMAT_R8G8B8A8_SNORM;
 	GTextureFormatInfo[DEPTH_STENCIL].platformFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;

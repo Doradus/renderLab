@@ -50,6 +50,9 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
+Texture2D diffuseTexture;
+SamplerState textureSampler;
+
 Texture2DArray shadowMap;
 SamplerComparisonState shadowSampler;
 
@@ -221,12 +224,15 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
     }
 
     float3 ambientLight = float3(0.2, 0.2, 0.25);
-    ambientLight *= material.albedo;
-    diffuseColor *= material.albedo;
+    float3 albedo = diffuseTexture.Sample(textureSampler, vIn.uv).rgb;
+
+    ambientLight *= albedo;
+    diffuseColor *= albedo;
     specularColor *= material.specularColor;
 
     float3 finalDiffuse = saturate(diffuseColor);
     float3 finalSpecular = saturate(specularColor);
 
     return float4(ambientLight + diffuseColor + specularColor, 1.0f);
+
 }

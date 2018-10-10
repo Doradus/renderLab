@@ -2,12 +2,10 @@ struct VertexIn
 {
     float4 pos : POSITION;
     float3 normal : NORMAL;
-    float4 color : COLOR;
 };
 
 struct GeoOut
 {
-    float4 color : COLOR;
     float3 normal : NORMAL;
     uint renderTargetIndex : SV_RenderTargetArrayIndex;
     float4 posW : SV_POSITION;
@@ -30,7 +28,6 @@ void PointLightShadowPassGS(triangle VertexIn gIn[3], inout TriangleStream<GeoOu
         for (int i = 0; i < 3; i++) {
             output.posW = mul(gIn[i].pos, lightVP[face]);
             output.normal = gIn[i].normal;
-            output.color = gIn[i].color;
 
             gOut.Append(output);
         }
