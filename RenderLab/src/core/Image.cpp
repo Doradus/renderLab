@@ -44,7 +44,7 @@ imageData (nullptr)  {
 
 Image::~Image() {
 	if (imageData) {
-		delete imageData;
+		free(imageData);
 		imageData = nullptr;
 	}
 }
@@ -75,28 +75,47 @@ bool Image::CreateDDSFromMemory(const char * data, size_t memsize, bool useMipMa
 	mipMapCount = (useMipMaps == false || header.mipMapCount == 0) ? 1 : header.mipMapCount;
 
 	if (header.pixelFormat.fourCC == MAKE_CHAR4('D', 'X', '1', '0')) {
-		//parse dx10 header
+		MessageBox(0, L"DX10 Header", 0, 0);
 	}
 
 	switch (header.pixelFormat.fourCC) {
 	case MAKE_CHAR4('D', 'X', 'T', '1') :
-		MessageBox(0, L"File is DXT1", 0, 0);
+		format = ImageFormats::DXT1;
 		break;				   
 	case MAKE_CHAR4('D', 'X', 'T', '2'):
-		MessageBox(0, L"File is DXT2", 0, 0);
+		format = ImageFormats::DXT2;
 		break;				   
 	case MAKE_CHAR4('D', 'X', 'T', '3'):
-		MessageBox(0, L"File is DXT3", 0, 0);
+		format = ImageFormats::DXT3;
 		break;				   
 	case MAKE_CHAR4('D', 'X', 'T', '4'):
-		MessageBox(0, L"File is DXT4", 0, 0);
+		format = ImageFormats::DXT4;
 		break;				   
 	case MAKE_CHAR4('D', 'X', 'T', '5'):
-		MessageBox(0, L"File is DXT5", 0, 0);
+		format = ImageFormats::DXT5;
 		break;
 	default:
-		MessageBox(0, L"File is other format", 0, 0);
-		break;
+		switch (header.pixelFormat.rgbBitCount) {
+		case 24 : 
+			format = ImageFormats::RGB8;
+			break;
+		case 32 :
+			format = ImageFormats::RGBA8;
+			break;
+		default:
+			return false;
+		}
+	}
+
+	int imageDataSize = (width * height) * 3;
+	imageData = (unsigned char*) malloc(sizeof(unsigned char) * imageDataSize);
+	unsigned char* destPointer2 = (unsigned char*)imageData;
+
+	while (imageDataSize >= sizeof(unsigned int)) {
+		*((unsigned int*)destPointer2) = *((unsigned int*)srcPointer);
+		srcPointer += sizeof(unsigned int);
+		destPointer2 += sizeof(unsigned int);
+		imageDataSize -= sizeof(unsigned int);
 	}
 
 	return true;
@@ -110,8 +129,6 @@ bool Image::LoadImageFromFile(const char * fileName, bool useMipMaps) {
 	char* data = (char*)malloc(fileSize);
 	file.Read(data, fileSize);
 
-	printf("Data: %s\n", data);
-
 	file.Close();
 
 	CreateDDSFromMemory(data, fileSize, useMipMaps);
@@ -119,6 +136,30 @@ bool Image::LoadImageFromFile(const char * fileName, bool useMipMaps) {
 	free(data);
 
 	return true;
+}
+
+unsigned int Image::GetWidth() const {
+	return width;
+}
+
+unsigned int Image::GetHeight() const {
+	return height;
+}
+
+unsigned int Image::GetDepth() const {
+	return depths;
+}
+
+unsigned int Image::GetMipMapCount() const {
+	return mipMapCount;
+}
+
+ImageFormats::Format Image::GetFormat() const {
+	return format;
+}
+
+unsigned char * Image::GetImageData() const {
+	return imageData;
 }
 
 
