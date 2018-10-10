@@ -5,7 +5,7 @@
 
 struct PixelIn {
     float3 position : POSITION;
-    float4 color : COLOR;
+    float2 uv : UV;
     float3 normal : NORMAL;
     float4 lightSpace [2] : LIGHT_SPACE_POSITION;
 };
