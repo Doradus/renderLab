@@ -121,9 +121,15 @@ void RenderLab::Tick() {
 
 bool RenderLab::CreateRenderer() {
 	Image image = {};
-	image.LoadImageFromFile("tiles.dds", true);
+	image.LoadImageFromFile("tiles_rgb8.dds", true);
 	renderer = new Renderer();
 	renderer->CreateHardwareRenderingInterface(1280, 720, windowHandle);
+
+
+	//test texture 
+	TextureRI* test = renderingInterface->CreateTexture2d(image.GetWidth(), image.GetHeight(), 1, false, false, 1, R8G8B8, TextureBindAsShaderResource, 1, image.GetImageData());
+	
+	delete test;
 	return true;
 }
 
