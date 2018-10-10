@@ -9,6 +9,7 @@ struct TextureFormatInfo {
 
 enum LabTextureFormat {
 	UNKNOWN,
+	R8G8B8,
 	R8G8B8A8_UINT,
 	R8G8B8A8_SNORM,
 	DEPTH_STENCIL,

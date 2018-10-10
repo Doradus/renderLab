@@ -21,6 +21,7 @@ D3D11RenderingInterface::D3D11RenderingInterface(int screenWidth, int screenHeig
 	driverType(D3D_DRIVER_TYPE_HARDWARE)
 {
 	GTextureFormatInfo[UNKNOWN].platformFormat = DXGI_FORMAT_UNKNOWN;
+	GTextureFormatInfo[R8G8B8].platformFormat = DXGI_FORMAT_R8G8B8A8_UINT;
 	GTextureFormatInfo[R8G8B8A8_UINT].platformFormat = DXGI_FORMAT_R8G8B8A8_UINT;
 	GTextureFormatInfo[R8G8B8A8_SNORM].platformFormat = DXGI_FORMAT_R8G8B8A8_SNORM;
 	GTextureFormatInfo[DEPTH_STENCIL].platformFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -190,7 +191,7 @@ D3D11Texture2d* D3D11RenderingInterface::CreateBackBuffer() {
 }
 
 D3D11Texture2d* D3D11RenderingInterface::CreateDepthAndStencilBuffer() {
-	return CreateD3D11Texture2d(screenWidth, screenHeight, 1, false, false, 1, DEPTH_STENCIL, TextureBindAsDepthStencil, 4);
+	return CreateD3D11Texture2d(screenWidth, screenHeight, 1, false, false, 1, DEPTH_STENCIL, TextureBindAsDepthStencil, 4, nullptr);
 }
 
 VertexBuffer* D3D11RenderingInterface::CreateVertexBuffer(unsigned int size, const void * data) const {
@@ -315,8 +316,8 @@ SamplerState* D3D11RenderingInterface::CreateSamplerState(const SamplerConfig & 
 	return d3d11SamplerState;
 }
 
-Texture2DRI * D3D11RenderingInterface::CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
-	return CreateD3D11Texture2d(width, height, arraySize, isCube, isTextureArray, numberOfMips, format, flags, samples);
+Texture2DRI * D3D11RenderingInterface::CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples, const void* resourceDat) const {
+	return CreateD3D11Texture2d(width, height, arraySize, isCube, isTextureArray, numberOfMips, format, flags, samples, resourceDat);
 }
 
 void D3D11RenderingInterface::UpdateConstantBuffer(ConstantBuffer* buffer, void * data, unsigned int size) const {
@@ -403,7 +404,7 @@ void D3D11RenderingInterface::SetPixelShader(PixelShader * shader) const {
 	}
 }
 
-D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const {
+D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples, const void* resourceData) const {
 	unsigned int actualXmsaaQuality;
 
 	if (samples > 1) {
@@ -447,7 +448,15 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 	textureDesc.MiscFlags = isCube ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0;
 
 	ID3D11Texture2D* texture;
-	VERIFY_D3D_RESULT(d3dDevice->CreateTexture2D(&textureDesc, 0, &texture));
+	D3D11_SUBRESOURCE_DATA textureResourceData = {};
+	if (resourceData) {
+		textureResourceData.pSysMem = resourceData;
+
+		//hardcoded value only for test
+		textureResourceData.SysMemPitch = 1024 * 3;
+	}
+
+	VERIFY_D3D_RESULT(d3dDevice->CreateTexture2D(&textureDesc, resourceData ? &textureResourceData : 0, &texture));
 
 	ID3D11ShaderResourceView* shaderResourceView = nullptr;
 	std::vector<ID3D11DepthStencilView*> depthStencileViews;
@@ -649,7 +658,7 @@ void D3D11RenderingInterface::CreateInputLayout(const unsigned char* shaderSourc
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "UV",    0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	VERIFY_D3D_RESULT(d3dDevice->CreateInputLayout(vertexDesc, 3, shaderSource, size, &inputLayout));
