@@ -50,20 +50,11 @@ Image::~Image() {
 }
 
 bool Image::CreateDDSFromMemory(const char * data, size_t memsize, bool useMipMaps) {
-	//read header
 	DDS_HEADER header = {};
 
-	size_t copySize = sizeof(header);
+	MemoryBuffer buffer(data);
 
-	unsigned char* srcPointer = (unsigned char*)&data[0];
-	unsigned char* destPointer = (unsigned char*)&header;
-
-	while (copySize >= sizeof(unsigned int)) {
-		*((unsigned int*)destPointer) = *((unsigned int*)srcPointer);
-		srcPointer += sizeof(unsigned int);
-		destPointer += sizeof(unsigned int);
-		copySize -= sizeof(unsigned int);
-	}
+	buffer.Read(&header, sizeof(header));
 
 	if (header.mDWMagic != DDS_MAGIC) {
 		return false;
@@ -107,19 +98,66 @@ bool Image::CreateDDSFromMemory(const char * data, size_t memsize, bool useMipMa
 		}
 	}
 
-	int imageDataSize = (width * height) * 3;
-	imageData = (unsigned char*) malloc(sizeof(unsigned char) * imageDataSize);
-	unsigned char* destPointer2 = (unsigned char*)imageData;
+	unsigned int imageDataSize = GetImageSize();
 
-	while (imageDataSize >= sizeof(unsigned int)) {
-		*((unsigned int*)destPointer2) = *((unsigned int*)srcPointer);
-		srcPointer += sizeof(unsigned int);
-		destPointer2 += sizeof(unsigned int);
-		imageDataSize -= sizeof(unsigned int);
+	if (imageDataSize == 0) {
+		return false;
 	}
+
+	imageData = (unsigned char*) malloc(imageDataSize);
+	buffer.Read(imageData, imageDataSize);
 
 	return true;
 }
+
+unsigned int Image::GetImageSize() const {
+	if (IsCompressedFormat()) {
+		return GetBytesPerBlock();
+	} else {
+		return GetBytesPerPixel() * width * height;
+	}
+}
+
+bool Image::IsCompressedFormat() const {
+	switch (format)	{
+	case ImageFormats::DXT1:
+	case ImageFormats::DXT2:
+	case ImageFormats::DXT3:
+	case ImageFormats::DXT4:
+	case ImageFormats::DXT5:
+		return true;
+	default:
+		return false;
+	}
+}
+
+unsigned int Image::GetBytesPerPixel() const{
+	switch (format) {
+	case ImageFormats::R8:
+		return 1;
+	case ImageFormats::RG8:
+		return 2;
+	case ImageFormats::RGB8:
+		return 3;
+	case ImageFormats::RGBA8:
+		return 4;
+	case ImageFormats::R16:
+		return 2;
+	case ImageFormats::RG16:
+		return 4;
+	case ImageFormats::RGB16:
+		return 6;
+	case ImageFormats::RGBA16:
+		return 8;
+	default:
+		return 0;
+	}
+}
+
+unsigned int Image::GetBytesPerBlock() const {
+	return 0;
+}
+
 
 bool Image::LoadImageFromFile(const char * fileName, bool useMipMaps) {
 	File file = {};

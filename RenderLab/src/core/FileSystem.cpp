@@ -49,5 +49,23 @@ size_t File::GetFileSize() const {
 	return fileSize;
 }
 
+MemoryBuffer::MemoryBuffer(const void* data):
+	buffer((unsigned char*) data),
+	position(0)
+{}
+
 MemoryBuffer::~MemoryBuffer() {
+}
+
+unsigned int MemoryBuffer::Read(void* dest, unsigned int size) {
+	unsigned char* srcPointer = (unsigned char*)&buffer[position];
+	unsigned char* destPointer = (unsigned char*)dest;
+
+	position += size;
+
+	unsigned int copySize = size;
+
+	std::memcpy(destPointer, srcPointer, copySize);
+
+	return size;
 }

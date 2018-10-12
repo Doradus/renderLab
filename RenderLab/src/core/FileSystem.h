@@ -23,9 +23,15 @@ private:
 };
 
 class MemoryBuffer {
-	MemoryBuffer(const void* data, size_t size);
-	~MemoryBuffer();
 
 public: 
-	//buffer
+	MemoryBuffer(const void* data);
+	~MemoryBuffer();
+	unsigned int Read(void* dest, unsigned int size);
+	unsigned char* GetBuffer();
+
+private:
+	bool readOnly;
+	unsigned int position;
+	unsigned char* buffer;
 };

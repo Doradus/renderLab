@@ -101,7 +101,7 @@ float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
 
     const float f = light.range;
     const float n = 1.0;
-    float normZComp = (f + n) / (f - n) - (2 * f * n) / (f - n) / localZcomp;
+    float normZComp = (f + n) / (f - n) - (2.0 * f * n) / (f - n) / localZcomp;
     normZComp = (normZComp + 1.0) * 0.5;
 
     float shadowFactor;

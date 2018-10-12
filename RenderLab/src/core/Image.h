@@ -41,6 +41,10 @@ public:
 
 private:
 	bool CreateDDSFromMemory(const char* data, size_t memsize, bool useMipMaps);
+	unsigned int GetImageSize() const;
+	bool IsCompressedFormat() const;
+	unsigned int GetBytesPerPixel() const;
+	unsigned int GetBytesPerBlock() const;
 
 private:
 	unsigned char* imageData;
