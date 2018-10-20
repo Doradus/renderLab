@@ -111,51 +111,32 @@ bool Image::CreateDDSFromMemory(const char * data, size_t memsize, bool useMipMa
 }
 
 unsigned int Image::GetImageSize() const {
-	if (IsCompressedFormat()) {
-		return GetBytesPerBlock();
+	unsigned int currentMipMapWidth = width;
+	unsigned int currentMipMapHeight = height;
+	unsigned int accumalatedSize = 0;
+
+	if (ImageFormats::IsCompressedFormat(format)) {
+		unsigned int bytesPerblock = ImageFormats::GetBytesPerBlock(format);
+
+		for (unsigned int i = 0; i < mipMapCount; i++) {
+			unsigned int w = ((currentMipMapWidth + 3) >> 2);
+			unsigned int h = ((currentMipMapHeight + 3) >> 2);
+
+			accumalatedSize += (bytesPerblock * w * h);
+			currentMipMapWidth = currentMipMapWidth >> 1;
+			currentMipMapHeight = currentMipMapHeight >> 1;
+		}
 	} else {
-		return GetBytesPerPixel() * width * height;
-	}
-}
+		unsigned int bytesPerPixel = ImageFormats::GetBytesPerPixel(format);
 
-bool Image::IsCompressedFormat() const {
-	switch (format)	{
-	case ImageFormats::DXT1:
-	case ImageFormats::DXT2:
-	case ImageFormats::DXT3:
-	case ImageFormats::DXT4:
-	case ImageFormats::DXT5:
-		return true;
-	default:
-		return false;
+		for (unsigned int i = 0; i < mipMapCount; i++) {
+			accumalatedSize += (bytesPerPixel * currentMipMapWidth * currentMipMapHeight);
+			currentMipMapWidth = currentMipMapWidth >> 1;
+			currentMipMapHeight = currentMipMapHeight >> 1;
+		}
 	}
-}
 
-unsigned int Image::GetBytesPerPixel() const{
-	switch (format) {
-	case ImageFormats::R8:
-		return 1;
-	case ImageFormats::RG8:
-		return 2;
-	case ImageFormats::RGB8:
-		return 3;
-	case ImageFormats::RGBA8:
-		return 4;
-	case ImageFormats::R16:
-		return 2;
-	case ImageFormats::RG16:
-		return 4;
-	case ImageFormats::RGB16:
-		return 6;
-	case ImageFormats::RGBA16:
-		return 8;
-	default:
-		return 0;
-	}
-}
-
-unsigned int Image::GetBytesPerBlock() const {
-	return 0;
+	return accumalatedSize;
 }
 
 
@@ -200,4 +181,68 @@ unsigned char * Image::GetImageData() const {
 	return imageData;
 }
 
+bool ImageFormats::IsCompressedFormat(Format format) {
+	return format >= ImageFormats::DXT1;
+}
 
+unsigned int ImageFormats::GetBytesPerPixel(Format format) {
+	switch (format) {
+		case ImageFormats::R8:
+			return 1;
+		case ImageFormats::RG8:
+			return 2;
+		case ImageFormats::RGB8:
+			return 3;
+		case ImageFormats::RGBA8:
+			return 4;
+		case ImageFormats::R16:
+			return 2;
+		case ImageFormats::RG16:
+			return 4;
+		case ImageFormats::RGB16:
+			return 6;
+		case ImageFormats::RGBA16:
+			return 8;
+		default:
+			return 0;
+	}
+}
+
+unsigned int ImageFormats::GetBytesPerBlock(Format format) {
+	switch (format) {
+		case ImageFormats::DXT1:
+			return 8;
+		case ImageFormats::DXT3:
+		case ImageFormats::DXT5:
+			return 16;
+		default:
+			return 0;
+	}
+}
+
+unsigned int ImageFormats::GetSize(Format format) {
+	if (IsCompressedFormat(format)) {
+		return GetBytesPerBlock(format);
+	} else {
+		return GetBytesPerPixel(format);
+	}
+}
+
+unsigned int ImageFormats::GetBlockWidth(Format format) {
+	switch (format) {
+	case ImageFormats::DXT1:
+	case ImageFormats::DXT3:
+	case ImageFormats::DXT5:
+		return 4;
+	default:
+		return 1;
+	}
+}
+
+unsigned int ImageFormats::GetWidth(Format format, unsigned int width) {
+	if (IsCompressedFormat(format)) {
+		return ((width + 3) >> 2);
+	} else {
+		return width;
+	}
+}

@@ -233,6 +233,6 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
     float3 finalDiffuse = saturate(diffuseColor);
     float3 finalSpecular = saturate(specularColor);
 
-    return float4(ambientLight + diffuseColor + specularColor, 1.0f);
+    return float4(ambientLight + finalDiffuse + finalSpecular, 1.0f);
 
 }

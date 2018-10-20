@@ -65,6 +65,16 @@ unsigned int MemoryBuffer::Read(void* dest, unsigned int size) {
 
 	unsigned int copySize = size;
 
+	/*
+	while (copySize >= sizeof(unsigned char)) {
+		*((unsigned char*)destPointer) = *((unsigned char*)srcPointer);
+		srcPointer += sizeof(unsigned char);
+		destPointer += sizeof(unsigned char);
+		copySize -= sizeof(unsigned char);
+	}
+	*/
+	
+
 	std::memcpy(destPointer, srcPointer, copySize);
 
 	return size;

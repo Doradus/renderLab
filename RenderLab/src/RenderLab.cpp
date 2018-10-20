@@ -120,7 +120,7 @@ void RenderLab::Tick() {
 
 bool RenderLab::CreateRenderer() {
 	renderer = new Renderer();
-	renderer->CreateHardwareRenderingInterface(1280, 720, windowHandle);
+	renderer->CreateHardwareRenderingInterface(1920, 1080, windowHandle);
 	return true;
 }
 

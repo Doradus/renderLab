@@ -1,19 +1,12 @@
 #pragma once
+#include "Image.h"
 
 struct TextureFormatInfo {
-	const char* name;
+	ImageFormats::Format imageFormat;
 	bool isSupported;
+	unsigned int blockXSize;
+	unsigned int blockYSize;
 	unsigned int platformFormat;
-	unsigned char labTextureFormat;
-};
-
-enum LabTextureFormat {
-	UNKNOWN,
-	R8G8B8,
-	R8G8B8A8_UINT,
-	R8G8B8A8_SNORM,
-	DEPTH_STENCIL,
-	SHADOW_DEPTH
 };
 
 enum TextureBindFlags {

@@ -1,9 +1,12 @@
 #include "RenderUtils.h"
 
 TextureFormatInfo GTextureFormatInfo[32] = {
-	{"unknown", 0, 0, UNKNOWN},
-	{"R8G8B8A8_UINT", 0, 0, R8G8B8A8_UINT},
-	{"R8G8B8A8_SNORM", 0, 0, R8G8B8A8_SNORM},
-	{"depthStencil", 0, 0, DEPTH_STENCIL},
-	{"shadowDepth", 0, 0, SHADOW_DEPTH},
+	{ImageFormats::NONE, 0, 0},
+	{ImageFormats::RGB8, 0, 0},
+	{ImageFormats::RGBA8, 0, 0},
+	{ImageFormats::DXT1, 0, 0 },
+	{ImageFormats::DXT3, 0, 0 },
+	{ImageFormats::DXT5, 0, 0 },
+	{ImageFormats::DEPTH_STENCIL, 0, 0},
+	{ImageFormats::SHADOW_DEPTH, 0, 0},
 };
