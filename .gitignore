@@ -30,3 +30,11 @@ RenderLab/Debug/RenderLab.tlog/RenderLab.write.1u.tlog
 RenderLab/Debug/RenderLab.tlog/FXC.command.1.tlog
 RenderLab/Debug/BasicVertexShader.cso
 RenderLab/Debug/BasicPixelShader.cso
+RenderLab/shaders/ShadowPassVS.h
+RenderLab/shaders/PointLightShadowPassVS.h
+RenderLab/shaders/PointLightShadowPassGS.h
+RenderLab/shaders/BasicVertexShader.h
+RenderLab/shaders/BasicPixelShader.h
+RenderLab/Debug/ShadowPassVS.cso
+RenderLab/Debug/PointLightShadowPassVS.cso
+RenderLab/Debug/PointLightShadowPassGS.cso
