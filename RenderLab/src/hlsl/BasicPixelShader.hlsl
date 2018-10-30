@@ -5,7 +5,7 @@
 
 struct PixelIn {
     float3 position : POSITION;
-    float4 color : COLOR;
+    float2 uv : UV;
     float3 normal : NORMAL;
     float4 lightSpace [2] : LIGHT_SPACE_POSITION;
 };
@@ -49,6 +49,9 @@ cbuffer FrameProperties : register(b0) {
 cbuffer MaterialProperties : register(b1) {
     Material material;
 };
+
+Texture2D diffuseTexture;
+SamplerState textureSampler;
 
 Texture2DArray shadowMap;
 SamplerComparisonState shadowSampler;
@@ -98,7 +101,7 @@ float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
 
     const float f = light.range;
     const float n = 1.0;
-    float normZComp = (f + n) / (f - n) - (2 * f * n) / (f - n) / localZcomp;
+    float normZComp = (f + n) / (f - n) - (2.0 * f * n) / (f - n) / localZcomp;
     normZComp = (normZComp + 1.0) * 0.5;
 
     float shadowFactor;
@@ -221,12 +224,15 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
     }
 
     float3 ambientLight = float3(0.2, 0.2, 0.25);
-    ambientLight *= material.albedo;
-    diffuseColor *= material.albedo;
+    float3 albedo = diffuseTexture.Sample(textureSampler, vIn.uv).rgb;
+
+    ambientLight *= albedo;
+    diffuseColor *= albedo;
     specularColor *= material.specularColor;
 
     float3 finalDiffuse = saturate(diffuseColor);
     float3 finalSpecular = saturate(specularColor);
 
-    return float4(ambientLight + diffuseColor + specularColor, 1.0f);
+    return float4(ambientLight + finalDiffuse + finalSpecular, 1.0f);
+
 }

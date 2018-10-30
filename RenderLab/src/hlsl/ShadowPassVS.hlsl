@@ -1,9 +1,4 @@
-struct VertexIn {
-    float3 pos : POSITION;
-    float3 normal : NORMAL;
-    float4 color : COLOR;
-};
-
+#include <VertexStructure.hlsl>
 struct VertexOut {
     float4 posW : SV_POSITION;
 };

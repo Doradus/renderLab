@@ -1,14 +1,9 @@
-struct VertexIn
-{
-    float3 pos : POSITION;
-    float3 normal : NORMAL;
-    float4 color : COLOR;
-};
+#include <VertexStructure.hlsl>
 
 struct VertexOut {
     float4 pos : POSITION;
     float3 normal : NORMAL;
-    float4 color : COLOR;
+    float2 uv : UV;
 };
 
 cbuffer PerObject : register(b2) {
@@ -19,6 +14,6 @@ VertexOut PointLightShadowPassVS(VertexIn vIn) {
     VertexOut vOut;
     vOut.pos = mul(float4(vIn.pos, 1.0f), world);
     vOut.normal = vIn.normal;
-    vOut.color = vIn.color;
+    vOut.uv = vIn.uv;
     return vOut;
 }

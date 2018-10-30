@@ -4,19 +4,21 @@
 #include "PointLightShadowPassGS.h"
 
 Renderer::Renderer() :
-	shadowPassVS (nullptr),
-	omniDirectionalShadowPassVS (nullptr),
-	omniDirectionalShadowPassGS (nullptr),
+	shadowPassVS(nullptr),
+	omniDirectionalShadowPassVS(nullptr),
+	omniDirectionalShadowPassGS(nullptr),
 	objectConstantBuffer(nullptr),
 	shadowConstantBuffer(nullptr),
 	pixelShaderPerFrameBuffer(nullptr),
 	materialBuffer(nullptr),
 	omniDirectionalShadowPassVSBuffer(nullptr),
 	omniDirectionalShadowPassGSBuffer(nullptr),
-	samplerState (nullptr),
+	samplerState(nullptr),
 	omniDirectionalShadowSampler(nullptr),
+	textureSampler(nullptr),
 	shadowMap(nullptr),
 	shadowMapCube(nullptr),
+	diffuseMap(nullptr),
 	lightSpaceTransformBuffer(nullptr)
 {}
 
@@ -57,6 +59,9 @@ Renderer::~Renderer() {
 	delete omniDirectionalShadowSampler;
 	omniDirectionalShadowSampler = nullptr;
 
+	delete textureSampler;
+	textureSampler = nullptr;
+
 	delete lightSpaceTransformBuffer;
 	lightSpaceTransformBuffer = nullptr;
 
@@ -69,12 +74,18 @@ Renderer::~Renderer() {
 		delete shadowMapCube;
 		shadowMapCube = nullptr;
 	}
+
+	if (diffuseMap) {
+		delete diffuseMap;
+		diffuseMap = nullptr;
+	}
 }
 
 void Renderer::CreateHardwareRenderingInterface(int screenWidth, int screenHeight, HWND mainWindow) {
 	renderingInterface = new D3D11RenderingInterface(screenWidth, screenHeight, mainWindow);
 	renderingInterface->InitRenderer();
 
+	InitTextureResources();
 	InitShaders();
 	CreateConstantBuffers();
 }
@@ -105,13 +116,13 @@ void Renderer::AllocateShadowRenderTargets(World * world) {
 	const unsigned int numberOfOmniDirectionalShadows = shadowCastingPointLights.size();
 	
 	if (numberOfOmniDirectionalShadows > 0) {
-		shadowMapCube = renderingInterface->CreateTexture2d(1024, 1024, 6, true, false, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1);
+		shadowMapCube = renderingInterface->CreateTexture2d(1024, 1024, 6, true, false, 1, ImageFormats::SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource, 1, nullptr);
 	}
 
 	const unsigned int numberOfDirectionalAndSpotLightShadows = shadowCastingSpotLights.size() + shadowCastingDirectionalLights.size();
 
 	if (numberOfDirectionalAndSpotLightShadows > 0) {
-		shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 2, false, true, 1, SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource | CreateRTVArraySlicesIndividualy,  1);
+		shadowMap = renderingInterface->CreateTexture2d(1024, 1024, 2, false, true, 1, ImageFormats::SHADOW_DEPTH, TextureBindAsDepthStencil | TextureBindAsShaderResource | CreateRTVArraySlicesIndividualy,  1, nullptr);
 	}
 
 	for (unsigned int i = 0; i < shadowCastingSpotLights.size(); i++) {
@@ -236,7 +247,7 @@ void Renderer::RenderWorld(World* world) const {
 	XMMATRIX proj = XMLoadFloat4x4(&camera->GetProjection());
 
 	renderingInterface->BindBackBuffer();
-	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1280.0f, 720.0f, 1.0f);
+	renderingInterface->SetViewPort(0.0f, 0.0f, 0.0f, 1920.0f, 1080.0f, 1.0f);
 	renderingInterface->ClearActiveRenderTarget();
 	renderingInterface->SetDeafultRasterState();
 
@@ -244,8 +255,8 @@ void Renderer::RenderWorld(World* world) const {
 
 	for (ShadowInfo info : allShadowInfo) {
 		if (info.GetIsOmniDirectionalShadow()) {
-			renderingInterface->SetSamplerState(omniDirectionalShadowSampler, 1);
-			renderingInterface->SetShaderResources(shadowMapCube, 1);
+			renderingInterface->SetSamplerState(omniDirectionalShadowSampler, 2);
+			renderingInterface->SetShaderResources(shadowMapCube, 2);
 		}
 
 		if (info.GetIsProjectedShadow()) {
@@ -258,11 +269,13 @@ void Renderer::RenderWorld(World* world) const {
 			XMStoreFloat4x4(&lwvpData, transposedLightWvp);
 			lightSpaceData.lightViewProjection[info.GetShadowId()] = lwvpData;
 
-			renderingInterface->SetSamplerState(samplerState, 0);
-			renderingInterface->SetShaderResources(shadowMap, 0);
+			renderingInterface->SetSamplerState(samplerState, 1);
+			renderingInterface->SetShaderResources(shadowMap, 1);
 		}
 	}
 
+	renderingInterface->SetSamplerState(textureSampler, 0);
+	renderingInterface->SetShaderResources(diffuseMap, 0);
 	renderingInterface->UpdateConstantBuffer(lightSpaceTransformBuffer, &lightSpaceData, sizeof(LightSpaceTransformBuffer));
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
@@ -325,6 +338,13 @@ void Renderer::CreateInputLayout(const unsigned char * shaderSource, size_t size
 	renderingInterface->CreateInputLayout(shaderSource, size);
 }
 
+void Renderer::InitTextureResources() {
+	Image image = {};
+	image.LoadImageFromFile("floor_rgb.dds", true);
+
+	diffuseMap = renderingInterface->CreateTexture2d(image.GetWidth(), image.GetHeight(), 1, false, false, image.GetMipMapCount(), image.GetFormat(), TextureBindAsShaderResource, 1, image.GetImageData());
+}
+
 void Renderer::InitShaders() {
 	size_t size = sizeof(g_shadow_pass_vs);
 	shadowPassVS = CreateVertexShader(g_shadow_pass_vs, size);
@@ -349,8 +369,19 @@ void Renderer::InitShaders() {
 	omniDirectionalSamplerConfig.addressModeV = WRAP;
 	omniDirectionalSamplerConfig.addressModeW = WRAP;
 	omniDirectionalSamplerConfig.filter = TRILINEAR_FILTERING;
-	
 
+	SamplerConfig defaultSampler = {};
+
+	defaultSampler.addressModeU = WRAP;
+	defaultSampler.addressModeV = WRAP;
+	defaultSampler.addressModeW = WRAP;
+	defaultSampler.filter = TRILINEAR_FILTERING;
+	//defaultSampler.maxAnisotropy = 6;
+	defaultSampler.minLOD = 0.0f;
+	defaultSampler.maxLOD = 11.0f;
+	defaultSampler.mipLODBias = 0.0f;
+	
+	textureSampler = renderingInterface->CreateSamplerState(defaultSampler);;
 	samplerState = renderingInterface->CreateSamplerState(samplerConfig);
 	omniDirectionalShadowSampler = renderingInterface->CreateSamplerState(omniDirectionalSamplerConfig);
 }
@@ -366,7 +397,7 @@ void Renderer::RenderProjectedOmniDirectionalShadow(World * world, ShadowInfo & 
 	gsResources.lightVPMatrix[4] = shadowViewMatrices[4];
 	gsResources.lightVPMatrix[5] = shadowViewMatrices[5];
 
-	renderingInterface->ClearShaderResource(1);
+	renderingInterface->ClearShaderResource(2);
 	RenderTargetInfo* projectedShadowInfo = new RenderTargetInfo(shadowMapCube, 0);
 	RenderTargetInfo* projectedShadowInfoDepth = new RenderTargetInfo(shadowMapCube, 0);
 	renderingInterface->SetRenderTarget(1, projectedShadowInfo, projectedShadowInfoDepth);
@@ -398,7 +429,7 @@ void Renderer::RenderProjectedShadow(World * world, ShadowInfo & shadowInfo) con
 	XMMATRIX lightView = XMLoadFloat4x4(&shadowInfo.GetShadowViewMatrix());
 	XMMATRIX lightProjection = XMLoadFloat4x4(&shadowInfo.GetShadowViewProjectionMatrix());
 
-	renderingInterface->ClearShaderResource(0);
+	renderingInterface->ClearShaderResource(1);
 
 	RenderTargetInfo* projectedShadowInfo = new RenderTargetInfo(shadowMap, 0);
 	RenderTargetInfo* projectedShadowInfoDepth = new RenderTargetInfo(shadowMap, shadowInfo.GetShadowId());

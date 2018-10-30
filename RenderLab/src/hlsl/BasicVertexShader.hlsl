@@ -1,14 +1,9 @@
 #include <CommonVS.hlsl>
-
-struct VertexIn {
-    float3 pos : POSITION;
-    float3 normal : NORMAL;
-    float4 color : COLOR;
-};
+#include <VertexStructure.hlsl>
 
 struct VertexOut {
     float3 position : POSITION;
-    float4 color : COLOR;
+    float2 uv : UV;
     float3 normal : NORMAL;
     float4 lightSpacePos [2] : LIGHT_SPACE_POSITION;
     float4 posW : SV_POSITION;
@@ -29,7 +24,7 @@ VertexOut BasicVertexShader(VertexIn vIn) {
         vOut.lightSpacePos[i] = mul(worldPosition, lightViewProjection[i]);
     }
   
-    vOut.color = vIn.color;
+    vOut.uv = vIn.uv;
     vOut.normal = mul(vIn.normal, (float3x3) worldInverse);
     return vOut;
 }

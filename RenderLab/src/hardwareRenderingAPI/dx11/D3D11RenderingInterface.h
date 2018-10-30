@@ -32,7 +32,7 @@ public :
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
 	GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const final override;
 	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;
-	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const final override;
+	Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, ImageFormats::Format format, unsigned int flags, unsigned int samples, const void* resourceData) const final override;
 	void			UpdateConstantBuffer(ConstantBuffer* buffer, void* data, unsigned int size) const;
 	void			SetVSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
 	void			SetGSConstantBuffer(ConstantBuffer* buffer, unsigned int slot) const final override;
@@ -59,7 +59,7 @@ public :
 	void			EndFrame() const final override;
 
 private :
-	D3D11Texture2d*			CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, unsigned char format, unsigned int flags, unsigned int samples) const;
+	D3D11Texture2d*			CreateD3D11Texture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, ImageFormats::Format format, unsigned int flags, unsigned int samples, const void* resourceDat) const;
 	//D3D11Texture2d*			CreateTexture2dFromResource(ID3D11Texture2D* inResource, unsigned char format, unsigned int flags) const;
 	D3D11Texture2d*			CreateBackBuffer();
 	D3D11Texture2d*			CreateDepthAndStencilBuffer();
