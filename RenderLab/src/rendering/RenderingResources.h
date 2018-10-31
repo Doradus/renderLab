@@ -6,20 +6,24 @@ using namespace DirectX;
 
 struct Vertex {
 	Vertex() {}
-	Vertex(const XMFLOAT3 &inPos, const XMFLOAT3 &inNormal, const XMFLOAT2 &inUV) :
+	Vertex(const XMFLOAT3 &inPos, const XMFLOAT3 &inNormal, const XMFLOAT3 &inTangent,  const XMFLOAT2 &inUV) :
 		position(inPos),
 		normal(inNormal),
+		tangent(inTangent),
 		uv (inUV){}
 
 	Vertex(float inPosX, float inPosY, float inPosZ,
 		float inNormX, float inNormY, float inNormZ,
+		float inTangentX, float inTangentY, float inTangentZ,
 		float u, float v) :
 		position(inPosX, inPosY, inPosZ),
 		normal(inNormX, inNormY, inNormZ),
+		tangent(inTangentX, inTangentY, inTangentZ),
 		uv(u, v) {}
 
 	XMFLOAT3 position;
 	XMFLOAT3 normal;
+	XMFLOAT3 tangent;
 	XMFLOAT2 uv;
 };
 

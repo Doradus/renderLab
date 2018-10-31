@@ -7,6 +7,7 @@ struct PixelIn {
     float3 position : POSITION;
     float2 uv : UV;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
     float4 lightSpace [2] : LIGHT_SPACE_POSITION;
 };
 
@@ -52,6 +53,9 @@ cbuffer MaterialProperties : register(b1) {
 
 Texture2D diffuseTexture;
 SamplerState textureSampler;
+
+Texture2D normalTexture;
+SamplerState normalSampler;
 
 Texture2DArray shadowMap;
 SamplerComparisonState shadowSampler;
@@ -184,19 +188,36 @@ void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightPropert
     }
 }
 
+float3 SampledNormalToWorldSpace(float3 sampledNormal, float3 normal, float3 tangent) {
+    float3 sampledNormalUncompressed = 2.0f * sampledNormal - 1.0f;
+
+    float3 N = normal;
+    float3 T = normalize(tangent - dot(tangent, N) * N);
+    float3 B = cross(N, T);
+
+    float3x3 TBN = float3x3(T, B, N);
+
+    float3 transformedNormal = mul(sampledNormalUncompressed, TBN);
+
+    return transformedNormal;
+}
+
 float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
-    vIn.normal = normalize(vIn.normal);
+    float3 normal = normalize(vIn.normal);
 
     float3 diffuseColor = float3(0.0f, 0.0f, 0.0f);
     float3 specularColor = float3(0.0f, 0.0f, 0.0f);
     float3 toEye = normalize(eyePosition - vIn.position);
+
+    float3 sampledNormal = normalTexture.Sample(normalSampler, vIn.uv).rgb;
+    float3 transformedSampledNormal = SampledNormalToWorldSpace(sampledNormal, normal, vIn.tangent);
 
     float3 diffuse, specular;
     for (int i = 0; i < activeLights; i++) {
         float shadowFactor = 1.0f;
         switch (lights[i].type) {
             case DIRECTIONAL_LIGHT :
-                ComputeDirectionalLight(vIn.normal, toEye, lights[i], diffuse, specular);
+                ComputeDirectionalLight(transformedSampledNormal, toEye, lights[i], diffuse, specular);
                 if (lights[i].useShadow) {
                     shadowFactor = GetShadowFactor(vIn, lights[i]);
                 }              
@@ -204,7 +225,7 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
                 specularColor += specular * shadowFactor;
                 break;
             case POINT_LIGHT:
-                ComputePointLight(vIn.normal, vIn.position, toEye, lights[i],  diffuse, specular);
+                ComputePointLight(transformedSampledNormal, vIn.position, toEye, lights[i], diffuse, specular);
                 if (lights[i].useShadow) {
                     shadowFactor = GetOmniDirectionalShadowFactor(vIn, lights[i]);
                 }              
@@ -212,7 +233,7 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
                 specularColor += specular * shadowFactor;
                 break;
             case SPOT_LIGHT:
-                ComputeSpotLight(vIn.normal, vIn.position, toEye, lights[i], diffuse, specular);
+                ComputeSpotLight(transformedSampledNormal, vIn.position, toEye, lights[i], diffuse, specular);
                 if (lights[i].useShadow)
                 {
                     shadowFactor = GetShadowFactor(vIn, lights[i]);
@@ -225,6 +246,8 @@ float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
 
     float3 ambientLight = float3(0.2, 0.2, 0.25);
     float3 albedo = diffuseTexture.Sample(textureSampler, vIn.uv).rgb;
+
+    //float3 debugg = normalTexture.Sample(normalSampler, vIn.uv).rgb;
 
     ambientLight *= albedo;
     diffuseColor *= albedo;

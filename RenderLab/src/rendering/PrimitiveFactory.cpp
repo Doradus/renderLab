@@ -17,40 +17,40 @@ void PrimitiveFactory::CreateBox(unsigned int width, unsigned int height, unsign
 	float d2 = 0.5f*depth;
 
 	// Fill in the front face vertex data.
-	v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-	v[1] = Vertex(-w2, h2, -d2, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-	v[2] = Vertex(w2, h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-	v[3] = Vertex(w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+	v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[1] = Vertex(-w2, h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	v[2] = Vertex(w2, h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[3] = Vertex(w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
 	// Fill in the back face vertex data.
-	v[4] = Vertex(-w2, -h2, d2, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-	v[5] = Vertex(w2, -h2, d2, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-	v[6] = Vertex(w2, h2, d2, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-	v[7] = Vertex(-w2, h2, d2, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	v[4] = Vertex(-w2, -h2, d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[5] = Vertex(w2, -h2, d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	v[6] = Vertex(w2, h2, d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[7] = Vertex(-w2, h2, d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
 	// Fill in the top face vertex data.
-	v[8] = Vertex(-w2, h2, -d2, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[9] = Vertex(-w2, h2, d2, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
-	v[10] = Vertex(w2, h2, d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0);
-	v[11] = Vertex(w2, h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f);
+	v[8] = Vertex(-w2, h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[9] = Vertex(-w2, h2, d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	v[10] = Vertex(w2, h2, d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0);
+	v[11] = Vertex(w2, h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
 	// Fill in the bottom face vertex data.
-	v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f);
-	v[13] = Vertex(w2, -h2, -d2, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f);
-	v[14] = Vertex(w2, -h2, d2, 0.0f, -1.0f, 0.0f, 1.0f, 0.0);
-	v[15] = Vertex(-w2, -h2, d2, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f);
+	v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[13] = Vertex(w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	v[14] = Vertex(w2, -h2, d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0);
+	v[15] = Vertex(-w2, -h2, d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
 	// Fill in the left face vertex data.
-	v[16] = Vertex(-w2, -h2, d2, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	v[17] = Vertex(-w2, h2, d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	v[18] = Vertex(-w2, h2, -d2, -1.0f, 0.0f, 0.0f, 1.0f, 0.0);
-	v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[16] = Vertex(-w2, -h2, d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+	v[17] = Vertex(-w2, h2, d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+	v[18] = Vertex(-w2, h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0);
+	v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
 
 	// Fill in the right face vertex data.
-	v[20] = Vertex(w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	v[21] = Vertex(w2, h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	v[22] = Vertex(w2, h2, d2, 1.0f, 0.0f, 0.0f, 1.0f, 0.0);
-	v[23] = Vertex(w2, -h2, d2, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[20] = Vertex(w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[21] = Vertex(w2, h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+	v[22] = Vertex(w2, h2, d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0);
+	v[23] = Vertex(w2, -h2, d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
 	meshDataOut.vertices.assign(&v[0], &v[24]);
 
@@ -103,13 +103,14 @@ void PrimitiveFactory::CreatePlane(float width, float depth, unsigned int subDiv
 	meshDataOut.vertices.resize(vertexCount);
 	for (unsigned int i = 0; i < subDivsDepth; ++i) {
 		float z = halfDepth - i*dz;
-		float v = dv * i;
+		float v = dv * i * 1.5f;
 		for (unsigned int j = 0; j < subDivsWidth; ++j) {
 			float x = -halfWidth + j*dx;
-			float u = du * j;
+			float u = du * j * 1.5f;
 			
 			meshDataOut.vertices[i*subDivsDepth + j].position = XMFLOAT3(x, 0.0f, z);
 			meshDataOut.vertices[i*subDivsDepth + j].normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			meshDataOut.vertices[i*subDivsDepth + j].tangent = XMFLOAT3(1.0f, 0.0f, 0.0f);
 			meshDataOut.vertices[i*subDivsDepth + j].uv = XMFLOAT2(u, v);
 		}
 	}
@@ -138,8 +139,8 @@ void PrimitiveFactory::CreatePlane(float width, float depth, unsigned int subDiv
 }
 
 void PrimitiveFactory::CreateSphere(float radius, unsigned int sliceCount, unsigned int stackCount, MeshData & meshDataOut) const {
-	const Vertex topVertex(0.0f, radius, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
-	const Vertex bottomVertex(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 0.0, 1.0f);
+	const Vertex topVertex(0.0f, radius, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	const Vertex bottomVertex(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0, 1.0f);
 
 	meshDataOut.vertices.push_back(topVertex);
 
@@ -160,6 +161,10 @@ void PrimitiveFactory::CreateSphere(float radius, unsigned int sliceCount, unsig
 			XMVECTOR normal = XMLoadFloat3(&vertex.position);
 			XMVECTOR normalNormalized = XMVector3Normalize(normal);
 			XMStoreFloat3(&vertex.normal, normalNormalized);
+
+			vertex.tangent.x = -radius * sinf(phi) * sinf(theta);
+			vertex.tangent.y = 0.0f;
+			vertex.tangent.z = radius * sinf(phi) * cosf(theta);
 
 			float u = theta / XM_2PI;
 			float v = phi / XM_PI;

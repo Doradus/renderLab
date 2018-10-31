@@ -5,6 +5,7 @@ struct VertexOut {
     float3 position : POSITION;
     float2 uv : UV;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
     float4 lightSpacePos [2] : LIGHT_SPACE_POSITION;
     float4 posW : SV_POSITION;
 };
@@ -26,5 +27,6 @@ VertexOut BasicVertexShader(VertexIn vIn) {
   
     vOut.uv = vIn.uv;
     vOut.normal = mul(vIn.normal, (float3x3) worldInverse);
+    vOut.tangent = mul(vIn.tangent, (float3x3) world);
     return vOut;
 }

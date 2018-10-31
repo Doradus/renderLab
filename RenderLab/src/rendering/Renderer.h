@@ -39,6 +39,7 @@ private:
 	SamplerState*	samplerState;
 	SamplerState*	omniDirectionalShadowSampler;
 	SamplerState*	textureSampler;
+	SamplerState*	normalMapSampler;
 
 	ConstantBuffer* objectConstantBuffer;
 	ConstantBuffer* shadowConstantBuffer;
@@ -51,6 +52,7 @@ private:
 	TextureRI* shadowMap;
 	TextureRI* shadowMapCube;
 	TextureRI* diffuseMap;
+	TextureRI* normalMap;
 
 	int screenWidth;
 	int screenHeight;
