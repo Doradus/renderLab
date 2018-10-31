@@ -16,9 +16,11 @@ Renderer::Renderer() :
 	samplerState(nullptr),
 	omniDirectionalShadowSampler(nullptr),
 	textureSampler(nullptr),
+	normalMapSampler(nullptr),
 	shadowMap(nullptr),
 	shadowMapCube(nullptr),
 	diffuseMap(nullptr),
+	normalMap(nullptr),
 	lightSpaceTransformBuffer(nullptr)
 {}
 
@@ -62,6 +64,9 @@ Renderer::~Renderer() {
 	delete textureSampler;
 	textureSampler = nullptr;
 
+	delete normalMapSampler;
+	normalMapSampler = nullptr;
+
 	delete lightSpaceTransformBuffer;
 	lightSpaceTransformBuffer = nullptr;
 
@@ -78,6 +83,11 @@ Renderer::~Renderer() {
 	if (diffuseMap) {
 		delete diffuseMap;
 		diffuseMap = nullptr;
+	}
+
+	if (normalMap) {
+		delete normalMap;
+		normalMap = nullptr;
 	}
 }
 
@@ -255,8 +265,8 @@ void Renderer::RenderWorld(World* world) const {
 
 	for (ShadowInfo info : allShadowInfo) {
 		if (info.GetIsOmniDirectionalShadow()) {
-			renderingInterface->SetSamplerState(omniDirectionalShadowSampler, 2);
-			renderingInterface->SetShaderResources(shadowMapCube, 2);
+			renderingInterface->SetSamplerState(omniDirectionalShadowSampler, 3);
+			renderingInterface->SetShaderResources(shadowMapCube, 3);
 		}
 
 		if (info.GetIsProjectedShadow()) {
@@ -269,13 +279,17 @@ void Renderer::RenderWorld(World* world) const {
 			XMStoreFloat4x4(&lwvpData, transposedLightWvp);
 			lightSpaceData.lightViewProjection[info.GetShadowId()] = lwvpData;
 
-			renderingInterface->SetSamplerState(samplerState, 1);
-			renderingInterface->SetShaderResources(shadowMap, 1);
+			renderingInterface->SetSamplerState(samplerState, 2);
+			renderingInterface->SetShaderResources(shadowMap, 2);
 		}
 	}
 
 	renderingInterface->SetSamplerState(textureSampler, 0);
 	renderingInterface->SetShaderResources(diffuseMap, 0);
+
+	renderingInterface->SetSamplerState(normalMapSampler, 1);
+	renderingInterface->SetShaderResources(normalMap, 1);
+
 	renderingInterface->UpdateConstantBuffer(lightSpaceTransformBuffer, &lightSpaceData, sizeof(LightSpaceTransformBuffer));
 
 	for (const StaticMesh* mesh : world->GetAllStaticMeshes()) {
@@ -340,9 +354,14 @@ void Renderer::CreateInputLayout(const unsigned char * shaderSource, size_t size
 
 void Renderer::InitTextureResources() {
 	Image image = {};
-	image.LoadImageFromFile("floor_rgb.dds", true);
+	image.LoadImageFromFile("floor_COLOR.dds", true);
 
 	diffuseMap = renderingInterface->CreateTexture2d(image.GetWidth(), image.GetHeight(), 1, false, false, image.GetMipMapCount(), image.GetFormat(), TextureBindAsShaderResource, 1, image.GetImageData());
+
+	Image imageNormal = {};
+	imageNormal.LoadImageFromFile("floor_NRM.dds", true);
+
+	normalMap = renderingInterface->CreateTexture2d(imageNormal.GetWidth(), imageNormal.GetHeight(), 1, false, false, imageNormal.GetMipMapCount(), imageNormal.GetFormat(), TextureBindAsShaderResource, 1, imageNormal.GetImageData());
 }
 
 void Renderer::InitShaders() {
@@ -375,13 +394,24 @@ void Renderer::InitShaders() {
 	defaultSampler.addressModeU = WRAP;
 	defaultSampler.addressModeV = WRAP;
 	defaultSampler.addressModeW = WRAP;
-	defaultSampler.filter = TRILINEAR_FILTERING;
-	//defaultSampler.maxAnisotropy = 6;
+	defaultSampler.filter = ANISOTROPIC_FILTERING;
+	defaultSampler.maxAnisotropy = 6;
 	defaultSampler.minLOD = 0.0f;
 	defaultSampler.maxLOD = 11.0f;
 	defaultSampler.mipLODBias = 0.0f;
+
+	SamplerConfig normalSampler = {};
+
+	normalSampler.addressModeU = WRAP;
+	normalSampler.addressModeV = WRAP;
+	normalSampler.addressModeW = WRAP;
+	normalSampler.filter = POINT_FILTERING;
+	normalSampler.minLOD = 0.0f;
+	normalSampler.maxLOD = 11.0f;
+	normalSampler.mipLODBias = 0.0f;
 	
-	textureSampler = renderingInterface->CreateSamplerState(defaultSampler);;
+	textureSampler = renderingInterface->CreateSamplerState(defaultSampler);
+	normalMapSampler = renderingInterface->CreateSamplerState(normalSampler);
 	samplerState = renderingInterface->CreateSamplerState(samplerConfig);
 	omniDirectionalShadowSampler = renderingInterface->CreateSamplerState(omniDirectionalSamplerConfig);
 }
@@ -397,7 +427,7 @@ void Renderer::RenderProjectedOmniDirectionalShadow(World * world, ShadowInfo & 
 	gsResources.lightVPMatrix[4] = shadowViewMatrices[4];
 	gsResources.lightVPMatrix[5] = shadowViewMatrices[5];
 
-	renderingInterface->ClearShaderResource(2);
+	renderingInterface->ClearShaderResource(3);
 	RenderTargetInfo* projectedShadowInfo = new RenderTargetInfo(shadowMapCube, 0);
 	RenderTargetInfo* projectedShadowInfoDepth = new RenderTargetInfo(shadowMapCube, 0);
 	renderingInterface->SetRenderTarget(1, projectedShadowInfo, projectedShadowInfoDepth);
@@ -429,7 +459,7 @@ void Renderer::RenderProjectedShadow(World * world, ShadowInfo & shadowInfo) con
 	XMMATRIX lightView = XMLoadFloat4x4(&shadowInfo.GetShadowViewMatrix());
 	XMMATRIX lightProjection = XMLoadFloat4x4(&shadowInfo.GetShadowViewProjectionMatrix());
 
-	renderingInterface->ClearShaderResource(1);
+	renderingInterface->ClearShaderResource(2);
 
 	RenderTargetInfo* projectedShadowInfo = new RenderTargetInfo(shadowMap, 0);
 	RenderTargetInfo* projectedShadowInfoDepth = new RenderTargetInfo(shadowMap, shadowInfo.GetShadowId());

@@ -186,7 +186,7 @@ void RenderLab::BuildGeometry() {
 	boxMaterial = new Material();
 	boxMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
 	boxMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
-	boxMaterial->SetSpecularPower(0.1f);
+	boxMaterial->SetSpecularPower(0.2f);
 
 	box->SetMaterial(boxMaterial);
 
@@ -207,7 +207,7 @@ void RenderLab::BuildGeometry() {
 	box2Material = new Material();
 	box2Material->SetAlbedo(0.8f, 0.8f, 0.8f);
 	box2Material->SetSpecularColor(0.01f, 0.01f, 0.01f);
-	box2Material->SetSpecularPower(0.1f);
+	box2Material->SetSpecularPower(0.2f);
 
 	box2->SetMaterial(box2Material);
 
@@ -229,7 +229,7 @@ void RenderLab::BuildGeometry() {
 	planeMaterial = new Material();
 	planeMaterial->SetAlbedo(0.75f, 0.75f, 0.75f);
 	planeMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
-	planeMaterial->SetSpecularPower(0.1f);
+	planeMaterial->SetSpecularPower(0.2f);
 
 	plane->SetMaterial(planeMaterial);
 
@@ -247,6 +247,7 @@ void RenderLab::BuildGeometry() {
 	sphere->SetRenderData(sphereRenderData);
 
 	sphere->SetPosition(-4.0, 3.0f, 3.0f);
+	sphere->SetRotation(90.0f, 110.0f, 0.0f);
 
 	sphereMaterial = new Material();
 	sphereMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
@@ -269,7 +270,7 @@ void RenderLab::CreateCamera() {
 	camera->SetNearPlane(1);
 	camera->SetFarPlane(1000);
 
-	camera->SetPosition(0.0f, 25.0f, 25.0f);
+	camera->SetPosition(0.0f, 25.0f, 20.0f);
 	camera->SetCameraTarget(0, 0, 0);
 
 	camera->UpdateProjection();
