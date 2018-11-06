@@ -1,22 +1,5 @@
-cbuffer ObjectProperties : register(b0)
-{
-    float4x4 worldViewProj;
-    float4x4 worldInverse;
-    float4x4 world;
-};
-
-cbuffer LightData : register(b3)
-{
-    float4x4 lightViewProjection[8];
-};
-
-struct VertexIn
-{
-    float3 pos : POSITION;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float2 uv : UV;
-};
+#include <CommonVS.hlsl>
+#include <VertexStructure.hlsl>
 
 struct VertexOut
 {

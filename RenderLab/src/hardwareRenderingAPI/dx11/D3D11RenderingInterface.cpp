@@ -203,7 +203,7 @@ void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t src
 		srcSize,
 		srcName,
 		nullptr,
-		nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		entryPoint,
 		target,
 		0,
