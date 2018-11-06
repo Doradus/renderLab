@@ -5,6 +5,7 @@
 #include "StaticMesh.h"
 #include "Timer.h"
 #include "RenderingResources.h"
+#include "FileSystem.h"
 
 class RenderLab {
 public:

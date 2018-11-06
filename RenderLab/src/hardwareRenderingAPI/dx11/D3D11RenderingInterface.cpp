@@ -161,6 +161,74 @@ bool D3D11RenderingInterface::CreateSwapChain() {
 	return true;
 }
 
+void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t srcSize, const char * srcName, const char * src, const ShaderMacro * macros, unsigned int macroCount, unsigned int * outSize, char** outCode) const {
+	LPCSTR  entryPoint = "Main";
+	
+	LPCSTR target = NULL;
+
+	switch (shaderStage) {
+	case VERTEX_SHADER:
+		target = "vs_5_0";
+		break;
+	case HULL_SHADER:
+		target = "hs_5_0";
+		break;
+	case DOMAIN_SHADER:
+		target = "ds_5_0";
+		break;
+	case GEOMETRY_SHADER:
+		target = "gs_5_0";
+		break;
+	case PIXEL_SHADER:
+		target = "ps_5_0";
+		break;
+	case COMPUTE_SHADER:
+		target = "cs_5_0";
+		break;
+	default:
+		break;
+	}
+
+	#if defined(_DEBUG)
+		// Enable better shader debugging with the graphics debugging tools.
+		UINT compile_flags = D3DCOMPILE_SKIP_OPTIMIZATION;
+	#else
+		UINT compile_flags = D3DCOMPILE_OPTIMIZATION_LEVEL3;
+	#endif
+
+	ID3DBlob* compiledCode = NULL;
+	ID3DBlob* errorMsgs = NULL;
+	VERIFY_D3D_RESULT(D3DCompile2(
+		src,
+		srcSize,
+		srcName,
+		nullptr,
+		nullptr,
+		entryPoint,
+		target,
+		0,
+		0,
+		0,
+		nullptr,
+		0,
+		&compiledCode,
+		&errorMsgs
+	));
+
+	if (errorMsgs) {
+		OutputDebugStringA((char*)errorMsgs->GetBufferPointer());
+		RELEASE(errorMsgs);
+	}
+
+	char* pByteCode = (char*)malloc(compiledCode->GetBufferSize());
+	memcpy(pByteCode, compiledCode->GetBufferPointer(), compiledCode->GetBufferSize());
+
+	*outSize = (unsigned int)compiledCode->GetBufferSize();
+	*outCode = pByteCode;
+
+	RELEASE(compiledCode);
+}
+
 void D3D11RenderingInterface::InitDefaultRenderTargets() {
 	backBuffer = CreateBackBuffer();
 	backBufferDepthStencil = CreateDepthAndStencilBuffer();

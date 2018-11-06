@@ -54,6 +54,8 @@ public:
 	virtual void			StartFrame() const = 0;
 	virtual void			Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) = 0;
 	virtual void			EndFrame() const = 0;
+
+	virtual void			CompileShader(ShaderStages shaderStage, size_t srcSize, const char* srcName, const char* src, const ShaderMacro* macros, unsigned int macroCount, unsigned int* outSize, char** outCode) const = 0;
 };
 
 extern RenderingInterface* renderingInterface;

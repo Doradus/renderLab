@@ -20,7 +20,7 @@ VertexOut BasicVertexShader(VertexIn vIn) {
    // float4x4 lightWVP = mul(mul(world, lightView), lightProjection);
    //vOut.lightSpacePos[0] = mul(worldPosition, lightViewProjection[0]);
 
-    
+    [unroll]
     for (int i = 0; i < 2; i++) {
         vOut.lightSpacePos[i] = mul(worldPosition, lightViewProjection[i]);
     }

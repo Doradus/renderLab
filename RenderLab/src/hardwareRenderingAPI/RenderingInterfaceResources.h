@@ -2,6 +2,7 @@
 #ifndef RENDERING_INTERFACE_RESOURCES_H
 #define RENDERING_INTERFACE_RESOURCES_H
 #include <float.h>
+#include <string>
 
 enum AddressModes {
 	WRAP,
@@ -27,6 +28,22 @@ enum Filtering {
 	TRILINEAR_FILTERING,
 	ANISOTROPIC_FILTERING,
 	COMPARE_BILINEAR_FILTERING
+};
+
+enum ShaderStages {
+	VERTEX_SHADER,
+	HULL_SHADER,
+	DOMAIN_SHADER,
+	GEOMETRY_SHADER,
+	PIXEL_SHADER,
+	COMPUTE_SHADER,
+	NUM_SHADER_TYPES
+};
+
+struct ShaderMacro {
+	ShaderMacro() {};
+	std::string name;
+	std::string definition;
 };
 
 struct SamplerConfig {

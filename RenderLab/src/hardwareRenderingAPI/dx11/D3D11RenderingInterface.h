@@ -25,6 +25,8 @@ public :
 	bool			CreateDevice();
 	bool			CreateSwapChain();
 
+	void			CompileShader(ShaderStages shaderStage, size_t srcSize, const char* srcName, const char* src, const ShaderMacro* macros, unsigned int macroCount, unsigned int* outSize, char** outCode) const final override;
+
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const final override;
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
 	ConstantBuffer*	CreateConstantBuffer(unsigned int size) const final override;

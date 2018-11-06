@@ -1,16 +1,6 @@
 #pragma once
 #include "D3D11Utils.h"
 
-enum ShaderTypes {
-	VERTEX_SHADER,
-	HULL_SHADER,
-	DOMAIN_SHADER,
-	GEOMETRY_SHADER,
-	PIXEL_SHADER,
-	COMPUTE_SHADER,
-	NUM_SHADER_TYPES
-};
-
 class RenderStateCache {
 public:
 	RenderStateCache () :
@@ -61,7 +51,7 @@ public:
 		}
 	}
 
-	void SetShaderResourceView(ID3D11ShaderResourceView* srv, ShaderTypes type, unsigned int slot) {
+	void SetShaderResourceView(ID3D11ShaderResourceView* srv, ShaderStages type, unsigned int slot) {
 		if (currentShaderResourceView[type][slot] != srv) {
 			currentShaderResourceView[type][slot] = srv;
 
@@ -90,7 +80,7 @@ public:
 		}
 	}
 
-	void SetSamplerState(ID3D11SamplerState* sampler, ShaderTypes type, unsigned int slot) {
+	void SetSamplerState(ID3D11SamplerState* sampler, ShaderStages type, unsigned int slot) {
 		if (currentSamplerState[type][slot] != sampler) {
 			currentSamplerState[type][slot] = sampler;
 			switch (type) {
@@ -125,7 +115,7 @@ public:
 		}
 	}
 
-	template <ShaderTypes shaderType>
+	template <ShaderStages shaderType>
 	void SetConstantBuffer(ID3D11Buffer* buffer, unsigned int slot) {
 		if (currentConstantBuffers[shaderType][slot] != buffer) {
 			currentConstantBuffers[shaderType][slot] = buffer;
