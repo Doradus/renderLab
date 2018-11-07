@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "RenderingResources.h"
 #include "FileSystem.h"
+#include "ResourceManager.h"
 
 class RenderLab {
 public:

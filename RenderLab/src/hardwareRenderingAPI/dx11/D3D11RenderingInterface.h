@@ -30,7 +30,7 @@ public :
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const final override;
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const final override;
 	ConstantBuffer*	CreateConstantBuffer(unsigned int size) const final override;
-	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const final override;
+	VertexShader*	CreateVertexShader(const void* shaderSource, size_t size) const final override;
 	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const final override;
 	GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const final override;
 	SamplerState*	CreateSamplerState(const SamplerConfig& config) const final override;

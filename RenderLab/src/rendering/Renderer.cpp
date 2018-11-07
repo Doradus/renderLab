@@ -1,7 +1,4 @@
 #include "Renderer.h"
-#include "ShadowPassVS.h"
-#include "PointLightShadowPassVS.h"
-#include "PointLightShadowPassGS.h"
 
 Renderer::Renderer() :
 	shadowPassVS(nullptr),
@@ -365,14 +362,21 @@ void Renderer::InitTextureResources() {
 }
 
 void Renderer::InitShaders() {
-	size_t size = sizeof(g_shadow_pass_vs);
-	shadowPassVS = CreateVertexShader(g_shadow_pass_vs, size);
+	char* byteCode = nullptr;
+	unsigned int byteCodeSize = 0;
 
-	size = sizeof(g_point_light_shadow_pass_vs);
-	omniDirectionalShadowPassVS = CreateVertexShader(g_point_light_shadow_pass_vs, size);
+	ResourceManager manager;
+	manager.GetShaderByteCode("shaders/ShadowPassVS.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
+	const unsigned char* vertexCode = (unsigned char*)byteCode;
+	shadowPassVS = renderingInterface->CreateVertexShader(vertexCode, byteCodeSize);
 
-	size = sizeof(g_point_light_shadow_pass_gs);
-	omniDirectionalShadowPassGS = renderingInterface->CreateGeometryShader(g_point_light_shadow_pass_gs, size);
+	manager.GetShaderByteCode("shaders/PointLightShadowPassVS.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
+	const unsigned char* odsCode = (unsigned char*)byteCode;
+	omniDirectionalShadowPassVS = renderingInterface->CreateVertexShader(odsCode, byteCodeSize);
+
+	manager.GetShaderByteCode("shaders/PointLightShadowPassGS.hlsl", GEOMETRY_SHADER, &byteCodeSize, &byteCode);
+	const unsigned char* geometryCode = (unsigned char*)byteCode;
+	omniDirectionalShadowPassGS = renderingInterface->CreateGeometryShader(geometryCode, byteCodeSize);
 
 	SamplerConfig samplerConfig = {};
 

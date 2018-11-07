@@ -1,7 +1,4 @@
 #include "RenderLab.h"
-#include "BasicVertexShader.h"
-#include "BasicPixelShader.h"
-#include <fstream>
 RenderLab::RenderLab(HWND window) :
 	windowHandle(window),
 	renderer (nullptr),
@@ -126,30 +123,19 @@ bool RenderLab::CreateRenderer() {
 }
 
 void RenderLab::InitShaders() {
-	File file = {};
+	char* byteCode = nullptr;
+	unsigned int byteCodeSize = 0;
+	 
+	ResourceManager manager;
+	manager.GetShaderByteCode("shaders/BasicVertexShader.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
 
-	file.Open("BasicVertexShader.hlsl");
-	std::string line = "";
+	const unsigned char* vertexCode = (unsigned char*)byteCode;
+	vertextShader  = renderingInterface->CreateVertexShader(vertexCode, byteCodeSize);
+	renderer->CreateInputLayout(vertexCode, byteCodeSize);
 
-	while (!file.IsEof()) {
-		line += file.ReadLine() + "\n";
-	}
-
-	file.Close();
-
-	char* pByteCode = nullptr;
-	uint32_t byteCodeSize = 0;
-
-	renderingInterface->CompileShader(VERTEX_SHADER, line.size(), "BasicVertexShader", line.data(), nullptr, 0, &byteCodeSize, &pByteCode);
-
-	const unsigned char* code = (unsigned char*)pByteCode;
-
-	vertextShader  = renderingInterface->CreateVertexShader(code, byteCodeSize);
-
-	size_t pixelShaderSize = sizeof(g_ps);
-	pixelShader = renderer->CreatePixelShader(g_ps, pixelShaderSize);
-
-	renderer->CreateInputLayout(code, byteCodeSize);
+	manager.GetShaderByteCode("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, &byteCodeSize, &byteCode);
+	const unsigned char* pixelCode = (unsigned char*)byteCode;
+	pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
 }
 
 void RenderLab::BuildGeometry() {

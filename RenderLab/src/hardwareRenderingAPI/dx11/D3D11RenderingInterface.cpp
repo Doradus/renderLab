@@ -317,7 +317,7 @@ ConstantBuffer* D3D11RenderingInterface::CreateConstantBuffer(unsigned int size)
 	return constantBuffer;
 }
 
-VertexShader* D3D11RenderingInterface::CreateVertexShader(const unsigned char* shaderSource, size_t size) const {
+VertexShader* D3D11RenderingInterface::CreateVertexShader(const void* shaderSource, size_t size) const {
 	D3D11VertexShader* shader = new D3D11VertexShader();
 	VERIFY_D3D_RESULT(d3dDevice->CreateVertexShader(shaderSource, size, nullptr, &shader->resource));
 

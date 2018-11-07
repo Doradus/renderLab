@@ -9,6 +9,7 @@
 #include "World.h"
 #include "ShadowInfo.h"
 #include "Image.h"
+#include "ResourceManager.h"
 
 class Renderer {
 public:

@@ -23,7 +23,7 @@ public:
 	virtual VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const = 0;
 	virtual IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const = 0;
 	virtual ConstantBuffer*	CreateConstantBuffer(unsigned int size) const = 0;
-	virtual VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const = 0;
+	virtual VertexShader*	CreateVertexShader(const void* shaderSource, size_t size) const = 0;
 	virtual PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const = 0;
 	virtual SamplerState*	CreateSamplerState(const SamplerConfig& config) const = 0;

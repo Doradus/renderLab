@@ -202,7 +202,7 @@ float3 SampledNormalToWorldSpace(float3 sampledNormal, float3 normal, float3 tan
     return transformedNormal;
 }
 
-float4 BasicPixelShader(PixelIn vIn) : SV_TARGET {
+float4 Main(PixelIn vIn) : SV_TARGET {
     float3 normal = normalize(vIn.normal);
 
     float3 diffuseColor = float3(0.0f, 0.0f, 0.0f);
