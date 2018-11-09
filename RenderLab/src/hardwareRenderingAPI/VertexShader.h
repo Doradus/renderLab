@@ -1,9 +1,11 @@
 #pragma once
 #ifndef VERTEX_SHADER_H
 #define VERTEX_SHADER_H
-class VertexShader {
+#include "Shader.h"
+
+class VertexShader : public Shader {
 public:
-	VertexShader();
+	VertexShader(char* inSrcCode);
 	virtual ~VertexShader();
 };
 

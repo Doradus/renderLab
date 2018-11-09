@@ -4,7 +4,7 @@
 
 class D3D11GeometryShader : public GeometryShader {
 public:
-	D3D11GeometryShader(ID3D11GeometryShader* inResource);
+	D3D11GeometryShader(ID3D11GeometryShader* inResource, char* inSrcCod);
 	~D3D11GeometryShader();
 
 public:

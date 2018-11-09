@@ -1,6 +1,7 @@
 #include "VertexShader.h"
 
-VertexShader::VertexShader()
+VertexShader::VertexShader(char* inSrcCode)
+	: Shader(inSrcCode)
 {
 }
 

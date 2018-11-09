@@ -1,6 +1,8 @@
 #include "GeometryShader.h"
 
-GeometryShader::GeometryShader() {
+GeometryShader::GeometryShader(char * inSrcCod) :
+ Shader (inSrcCod)
+{
 }
 
 GeometryShader::~GeometryShader() {

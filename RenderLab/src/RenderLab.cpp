@@ -1,6 +1,4 @@
 #include "RenderLab.h"
-#include "BasicVertexShader.h"
-#include "BasicPixelShader.h"
 RenderLab::RenderLab(HWND window) :
 	windowHandle(window),
 	renderer (nullptr),
@@ -125,13 +123,21 @@ bool RenderLab::CreateRenderer() {
 }
 
 void RenderLab::InitShaders() {
-	size_t size = sizeof(g_basic_vs);
-	vertextShader  = renderer->CreateVertexShader(g_basic_vs, size);
+	char* byteCode = nullptr;
+	unsigned int byteCodeSize = 0;
+	 
+	ResourceManager manager;
+	manager.GetShaderByteCode("shaders/BasicVertexShader.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
 
-	size_t pixelShaderSize = sizeof(g_ps);
-	pixelShader = renderer->CreatePixelShader(g_ps, pixelShaderSize);
+	char* vertexShaderCode = byteCode;
+	vertextShader  = renderingInterface->CreateVertexShader(vertexShaderCode, byteCodeSize);
 
-	renderer->CreateInputLayout(g_basic_vs, size);
+	const unsigned char* vertexCode = (unsigned char*)byteCode;
+	renderer->CreateInputLayout(vertexCode, byteCodeSize);
+
+	manager.GetShaderByteCode("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, &byteCodeSize, &byteCode);
+	char* pixelCode = byteCode;
+	pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
 }
 
 void RenderLab::BuildGeometry() {

@@ -23,9 +23,9 @@ public:
 	virtual VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const = 0;
 	virtual IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const = 0;
 	virtual ConstantBuffer*	CreateConstantBuffer(unsigned int size) const = 0;
-	virtual VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const = 0;
-	virtual PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const = 0;
-	virtual GeometryShader*	CreateGeometryShader(const unsigned char* shaderSource, size_t size) const = 0;
+	virtual VertexShader*	CreateVertexShader(char* shaderSource, size_t size) const = 0;
+	virtual PixelShader*	CreatePixelShader(char* shaderSource, size_t size) const = 0;
+	virtual GeometryShader*	CreateGeometryShader(char* shaderSource, size_t size) const = 0;
 	virtual SamplerState*	CreateSamplerState(const SamplerConfig& config) const = 0;
 	virtual Texture2DRI*	CreateTexture2d(unsigned int width, unsigned int height, unsigned int arraySize, bool isCube, bool isTextureArray, unsigned int numberOfMips, ImageFormats::Format format, unsigned int flags, unsigned int samples, const void* resourceData) const = 0;
 	virtual void			UpdateConstantBuffer(ConstantBuffer* buffer, void* data, unsigned int size) const = 0;
@@ -54,6 +54,8 @@ public:
 	virtual void			StartFrame() const = 0;
 	virtual void			Draw(RenderData* renderData, VertexShader* vertexShader, PixelShader* pixelShader) = 0;
 	virtual void			EndFrame() const = 0;
+
+	virtual void			CompileShader(ShaderStages shaderStage, size_t srcSize, const char* srcName, const char* src, const ShaderMacro* macros, unsigned int macroCount, unsigned int* outSize, char** outCode) const = 0;
 };
 
 extern RenderingInterface* renderingInterface;

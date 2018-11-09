@@ -32,12 +32,46 @@ void File::Close() {
 		fclose(fileHandle);
 		isOpen = false;
 		size = 0;
+		position = 0;
 		fileHandle = nullptr;
 	}
 }
 
 size_t File::Read(void * buffer, size_t byteCount) {
+	position += byteCount;
 	return fread(buffer, 1, byteCount, fileHandle);
+}
+
+std::string File::ReadLine() {
+	std::string line;
+
+	while (!IsEof())
+	{
+		char c = ReadByte();
+		if (c == 10)
+			break;
+		if (c == 13)
+		{
+			// Peek next char to see if it's 10, and skip it too
+			if (!IsEof())
+			{
+				char next = ReadByte();
+				if (next != 10)
+					position -= 1;
+			}
+			break;
+		}
+
+		line.push_back(c);
+	}
+
+	return line;;
+}
+
+unsigned char File::ReadByte() {
+	unsigned char ret;
+	Read(&ret, sizeof ret);
+	return ret;
 }
 
 size_t File::GetFileSize() const {

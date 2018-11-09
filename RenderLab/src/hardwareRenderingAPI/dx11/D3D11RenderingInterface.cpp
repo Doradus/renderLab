@@ -161,6 +161,74 @@ bool D3D11RenderingInterface::CreateSwapChain() {
 	return true;
 }
 
+void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t srcSize, const char * srcName, const char * src, const ShaderMacro * macros, unsigned int macroCount, unsigned int * outSize, char** outCode) const {
+	LPCSTR  entryPoint = "Main";
+	
+	LPCSTR target = NULL;
+
+	switch (shaderStage) {
+	case VERTEX_SHADER:
+		target = "vs_5_0";
+		break;
+	case HULL_SHADER:
+		target = "hs_5_0";
+		break;
+	case DOMAIN_SHADER:
+		target = "ds_5_0";
+		break;
+	case GEOMETRY_SHADER:
+		target = "gs_5_0";
+		break;
+	case PIXEL_SHADER:
+		target = "ps_5_0";
+		break;
+	case COMPUTE_SHADER:
+		target = "cs_5_0";
+		break;
+	default:
+		break;
+	}
+
+	#if defined(_DEBUG)
+		// Enable better shader debugging with the graphics debugging tools.
+		UINT compile_flags = D3DCOMPILE_SKIP_OPTIMIZATION;
+	#else
+		UINT compile_flags = D3DCOMPILE_OPTIMIZATION_LEVEL3;
+	#endif
+
+	ID3DBlob* compiledCode = NULL;
+	ID3DBlob* errorMsgs = NULL;
+	VERIFY_D3D_RESULT(D3DCompile2(
+		src,
+		srcSize,
+		srcName,
+		nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		entryPoint,
+		target,
+		0,
+		0,
+		0,
+		nullptr,
+		0,
+		&compiledCode,
+		&errorMsgs
+	));
+
+	if (errorMsgs) {
+		OutputDebugStringA((char*)errorMsgs->GetBufferPointer());
+		RELEASE(errorMsgs);
+	}
+
+	char* pByteCode = (char*)malloc(compiledCode->GetBufferSize());
+	memcpy(pByteCode, compiledCode->GetBufferPointer(), compiledCode->GetBufferSize());
+
+	*outSize = (unsigned int)compiledCode->GetBufferSize();
+	*outCode = pByteCode;
+
+	RELEASE(compiledCode);
+}
+
 void D3D11RenderingInterface::InitDefaultRenderTargets() {
 	backBuffer = CreateBackBuffer();
 	backBufferDepthStencil = CreateDepthAndStencilBuffer();
@@ -249,25 +317,25 @@ ConstantBuffer* D3D11RenderingInterface::CreateConstantBuffer(unsigned int size)
 	return constantBuffer;
 }
 
-VertexShader* D3D11RenderingInterface::CreateVertexShader(const unsigned char* shaderSource, size_t size) const {
-	D3D11VertexShader* shader = new D3D11VertexShader();
+VertexShader* D3D11RenderingInterface::CreateVertexShader(char* shaderSource, size_t size) const {
+	D3D11VertexShader* shader = new D3D11VertexShader(shaderSource);
 	VERIFY_D3D_RESULT(d3dDevice->CreateVertexShader(shaderSource, size, nullptr, &shader->resource));
 
 	return shader;
 }
 
-PixelShader* D3D11RenderingInterface::CreatePixelShader(const unsigned char* shaderSource, size_t size) const {
-	D3D11PixelShader* shader = new D3D11PixelShader();
+PixelShader* D3D11RenderingInterface::CreatePixelShader(char* shaderSource, size_t size) const {
+	D3D11PixelShader* shader = new D3D11PixelShader(shaderSource);
 	VERIFY_D3D_RESULT(d3dDevice->CreatePixelShader(shaderSource, size, nullptr, &shader->resource));
 
 	return shader;
 }
 
-GeometryShader * D3D11RenderingInterface::CreateGeometryShader(const unsigned char * shaderSource, size_t size) const {
+GeometryShader * D3D11RenderingInterface::CreateGeometryShader(char * shaderSource, size_t size) const {
 	ID3D11GeometryShader* resource = nullptr;
 	VERIFY_D3D_RESULT(d3dDevice->CreateGeometryShader(shaderSource, size, nullptr, &resource));
 
-	D3D11GeometryShader* shader = new D3D11GeometryShader(resource);
+	D3D11GeometryShader* shader = new D3D11GeometryShader(resource, shaderSource);
 	
 	return shader;
 }

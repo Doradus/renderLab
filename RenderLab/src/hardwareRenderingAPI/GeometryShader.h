@@ -1,7 +1,7 @@
 #pragma once
-
-class GeometryShader {
+#include "Shader.h"
+class GeometryShader : public Shader {
 public:
-	GeometryShader();
+	GeometryShader(char * inSrcCod);
 	virtual ~GeometryShader();
 };
