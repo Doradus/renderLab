@@ -12,4 +12,3 @@ VertexOut Main(VertexIn vIn) {
     vOut.posW = mul(float4(vIn.pos, 1.0f), lightWVP);
     return vOut;
 }
-
