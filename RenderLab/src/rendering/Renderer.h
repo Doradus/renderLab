@@ -22,8 +22,8 @@ public:
 
 	VertexBuffer*	CreateVertexBuffer(unsigned int size, const void * data) const;
 	IndexBuffer*	CreateIndexBuffer(unsigned int size, const void * data) const;
-	VertexShader*	CreateVertexShader(const unsigned char* shaderSource, size_t size) const;
-	PixelShader*	CreatePixelShader(const unsigned char* shaderSource, size_t size) const;
+	VertexShader*	CreateVertexShader(char* shaderSource, size_t size) const;
+	PixelShader*	CreatePixelShader(char* shaderSource, size_t size) const;
 
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) const;
 

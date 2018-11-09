@@ -129,12 +129,14 @@ void RenderLab::InitShaders() {
 	ResourceManager manager;
 	manager.GetShaderByteCode("shaders/BasicVertexShader.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
 
+	char* vertexShaderCode = byteCode;
+	vertextShader  = renderingInterface->CreateVertexShader(vertexShaderCode, byteCodeSize);
+
 	const unsigned char* vertexCode = (unsigned char*)byteCode;
-	vertextShader  = renderingInterface->CreateVertexShader(vertexCode, byteCodeSize);
 	renderer->CreateInputLayout(vertexCode, byteCodeSize);
 
 	manager.GetShaderByteCode("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, &byteCodeSize, &byteCode);
-	const unsigned char* pixelCode = (unsigned char*)byteCode;
+	char* pixelCode = byteCode;
 	pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
 }
 

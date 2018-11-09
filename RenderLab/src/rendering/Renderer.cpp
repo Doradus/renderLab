@@ -337,11 +337,11 @@ IndexBuffer * Renderer::CreateIndexBuffer(unsigned int size, const void * data) 
 	return renderingInterface->CreateIndexBuffer(size, data);
 }
 
-VertexShader * Renderer::CreateVertexShader(const unsigned char * shaderSource, size_t size) const {
+VertexShader * Renderer::CreateVertexShader(char * shaderSource, size_t size) const {
 	return renderingInterface->CreateVertexShader(shaderSource, size);
 }
 
-PixelShader * Renderer::CreatePixelShader(const unsigned char * shaderSource, size_t size) const {
+PixelShader * Renderer::CreatePixelShader(char * shaderSource, size_t size) const {
 	return renderingInterface->CreatePixelShader(shaderSource, size);
 }
 
@@ -367,15 +367,15 @@ void Renderer::InitShaders() {
 
 	ResourceManager manager;
 	manager.GetShaderByteCode("shaders/ShadowPassVS.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
-	const unsigned char* vertexCode = (unsigned char*)byteCode;
+	char* vertexCode = byteCode;
 	shadowPassVS = renderingInterface->CreateVertexShader(vertexCode, byteCodeSize);
 
 	manager.GetShaderByteCode("shaders/PointLightShadowPassVS.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
-	const unsigned char* odsCode = (unsigned char*)byteCode;
+	char* odsCode = byteCode;
 	omniDirectionalShadowPassVS = renderingInterface->CreateVertexShader(odsCode, byteCodeSize);
 
 	manager.GetShaderByteCode("shaders/PointLightShadowPassGS.hlsl", GEOMETRY_SHADER, &byteCodeSize, &byteCode);
-	const unsigned char* geometryCode = (unsigned char*)byteCode;
+	char* geometryCode = byteCode;
 	omniDirectionalShadowPassGS = renderingInterface->CreateGeometryShader(geometryCode, byteCodeSize);
 
 	SamplerConfig samplerConfig = {};

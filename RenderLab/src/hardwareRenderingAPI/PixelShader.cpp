@@ -1,6 +1,7 @@
 #include "PixelShader.h"
 
-PixelShader::PixelShader()
+PixelShader::PixelShader(char * inSrcCod) :
+	Shader(inSrcCod)
 {
 }
 

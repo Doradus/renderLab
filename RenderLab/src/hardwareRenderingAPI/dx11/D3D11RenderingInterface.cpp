@@ -317,25 +317,25 @@ ConstantBuffer* D3D11RenderingInterface::CreateConstantBuffer(unsigned int size)
 	return constantBuffer;
 }
 
-VertexShader* D3D11RenderingInterface::CreateVertexShader(const void* shaderSource, size_t size) const {
-	D3D11VertexShader* shader = new D3D11VertexShader();
+VertexShader* D3D11RenderingInterface::CreateVertexShader(char* shaderSource, size_t size) const {
+	D3D11VertexShader* shader = new D3D11VertexShader(shaderSource);
 	VERIFY_D3D_RESULT(d3dDevice->CreateVertexShader(shaderSource, size, nullptr, &shader->resource));
 
 	return shader;
 }
 
-PixelShader* D3D11RenderingInterface::CreatePixelShader(const unsigned char* shaderSource, size_t size) const {
-	D3D11PixelShader* shader = new D3D11PixelShader();
+PixelShader* D3D11RenderingInterface::CreatePixelShader(char* shaderSource, size_t size) const {
+	D3D11PixelShader* shader = new D3D11PixelShader(shaderSource);
 	VERIFY_D3D_RESULT(d3dDevice->CreatePixelShader(shaderSource, size, nullptr, &shader->resource));
 
 	return shader;
 }
 
-GeometryShader * D3D11RenderingInterface::CreateGeometryShader(const unsigned char * shaderSource, size_t size) const {
+GeometryShader * D3D11RenderingInterface::CreateGeometryShader(char * shaderSource, size_t size) const {
 	ID3D11GeometryShader* resource = nullptr;
 	VERIFY_D3D_RESULT(d3dDevice->CreateGeometryShader(shaderSource, size, nullptr, &resource));
 
-	D3D11GeometryShader* shader = new D3D11GeometryShader(resource);
+	D3D11GeometryShader* shader = new D3D11GeometryShader(resource, shaderSource);
 	
 	return shader;
 }
