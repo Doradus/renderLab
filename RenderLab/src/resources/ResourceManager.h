@@ -8,5 +8,5 @@ public:
 	ResourceManager();
 	~ResourceManager();
 
-	void GetShaderByteCode(const char* fileName, ShaderStages shaderStage, unsigned int* byteCodeSize, char** byteCode) const;
+	void GetShaderByteCode(const char* fileName, ShaderStages shaderStage, const ShaderMacro* macros, unsigned int macroCount, unsigned int* byteCodeSize, char** byteCode) const;
 };

@@ -262,8 +262,8 @@ void Renderer::RenderWorld(World* world) const {
 
 	for (ShadowInfo info : allShadowInfo) {
 		if (info.GetIsOmniDirectionalShadow()) {
-			renderingInterface->SetSamplerState(omniDirectionalShadowSampler, 3);
-			renderingInterface->SetShaderResources(shadowMapCube, 3);
+			renderingInterface->SetSamplerState(omniDirectionalShadowSampler, 2);
+			renderingInterface->SetShaderResources(shadowMapCube, 2);
 		}
 
 		if (info.GetIsProjectedShadow()) {
@@ -276,16 +276,16 @@ void Renderer::RenderWorld(World* world) const {
 			XMStoreFloat4x4(&lwvpData, transposedLightWvp);
 			lightSpaceData.lightViewProjection[info.GetShadowId()] = lwvpData;
 
-			renderingInterface->SetSamplerState(samplerState, 2);
-			renderingInterface->SetShaderResources(shadowMap, 2);
+			renderingInterface->SetSamplerState(samplerState, 1);
+			renderingInterface->SetShaderResources(shadowMap, 1);
 		}
 	}
 
 	renderingInterface->SetSamplerState(textureSampler, 0);
 	renderingInterface->SetShaderResources(diffuseMap, 0);
 
-	renderingInterface->SetSamplerState(normalMapSampler, 1);
-	renderingInterface->SetShaderResources(normalMap, 1);
+	renderingInterface->SetSamplerState(normalMapSampler, 3);
+	renderingInterface->SetShaderResources(normalMap, 3);
 
 	renderingInterface->UpdateConstantBuffer(lightSpaceTransformBuffer, &lightSpaceData, sizeof(LightSpaceTransformBuffer));
 
@@ -366,15 +366,15 @@ void Renderer::InitShaders() {
 	unsigned int byteCodeSize = 0;
 
 	ResourceManager manager;
-	manager.GetShaderByteCode("shaders/ShadowPassVS.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
+	manager.GetShaderByteCode("shaders/ShadowPassVS.hlsl", VERTEX_SHADER, nullptr, 0, &byteCodeSize, &byteCode);
 	char* vertexCode = byteCode;
 	shadowPassVS = renderingInterface->CreateVertexShader(vertexCode, byteCodeSize);
 
-	manager.GetShaderByteCode("shaders/PointLightShadowPassVS.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
+	manager.GetShaderByteCode("shaders/PointLightShadowPassVS.hlsl", VERTEX_SHADER, nullptr, 0, &byteCodeSize, &byteCode);
 	char* odsCode = byteCode;
 	omniDirectionalShadowPassVS = renderingInterface->CreateVertexShader(odsCode, byteCodeSize);
 
-	manager.GetShaderByteCode("shaders/PointLightShadowPassGS.hlsl", GEOMETRY_SHADER, &byteCodeSize, &byteCode);
+	manager.GetShaderByteCode("shaders/PointLightShadowPassGS.hlsl", GEOMETRY_SHADER, nullptr, 0, &byteCodeSize, &byteCode);
 	char* geometryCode = byteCode;
 	omniDirectionalShadowPassGS = renderingInterface->CreateGeometryShader(geometryCode, byteCodeSize);
 
@@ -431,7 +431,7 @@ void Renderer::RenderProjectedOmniDirectionalShadow(World * world, ShadowInfo & 
 	gsResources.lightVPMatrix[4] = shadowViewMatrices[4];
 	gsResources.lightVPMatrix[5] = shadowViewMatrices[5];
 
-	renderingInterface->ClearShaderResource(3);
+	renderingInterface->ClearShaderResource(2);
 	RenderTargetInfo* projectedShadowInfo = new RenderTargetInfo(shadowMapCube, 0);
 	RenderTargetInfo* projectedShadowInfoDepth = new RenderTargetInfo(shadowMapCube, 0);
 	renderingInterface->SetRenderTarget(1, projectedShadowInfo, projectedShadowInfoDepth);
@@ -463,7 +463,7 @@ void Renderer::RenderProjectedShadow(World * world, ShadowInfo & shadowInfo) con
 	XMMATRIX lightView = XMLoadFloat4x4(&shadowInfo.GetShadowViewMatrix());
 	XMMATRIX lightProjection = XMLoadFloat4x4(&shadowInfo.GetShadowViewProjectionMatrix());
 
-	renderingInterface->ClearShaderResource(2);
+	renderingInterface->ClearShaderResource(1);
 
 	RenderTargetInfo* projectedShadowInfo = new RenderTargetInfo(shadowMap, 0);
 	RenderTargetInfo* projectedShadowInfoDepth = new RenderTargetInfo(shadowMap, shadowInfo.GetShadowId());

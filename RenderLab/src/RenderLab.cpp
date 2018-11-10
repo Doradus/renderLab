@@ -126,8 +126,15 @@ void RenderLab::InitShaders() {
 	char* byteCode = nullptr;
 	unsigned int byteCodeSize = 0;
 	 
+	ShaderMacro macro = {};
+	macro.name = "USE_NORMAL_MAP";
+	macro.definition = "1";
+
+	ShaderMacro macros[1];
+	macros[0] = macro;
+
 	ResourceManager manager;
-	manager.GetShaderByteCode("shaders/BasicVertexShader.hlsl", VERTEX_SHADER, &byteCodeSize, &byteCode);
+	manager.GetShaderByteCode("shaders/BasicVertexShader.hlsl", VERTEX_SHADER, nullptr, 0, &byteCodeSize, &byteCode);
 
 	char* vertexShaderCode = byteCode;
 	vertextShader  = renderingInterface->CreateVertexShader(vertexShaderCode, byteCodeSize);
@@ -135,7 +142,7 @@ void RenderLab::InitShaders() {
 	const unsigned char* vertexCode = (unsigned char*)byteCode;
 	renderer->CreateInputLayout(vertexCode, byteCodeSize);
 
-	manager.GetShaderByteCode("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, &byteCodeSize, &byteCode);
+	manager.GetShaderByteCode("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 1, &byteCodeSize, &byteCode);
 	char* pixelCode = byteCode;
 	pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
 }

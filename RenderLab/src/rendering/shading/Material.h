@@ -1,5 +1,7 @@
 #pragma once
 #include "MathUtils.h"
+#include "Shader.h"
+#include "RenderingInterfaceResources.h"
 using namespace DirectX;
 
 class Material {
@@ -21,4 +23,6 @@ private:
 	XMFLOAT3 albedo;
 	XMFLOAT3 specularColor;
 	float specularPower;
+
+	Shader* shaders[NUM_SHADER_TYPES];
 };

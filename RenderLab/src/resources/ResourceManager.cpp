@@ -7,7 +7,7 @@ ResourceManager::ResourceManager()
 ResourceManager::~ResourceManager() {
 }
 
-void ResourceManager::GetShaderByteCode(const char * fileName, ShaderStages shaderStage, unsigned int * byteCodeSize, char ** byteCode) const {
+void ResourceManager::GetShaderByteCode(const char * fileName, ShaderStages shaderStage, const ShaderMacro* macros, unsigned int macroCount, unsigned int * byteCodeSize, char ** byteCode) const {
 	File file = {};
 
 	file.Open(fileName);
@@ -19,5 +19,5 @@ void ResourceManager::GetShaderByteCode(const char * fileName, ShaderStages shad
 
 	file.Close();
 
-	renderingInterface->CompileShader(shaderStage, line.size(), fileName, line.data(), nullptr, 0, byteCodeSize, byteCode);
+	renderingInterface->CompileShader(shaderStage, line.size(), fileName, line.data(), macros, macroCount, byteCodeSize, byteCode);
 }
