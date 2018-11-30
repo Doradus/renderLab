@@ -56,8 +56,8 @@ RenderLab::~RenderLab() {
 	delete vertextShader;
 	vertextShader = nullptr;
 
-	delete pixelShader;
-	pixelShader = nullptr;
+	//delete pixelShader;
+	//pixelShader = nullptr;
 
 	delete renderer;
 	renderer = nullptr;
@@ -88,6 +88,8 @@ RenderLab::~RenderLab() {
 
 	delete world;
 	world = nullptr;
+
+	ResourceManager::GetInstance().DestroyAllTextures();
 };
 
 bool RenderLab::InitLab() {
@@ -95,6 +97,7 @@ bool RenderLab::InitLab() {
 		return false;
 	}
 
+	CreateResources();
 	CreateWorld();
 	CreateLights();
 	InitShaders();
@@ -116,6 +119,11 @@ void RenderLab::Tick() {
 	//box2->SetRotation(0, testRotation, 0);
 }
 
+void RenderLab::CreateResources() const {
+	ResourceManager::GetInstance().CreateTextureFromFile("floor_COLOR.dds", true);
+	ResourceManager::GetInstance().CreateTextureFromFile("floor_NRM.dds", true);
+}
+
 bool RenderLab::CreateRenderer() {
 	renderer = new Renderer();
 	renderer->CreateHardwareRenderingInterface(1920, 1080, windowHandle);
@@ -126,15 +134,7 @@ void RenderLab::InitShaders() {
 	char* byteCode = nullptr;
 	unsigned int byteCodeSize = 0;
 	 
-	ShaderMacro macro = {};
-	macro.name = "USE_NORMAL_MAP";
-	macro.definition = "1";
-
-	ShaderMacro macros[1];
-	macros[0] = macro;
-
-	ResourceManager manager;
-	manager.GetShaderByteCode("shaders/BasicVertexShader.hlsl", VERTEX_SHADER, nullptr, 0, &byteCodeSize, &byteCode);
+	ResourceManager::GetInstance().GetShaderByteCode("shaders/BasicVertexShader.hlsl", VERTEX_SHADER, nullptr, 0, &byteCodeSize, &byteCode);
 
 	char* vertexShaderCode = byteCode;
 	vertextShader  = renderingInterface->CreateVertexShader(vertexShaderCode, byteCodeSize);
@@ -142,9 +142,22 @@ void RenderLab::InitShaders() {
 	const unsigned char* vertexCode = (unsigned char*)byteCode;
 	renderer->CreateInputLayout(vertexCode, byteCodeSize);
 
-	manager.GetShaderByteCode("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 1, &byteCodeSize, &byteCode);
-	char* pixelCode = byteCode;
-	pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
+	boxMaterial = new Material();
+	boxMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
+	boxMaterial->SetSpecularPower(20.0f);
+
+	TextureSamplerNode* samplerNode = boxMaterial->CreateMaterialNode();
+	samplerNode->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
+	boxMaterial->SetAlbedo(samplerNode);
+
+	MaterialCompiler compiler;
+	compiler.CompileMaterial(boxMaterial);
+
+	//ResourceManager::GetInstance().GetShaderByteCode("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 1, &byteCodeSize, &byteCode);
+	//char* pixelCode = byteCode;
+	//pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
+
+	//boxMaterial->SetShader(pixelShader);
 }
 
 void RenderLab::BuildGeometry() {
@@ -190,17 +203,11 @@ void RenderLab::BuildGeometry() {
 	boxRenderData->SetNumIndices(boxData.indices.size());
 
 	box->SetVertexShader(vertextShader);
-	box->SetPixelShader(pixelShader);
+	//box->SetPixelShader(pixelShader);
 	box->SetRenderData(boxRenderData);
 
 	box->SetPosition(-4, 2.5f, -10);
 	box->SetRotation(0, 30, 0);
-
-	boxMaterial = new Material();
-	boxMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
-	boxMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
-	boxMaterial->SetSpecularPower(0.2f);
-
 	box->SetMaterial(boxMaterial);
 
 	box2 = new StaticMesh();
@@ -211,18 +218,12 @@ void RenderLab::BuildGeometry() {
 	box2RenderData->SetNumIndices(boxData.indices.size());
 
 	box2->SetVertexShader(vertextShader);
-	box2->SetPixelShader(pixelShader);
+	//box2->SetPixelShader(pixelShader);
 	box2->SetRenderData(box2RenderData);
 
 	box2->SetPosition(4, 2.5f, 4);
 	box2->SetRotation(0, 52, 0);
-
-	box2Material = new Material();
-	box2Material->SetAlbedo(0.8f, 0.8f, 0.8f);
-	box2Material->SetSpecularColor(0.01f, 0.01f, 0.01f);
-	box2Material->SetSpecularPower(0.2f);
-
-	box2->SetMaterial(box2Material);
+	box2->SetMaterial(boxMaterial);
 
 	//  ---- plane ----- //
 
@@ -234,17 +235,11 @@ void RenderLab::BuildGeometry() {
 	planeRenderData->SetNumIndices(planeData.indices.size());
 
 	plane->SetVertexShader(vertextShader);
-	plane->SetPixelShader(pixelShader);
+	//plane->SetPixelShader(pixelShader);
 	plane->SetRenderData(planeRenderData);
 
 	plane->SetPosition(0, 0, -5);
-
-	planeMaterial = new Material();
-	planeMaterial->SetAlbedo(0.75f, 0.75f, 0.75f);
-	planeMaterial->SetSpecularColor(0.01f, 0.01f, 0.01f);
-	planeMaterial->SetSpecularPower(0.2f);
-
-	plane->SetMaterial(planeMaterial);
+	plane->SetMaterial(boxMaterial);
 
 	//  ---- sphere ----- //
 
@@ -256,17 +251,12 @@ void RenderLab::BuildGeometry() {
 	sphereRenderData->SetNumIndices(sphereData.indices.size());
 
 	sphere->SetVertexShader(vertextShader);
-	sphere->SetPixelShader(pixelShader);
+	//sphere->SetPixelShader(pixelShader);
 	sphere->SetRenderData(sphereRenderData);
 
 	sphere->SetPosition(-4.0, 3.0f, 3.0f);
 	sphere->SetRotation(90.0f, 110.0f, 0.0f);
-
-	sphereMaterial = new Material();
-	sphereMaterial->SetAlbedo(0.8f, 0.8f, 0.8f);
-	sphereMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
-	sphereMaterial->SetSpecularPower(18.0f);
-	sphere->SetMaterial(sphereMaterial);
+	sphere->SetMaterial(boxMaterial);
 
 	world->AddStaticMesh(box);
 	world->AddStaticMesh(box2);

@@ -51,14 +51,14 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
-Texture2D diffuseTexture;
-SamplerState textureSampler;
-
 Texture2DArray shadowMap;
 SamplerComparisonState shadowSampler;
 
 TextureCube omniDirectionalShadowMap;
 SamplerState trilinearSampler;
+
+Texture2D diffuseTexture;
+SamplerState textureSampler;
 
 #if USE_NORMAL_MAP > 0
 Texture2D normalTexture;
@@ -190,7 +190,7 @@ void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightPropert
 }
 
 float3 SampledNormalToWorldSpace(float3 sampledNormal, float3 normal, float3 tangent) {
-    float3 sampledNormalUncompressed = 2.0f * sampledNormal - 1.0f;
+    float3 unpackedNormal = 2.0f * sampledNormal - 1.0f;
 
     float3 N = normal;
     float3 T = normalize(tangent - dot(tangent, N) * N);
@@ -198,9 +198,13 @@ float3 SampledNormalToWorldSpace(float3 sampledNormal, float3 normal, float3 tan
 
     float3x3 TBN = float3x3(T, B, N);
 
-    float3 transformedNormal = mul(sampledNormalUncompressed, TBN);
+    float3 transformedNormal = mul(unpackedNormal, TBN);
 
     return transformedNormal;
+}
+
+float3 GetAlbedo(PixelIn vIn) {
+
 }
 
 float4 Main(PixelIn vIn) : SV_TARGET {
@@ -248,8 +252,8 @@ float4 Main(PixelIn vIn) : SV_TARGET {
     }
 
     float3 ambientLight = float3(0.2, 0.2, 0.25);
-    float3 albedo = diffuseTexture.Sample(textureSampler, vIn.uv).rgb;
-
+    //float3 albedo = diffuseTexture.Sample(textureSampler, vIn.uv).rgb;
+    float3 albedo = GetAlbedo(vIn);
     ambientLight *= albedo;
     diffuseColor *= albedo;
     specularColor *= material.specularColor;
@@ -258,5 +262,4 @@ float4 Main(PixelIn vIn) : SV_TARGET {
     float3 finalSpecular = saturate(specularColor);
 
     return float4(ambientLight + finalDiffuse + finalSpecular, 1.0f);
-
 }

@@ -203,7 +203,6 @@ void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t src
 	}
 
 	#if defined(_DEBUG)
-
 		UINT compile_flags = D3DCOMPILE_SKIP_OPTIMIZATION;
 	#else
 		UINT compile_flags = D3DCOMPILE_OPTIMIZATION_LEVEL3;

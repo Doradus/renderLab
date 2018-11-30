@@ -4,18 +4,27 @@ Material::Material()
 {
 }
 
-Material::~Material()
-{
+Material::~Material() {
+	std::vector<MaterialNode* >::iterator it;
+	it = materialNodes.begin();
+
+	while (it != materialNodes.end()) {
+		MaterialNode* node = *it;
+		materialNodes.erase(it);
+
+		delete node;
+		node = nullptr;
+		it = materialNodes.begin();
+	}
+
+	if (shader != nullptr) {
+		delete shader;
+		shader = nullptr; 
+	}
 }
 
-void Material::SetAlbedo(const XMFLOAT3 & value) {
+void Material::SetAlbedo(MaterialNode * value) {
 	albedo = value;
-}
-
-void Material::SetAlbedo(float r, float g, float b) {
-	albedo.x = r;
-	albedo.y = g;
-	albedo.z = b;
 }
 
 void Material::SetSpecularColor(const XMFLOAT3 & value) {
@@ -32,7 +41,22 @@ void Material::SetSpecularPower(float value) {
 	specularPower = value;
 }
 
-XMFLOAT3 Material::GetAlbedo() const {
+void Material::SetShader(PixelShader* inShader) {
+	shader = inShader;
+}
+
+PixelShader* Material::GetShader() const {
+	return shader;
+}
+
+TextureSamplerNode * Material::CreateMaterialNode() {
+	TextureSamplerNode* textureSamplerNode = new TextureSamplerNode();
+	materialNodes.push_back(textureSamplerNode);
+
+	return textureSamplerNode;
+}
+
+MaterialNode* Material::GetAlbedo() const {
 	return albedo;
 }
 
