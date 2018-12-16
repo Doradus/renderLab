@@ -259,7 +259,7 @@ void Renderer::RenderWorld(World* world) const {
 	}
 
 	renderingInterface->SetSamplerState(textureSampler, 2);
-	renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"), 2);
+	//renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"), 2);
 
 	renderingInterface->SetSamplerState(normalMapSampler, 3);
 	renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"), 3);
@@ -293,6 +293,10 @@ void Renderer::RenderWorld(World* world) const {
 		materialResource.specularPower = mesh->GetMaterial()->GetSpecularPower();
 		materialResource.specularColor = mesh->GetMaterial()->GetSpecularColor();
 		materialResource.padding = 0.0f;
+
+		for (const MaterialTextureUniform* uniform : mesh->GetMaterial()->GetMaterialUniforms()) {
+			uniform->BindResource();
+		}
 
 		renderingInterface->UpdateConstantBuffer(objectConstantBuffer, &properties, sizeof(ObjectProperties));
 		renderingInterface->UpdateConstantBuffer(materialBuffer, &materialResource, sizeof(MaterialResource));

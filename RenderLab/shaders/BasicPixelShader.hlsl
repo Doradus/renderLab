@@ -3,6 +3,8 @@
 #define POINT_LIGHT 1
 #define SPOT_LIGHT 2
 
+#include <MaterialResources.hlsl>
+
 struct PixelIn {
     float3 position : POSITION;
     float2 uv : UV;
@@ -51,13 +53,8 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
-Texture2DArray shadowMap;
 SamplerComparisonState shadowSampler;
-
-TextureCube omniDirectionalShadowMap;
 SamplerState trilinearSampler;
-
-Texture2D diffuseTexture;
 SamplerState textureSampler;
 
 #if USE_NORMAL_MAP > 0
@@ -252,7 +249,6 @@ float4 Main(PixelIn vIn) : SV_TARGET {
     }
 
     float3 ambientLight = float3(0.2, 0.2, 0.25);
-    //float3 albedo = diffuseTexture.Sample(textureSampler, vIn.uv).rgb;
     float3 albedo = GetAlbedo(vIn);
     ambientLight *= albedo;
     diffuseColor *= albedo;

@@ -8,19 +8,27 @@ bool MaterialCompiler::CompileMaterial(Material * material) {
 	generatedShader = "";
 	ReadShaderCode("shaders/BasicPixelShader.hlsl", &generatedShader);
 	
+	std::vector<const TextureSamplerNode*> allTextureNodes;
+	material->GetAllNodesOfType<TextureSamplerNode>(allTextureNodes);
+	CreateTextureUniforms(material, allTextureNodes);
 	WriteAlbedo(material->GetAlbedo(), &generatedShader);
 
 	char* byteCode = nullptr;
 	unsigned int byteCodeSize = 0;
 
-	ShaderMacro macro = {};
-	macro.name = "USE_NORMAL_MAP";
-	macro.definition = "1";
+	ShaderMacro macro0 = {};
+	macro0.name = "USE_NORMAL_MAP";
+	macro0.definition = "1";
 
-	ShaderMacro macros[1];
-	macros[0] = macro;
+	ShaderMacro macro1 = {};
+	macro1.name = "TEXTURE_2D_00";
+	macro1.definition = "1";
 
-	CompileShader("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 1, &byteCodeSize, &byteCode);
+	ShaderMacro macros[2];
+	macros[0] = macro0;
+	macros[1] = macro1;
+
+	CompileShader("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 2, &byteCodeSize, &byteCode);
 	char* pixelCode = byteCode;
 	PixelShader* pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
 
@@ -40,12 +48,40 @@ void MaterialCompiler::ReadShaderCode(const char * fileName, std::string* outRea
 	file.Close();
 }
 
+void MaterialCompiler::CreateTextureUniforms(Material* material, std::vector<const TextureSamplerNode*>& sampleNodes) const {
+	std::vector<TextureRI*> textures;
+
+	const unsigned int reservedTextureUnits = 2;
+
+	bool isSame = false;
+	for (const TextureSamplerNode* currentNode : sampleNodes) {
+		isSame = false;
+
+		for (std::vector<TextureRI*>::size_type i = 0; i != textures.size(); i++) {
+			if (currentNode->GetTexture() == textures[i]) {
+				isSame = true;
+				break;
+			}
+		}
+
+		if (!isSame) {
+			textures.push_back(currentNode->GetTexture());
+		}
+	}
+
+	for (std::vector<const TextureRI*>::size_type i = 0; i != textures.size(); i++) {
+		MaterialTextureUniform* textureUniform = new MaterialTextureUniform(textures[i], i);
+		material->AddTextureUniform(textureUniform);
+	}
+}
+
 void MaterialCompiler::WriteAlbedo(MaterialNode * node, std::string* code) {
-	size_t pos = code->find("GetAlbedo");
+	std::string albedoFunction = "GetAlbedo(PixelIn vIn) {";
+	size_t pos = code->find(albedoFunction);
 
-	const std::string albedo = "return diffuseTexture.Sample(textureSampler, vIn.uv).rgb;";
+	const std::string albedo = node->GetExpression();
 
-	code->insert(pos + 25, albedo);
+	code->insert(pos + albedoFunction.length(), albedo);
 }
 
 void MaterialCompiler::CompileShader(const char * fileName, ShaderStages shaderStage, const ShaderMacro * macros, unsigned int macroCount, unsigned int * byteCodeSize, char ** byteCode) {

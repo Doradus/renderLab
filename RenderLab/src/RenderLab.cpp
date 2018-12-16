@@ -146,18 +146,13 @@ void RenderLab::InitShaders() {
 	boxMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
 	boxMaterial->SetSpecularPower(20.0f);
 
-	TextureSamplerNode* samplerNode = boxMaterial->CreateMaterialNode();
+	TextureSamplerNode* samplerNode = new TextureSamplerNode();
 	samplerNode->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
+	boxMaterial->AddMaterialNode(samplerNode);
 	boxMaterial->SetAlbedo(samplerNode);
 
 	MaterialCompiler compiler;
 	compiler.CompileMaterial(boxMaterial);
-
-	//ResourceManager::GetInstance().GetShaderByteCode("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 1, &byteCodeSize, &byteCode);
-	//char* pixelCode = byteCode;
-	//pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
-
-	//boxMaterial->SetShader(pixelShader);
 }
 
 void RenderLab::BuildGeometry() {

@@ -1,6 +1,8 @@
 #include "Material.h"
 
-Material::Material()
+Material::Material() :
+	albedo (nullptr),
+	shader (nullptr)
 {
 }
 
@@ -15,6 +17,17 @@ Material::~Material() {
 		delete node;
 		node = nullptr;
 		it = materialNodes.begin();
+	}
+
+	std::vector<MaterialTextureUniform* >::iterator uniformIt;
+	uniformIt = textureUniforms.begin();
+	while (uniformIt != textureUniforms.end()) {
+		MaterialTextureUniform* node = *uniformIt;
+		textureUniforms.erase(uniformIt);
+
+		delete node;
+		node = nullptr;
+		uniformIt = textureUniforms.begin();
 	}
 
 	if (shader != nullptr) {
@@ -45,19 +58,25 @@ void Material::SetShader(PixelShader* inShader) {
 	shader = inShader;
 }
 
+void Material::AddMaterialNode(MaterialNode * node) {
+	node->SetOwner(this);
+	materialNodes.push_back(node);
+}
+
+void Material::AddTextureUniform(MaterialTextureUniform * inUniform) {
+	textureUniforms.push_back(inUniform);
+}
+
 PixelShader* Material::GetShader() const {
 	return shader;
 }
 
-TextureSamplerNode * Material::CreateMaterialNode() {
-	TextureSamplerNode* textureSamplerNode = new TextureSamplerNode();
-	materialNodes.push_back(textureSamplerNode);
-
-	return textureSamplerNode;
-}
-
 MaterialNode* Material::GetAlbedo() const {
 	return albedo;
+}
+
+std::vector<MaterialTextureUniform*> Material::GetMaterialUniforms() const {
+	return textureUniforms;
 }
 
 XMFLOAT3 Material::GetSpecularColor() const {
