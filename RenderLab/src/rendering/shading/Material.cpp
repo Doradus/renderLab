@@ -59,12 +59,26 @@ void Material::SetShader(PixelShader* inShader) {
 }
 
 void Material::AddMaterialNode(MaterialNode * node) {
-	node->SetOwner(this);
 	materialNodes.push_back(node);
 }
 
 void Material::AddTextureUniform(MaterialTextureUniform * inUniform) {
 	textureUniforms.push_back(inUniform);
+}
+
+void Material::AddTexture(TextureRI* texture) {
+	bool isSame = false;
+
+	for (std::vector<TextureRI*>::size_type i = 0; i != textures.size(); i++) {
+		if (texture == textures[i]) {
+			isSame = true;
+			break;
+		}
+	}
+
+	if (!isSame) {
+		textures.push_back(texture);
+	}
 }
 
 PixelShader* Material::GetShader() const {
@@ -77,6 +91,10 @@ MaterialNode* Material::GetAlbedo() const {
 
 std::vector<MaterialTextureUniform*> Material::GetMaterialUniforms() const {
 	return textureUniforms;
+}
+
+std::vector<TextureRI*> Material::GetTextureResources() const {
+	return textures;
 }
 
 XMFLOAT3 Material::GetSpecularColor() const {

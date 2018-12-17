@@ -259,7 +259,6 @@ void Renderer::RenderWorld(World* world) const {
 	}
 
 	renderingInterface->SetSamplerState(textureSampler, 2);
-	//renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"), 2);
 
 	renderingInterface->SetSamplerState(normalMapSampler, 3);
 	renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"), 3);

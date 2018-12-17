@@ -8,9 +8,7 @@ bool MaterialCompiler::CompileMaterial(Material * material) {
 	generatedShader = "";
 	ReadShaderCode("shaders/BasicPixelShader.hlsl", &generatedShader);
 	
-	std::vector<const TextureSamplerNode*> allTextureNodes;
-	material->GetAllNodesOfType<TextureSamplerNode>(allTextureNodes);
-	CreateTextureUniforms(material, allTextureNodes);
+	CreateTextureUniforms(material);
 	WriteAlbedo(material->GetAlbedo(), &generatedShader);
 
 	char* byteCode = nullptr;
@@ -48,40 +46,20 @@ void MaterialCompiler::ReadShaderCode(const char * fileName, std::string* outRea
 	file.Close();
 }
 
-void MaterialCompiler::CreateTextureUniforms(Material* material, std::vector<const TextureSamplerNode*>& sampleNodes) const {
-	std::vector<TextureRI*> textures;
-
-	const unsigned int reservedTextureUnits = 2;
-
-	bool isSame = false;
-	for (const TextureSamplerNode* currentNode : sampleNodes) {
-		isSame = false;
-
-		for (std::vector<TextureRI*>::size_type i = 0; i != textures.size(); i++) {
-			if (currentNode->GetTexture() == textures[i]) {
-				isSame = true;
-				break;
-			}
-		}
-
-		if (!isSame) {
-			textures.push_back(currentNode->GetTexture());
-		}
-	}
-
-	for (std::vector<const TextureRI*>::size_type i = 0; i != textures.size(); i++) {
-		MaterialTextureUniform* textureUniform = new MaterialTextureUniform(textures[i], i);
+void MaterialCompiler::CreateTextureUniforms(Material* material) const {
+	for (std::vector<const TextureRI*>::size_type i = 0; i != material->GetTextureResources().size(); i++) {
+		MaterialTextureUniform* textureUniform = new MaterialTextureUniform(material->GetTextureResources()[i], i);
 		material->AddTextureUniform(textureUniform);
 	}
 }
 
 void MaterialCompiler::WriteAlbedo(MaterialNode * node, std::string* code) {
-	std::string albedoFunction = "GetAlbedo(PixelIn vIn) {";
+	std::string albedoFunction = "%Albedo%";
 	size_t pos = code->find(albedoFunction);
 
 	const std::string albedo = node->GetExpression();
 
-	code->insert(pos + albedoFunction.length(), albedo);
+	code->replace(pos, albedoFunction.length(), albedo);
 }
 
 void MaterialCompiler::CompileShader(const char * fileName, ShaderStages shaderStage, const ShaderMacro * macros, unsigned int macroCount, unsigned int * byteCodeSize, char ** byteCode) {

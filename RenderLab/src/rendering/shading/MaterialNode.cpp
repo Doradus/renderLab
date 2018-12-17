@@ -1,15 +1,12 @@
 #include "MaterialNode.h"
 
-MaterialNode::MaterialNode() : 
- owner (nullptr) {}
+MaterialNode::MaterialNode(Material* material) :
+ owner (material) {}
 
 MaterialNode::~MaterialNode() {}
 
-void MaterialNode::SetOwner(Material * newOwner) {
-	owner = newOwner;
-}
-
-TextureSamplerNode::TextureSamplerNode() {}
+TextureSamplerNode::TextureSamplerNode(Material* material) :
+ MaterialNode(material) {}
 
 TextureSamplerNode::~TextureSamplerNode() {}
 
@@ -27,8 +24,5 @@ TextureRI * TextureSamplerNode::GetTexture() const {
 
 void TextureSamplerNode::AddTexture(TextureRI * inTexture) {
 	texture = inTexture;
-}
-
-void TextureSamplerNode::SetTextureIndex(unsigned int usedIndex) {
-	textureIndex = usedIndex;
+	owner->AddTexture(inTexture);
 }

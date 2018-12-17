@@ -201,7 +201,7 @@ float3 SampledNormalToWorldSpace(float3 sampledNormal, float3 normal, float3 tan
 }
 
 float3 GetAlbedo(PixelIn vIn) {
-
+    %Albedo%
 }
 
 float4 Main(PixelIn vIn) : SV_TARGET {

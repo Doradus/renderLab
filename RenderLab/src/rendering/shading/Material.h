@@ -6,9 +6,9 @@
 #include "MaterialUtils.h"
 #include "MaterialUniform.h"
 #include "RenderingInterface.h"
-#include "MaterialNode.h"
 using namespace DirectX;
 
+class MaterialNode;
 class Material {
 public:
 	Material();
@@ -21,9 +21,11 @@ public:
 	void									SetShader(PixelShader* inShader);
 	void									AddMaterialNode(MaterialNode* node);
 	void									AddTextureUniform(MaterialTextureUniform* inUniform);
+	void									AddTexture(TextureRI* texture);
 
 	MaterialNode*							GetAlbedo() const;
 	std::vector<MaterialTextureUniform*>	GetMaterialUniforms() const;
+	std::vector<TextureRI*>					GetTextureResources() const;
 	XMFLOAT3								GetSpecularColor() const;
 	float									GetSpecularPower() const;
 	PixelShader*							GetShader() const;
@@ -46,6 +48,7 @@ private:
 
 	std::vector<MaterialNode*>				materialNodes;
 	std::vector<MaterialTextureUniform*>	textureUniforms;
+	std::vector<TextureRI*>					textures;
 	ConstantBuffer*							constantBuffer;
 	PixelShader*							shader;
 

@@ -1,20 +1,19 @@
 #pragma once
 #include <string>
 #include "MathUtils.h"
+#include "Material.h"
 #include "RenderingInterfaceResources.h"
 
 class Material;
 
 class MaterialNode {
 public:
-	MaterialNode();
+	MaterialNode(Material* material);
 	virtual ~MaterialNode();
 
 	virtual void GetValue(DirectX::XMFLOAT4* outValue) const = 0;
 	virtual void GenerateShaderCode(std::string* outValue) const  = 0;
 	virtual std::string GetExpression() const = 0;
-
-	void		SetOwner(Material* newOwner);
 
 protected:
 	Material* owner;
@@ -27,7 +26,7 @@ private:
 
 class TextureSamplerNode : public MaterialNode {
 public:
-	TextureSamplerNode();
+	TextureSamplerNode(Material* material);
 	~TextureSamplerNode();
 
 	virtual void GetValue(DirectX::XMFLOAT4* outValue) const override;
@@ -37,7 +36,6 @@ public:
 	TextureRI* GetTexture() const;
 
 	void AddTexture(TextureRI* inTexture);
-	void SetTextureIndex(unsigned int usedIndex);
 
 private:
 	unsigned int textureIndex;
