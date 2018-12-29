@@ -15,7 +15,9 @@ void TextureSamplerNode::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 void TextureSamplerNode::GenerateShaderCode(std::string * outValue) const {}
 
 std::string TextureSamplerNode::GetExpression() const {
-	return "return texture00.Sample(textureSampler, vIn.uv).rgb;";
+	int textureIndex = owner->GetTextureIndex(texture);
+
+	return "return texture0" + std::to_string(textureIndex) + ".Sample(textureSampler, vIn.uv).rgb;";
 }
 
 TextureRI * TextureSamplerNode::GetTexture() const {

@@ -4,17 +4,19 @@
 #include "RenderingInterfaceResources.h"
 #include "MaterialValue.h"
 #include "MaterialUtils.h"
-#include "MaterialUniform.h"
 #include "RenderingInterface.h"
 using namespace DirectX;
 
 class MaterialNode;
+class MaterialUniform;
+class MaterialTextureUniform;
 class Material {
 public:
 	Material();
 	~Material();
 
 	void									SetAlbedo(MaterialNode* node);
+	void									SetNormal(MaterialNode* node);
 	void									SetSpecularColor(const XMFLOAT3& value);
 	void									SetSpecularColor(float r, float g, float b);
 	void									SetSpecularPower(float value);
@@ -24,11 +26,14 @@ public:
 	void									AddTexture(TextureRI* texture);
 
 	MaterialNode*							GetAlbedo() const;
+	MaterialNode*							GetNormal() const;
 	std::vector<MaterialTextureUniform*>	GetMaterialUniforms() const;
 	std::vector<TextureRI*>					GetTextureResources() const;
 	XMFLOAT3								GetSpecularColor() const;
 	float									GetSpecularPower() const;
 	PixelShader*							GetShader() const;
+	int										GetTextureIndex(TextureRI* texture) const;
+	bool									UseNormals() const;
 
 	template <typename NodeType>
 	void GetAllNodesOfType(std::vector<const NodeType*>& outNodes) const {
@@ -43,6 +48,7 @@ public:
 
 private:
 	MaterialNode*							albedo;
+	MaterialNode*							normal;
 	XMFLOAT3								specularColor;
 	float									specularPower;
 
@@ -52,7 +58,6 @@ private:
 	ConstantBuffer*							constantBuffer;
 	PixelShader*							shader;
 
-	bool									usingNormals;
 	bool									usingRougthness;
 	bool									usingMetalicness;
 	bool									usingTransparency;

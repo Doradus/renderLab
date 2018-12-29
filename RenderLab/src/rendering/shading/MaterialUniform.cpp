@@ -1,7 +1,13 @@
 #include "MaterialUniform.h"
 
 
-MaterialTextureUniform::MaterialTextureUniform(TextureRI* inTexture, unsigned int textureIndex) : 
+MaterialUniform::MaterialUniform(Material* inMaterial) :
+	owner (inMaterial) {}
+
+MaterialUniform::~MaterialUniform() {}
+
+MaterialTextureUniform::MaterialTextureUniform(TextureRI* inTexture, unsigned int textureIndex, Material* inMaterial) :
+	MaterialUniform(inMaterial),
 	texture (inTexture),
 	inputSlot (textureIndex)
 {}
@@ -14,7 +20,12 @@ void MaterialTextureUniform::AddTexture(TextureRI * inTexture, unsigned int text
 }
 
 void MaterialTextureUniform::BindResource() const {
-	renderingInterface->SetShaderResources(texture, 2);
+	//hardcoded for now should be removed
+	unsigned int textureOffset = 2;
+
+	int textureIndex = owner->GetTextureIndex(texture);
+
+	renderingInterface->SetShaderResources(texture, textureIndex + textureOffset);
 }
 
 

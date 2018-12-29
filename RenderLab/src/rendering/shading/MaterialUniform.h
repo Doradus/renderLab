@@ -3,18 +3,23 @@
 #include "SamplerState.h"
 #include "RenderingInterfaceResources.h"
 #include "RenderingInterface.h"
+#include "Material.h"
 #include <vector>
+
 class MaterialUniform {
 public:
-	MaterialUniform() {};
-	virtual ~MaterialUniform(){};
+	MaterialUniform(Material* inMaterial);
+	virtual ~MaterialUniform();
 
 	virtual void BindResource() const = 0;
+
+protected:
+	Material* owner;
 };
 
 class MaterialTextureUniform : public MaterialUniform {
 public:
-	MaterialTextureUniform(TextureRI* inTexture, unsigned int textureIndex);
+	MaterialTextureUniform(TextureRI* inTexture, unsigned int textureIndex, Material* inMaterial);
 	~MaterialTextureUniform();                             
 
 	void AddTexture(TextureRI* inTexture, unsigned int textureIndex);

@@ -16,17 +16,28 @@ bool MaterialCompiler::CompileMaterial(Material * material) {
 
 	ShaderMacro macro0 = {};
 	macro0.name = "USE_NORMAL_MAP";
-	macro0.definition = "1";
+
+	if (material->UseNormals()) {
+		macro0.definition = "1";
+		WriteNormal(material->GetNormal(), &generatedShader);
+	} else {
+		macro0.definition = "0";
+	}
 
 	ShaderMacro macro1 = {};
 	macro1.name = "TEXTURE_2D_00";
 	macro1.definition = "1";
 
-	ShaderMacro macros[2];
+	ShaderMacro macro2 = {};
+	macro2.name = "TEXTURE_2D_01";
+	macro2.definition = "1";
+
+	ShaderMacro macros[3];
 	macros[0] = macro0;
 	macros[1] = macro1;
+	macros[2] = macro2;
 
-	CompileShader("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 2, &byteCodeSize, &byteCode);
+	CompileShader("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 3, &byteCodeSize, &byteCode);
 	char* pixelCode = byteCode;
 	PixelShader* pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
 
@@ -48,7 +59,7 @@ void MaterialCompiler::ReadShaderCode(const char * fileName, std::string* outRea
 
 void MaterialCompiler::CreateTextureUniforms(Material* material) const {
 	for (std::vector<const TextureRI*>::size_type i = 0; i != material->GetTextureResources().size(); i++) {
-		MaterialTextureUniform* textureUniform = new MaterialTextureUniform(material->GetTextureResources()[i], i);
+		MaterialTextureUniform* textureUniform = new MaterialTextureUniform(material->GetTextureResources()[i], i, material);
 		material->AddTextureUniform(textureUniform);
 	}
 }
@@ -60,6 +71,15 @@ void MaterialCompiler::WriteAlbedo(MaterialNode * node, std::string* code) {
 	const std::string albedo = node->GetExpression();
 
 	code->replace(pos, albedoFunction.length(), albedo);
+}
+
+void MaterialCompiler::WriteNormal(MaterialNode * node, std::string * code) {
+	std::string normalFunction = "%Normal%";
+	size_t pos = code->find(normalFunction);
+
+	const std::string normal = node->GetExpression();
+
+	code->replace(pos, normalFunction.length(), normal);
 }
 
 void MaterialCompiler::CompileShader(const char * fileName, ShaderStages shaderStage, const ShaderMacro * macros, unsigned int macroCount, unsigned int * byteCodeSize, char ** byteCode) {

@@ -4,8 +4,6 @@
 #include "Material.h"
 #include "RenderingInterfaceResources.h"
 
-class Material;
-
 class MaterialNode {
 public:
 	MaterialNode(Material* material);

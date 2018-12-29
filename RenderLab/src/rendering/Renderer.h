@@ -10,6 +10,7 @@
 #include "ShadowInfo.h"
 #include "Image.h"
 #include "ResourceManager.h"
+#include "MaterialUniform.h"
 
 class Renderer {
 public:

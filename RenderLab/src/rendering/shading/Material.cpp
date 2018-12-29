@@ -2,6 +2,7 @@
 
 Material::Material() :
 	albedo (nullptr),
+	normal (nullptr),
 	shader (nullptr)
 {
 }
@@ -38,6 +39,10 @@ Material::~Material() {
 
 void Material::SetAlbedo(MaterialNode * value) {
 	albedo = value;
+}
+
+void Material::SetNormal(MaterialNode * node) {
+	normal = node;
 }
 
 void Material::SetSpecularColor(const XMFLOAT3 & value) {
@@ -85,8 +90,26 @@ PixelShader* Material::GetShader() const {
 	return shader;
 }
 
+int Material::GetTextureIndex(TextureRI* texture) const {
+	for (std::vector<TextureRI*>::size_type i = 0; i != textures.size(); i++) {
+		if (texture == textures[i]) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+bool Material::UseNormals() const {
+	return normal != nullptr;
+}
+
 MaterialNode* Material::GetAlbedo() const {
 	return albedo;
+}
+
+MaterialNode * Material::GetNormal() const {
+	return normal;
 }
 
 std::vector<MaterialTextureUniform*> Material::GetMaterialUniforms() const {

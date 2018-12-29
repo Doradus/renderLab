@@ -58,7 +58,6 @@ SamplerState trilinearSampler;
 SamplerState textureSampler;
 
 #if USE_NORMAL_MAP > 0
-Texture2D normalTexture;
 SamplerState normalSampler;
 #endif
 
@@ -204,6 +203,10 @@ float3 GetAlbedo(PixelIn vIn) {
     %Albedo%
 }
 
+float3 GetNormal(PixelIn vIn) {
+    %Normal%
+}
+
 float4 Main(PixelIn vIn) : SV_TARGET {
     float3 normal = normalize(vIn.normal);
 
@@ -212,7 +215,7 @@ float4 Main(PixelIn vIn) : SV_TARGET {
     float3 toEye = normalize(eyePosition - vIn.position);
 
     #if USE_NORMAL_MAP
-    float3 sampledNormal = normalTexture.Sample(normalSampler, vIn.uv).rgb;
+    float3 sampledNormal = GetNormal(vIn);
     normal = SampledNormalToWorldSpace(sampledNormal, normal, vIn.tangent);
     #endif
 
