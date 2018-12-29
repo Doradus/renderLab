@@ -33,6 +33,7 @@ public:
 	float									GetSpecularPower() const;
 	PixelShader*							GetShader() const;
 	int										GetTextureIndex(TextureRI* texture) const;
+	unsigned int							GetNumberOfTexturesUsed() const;
 	bool									UseNormals() const;
 
 	template <typename NodeType>

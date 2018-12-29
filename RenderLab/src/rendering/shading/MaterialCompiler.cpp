@@ -10,34 +10,37 @@ bool MaterialCompiler::CompileMaterial(Material * material) {
 	
 	CreateTextureUniforms(material);
 	WriteAlbedo(material->GetAlbedo(), &generatedShader);
+	WriteNormal(material, &generatedShader);
 
 	char* byteCode = nullptr;
 	unsigned int byteCodeSize = 0;
+
+	std::vector<ShaderMacro> macros;
 
 	ShaderMacro macro0 = {};
 	macro0.name = "USE_NORMAL_MAP";
 
 	if (material->UseNormals()) {
 		macro0.definition = "1";
-		WriteNormal(material->GetNormal(), &generatedShader);
 	} else {
 		macro0.definition = "0";
 	}
 
-	ShaderMacro macro1 = {};
-	macro1.name = "TEXTURE_2D_00";
-	macro1.definition = "1";
+	macros.push_back(macro0);
 
-	ShaderMacro macro2 = {};
-	macro2.name = "TEXTURE_2D_01";
-	macro2.definition = "1";
+	//texture resources
 
-	ShaderMacro macros[3];
-	macros[0] = macro0;
-	macros[1] = macro1;
-	macros[2] = macro2;
+	unsigned int texuresUsed = material->GetNumberOfTexturesUsed();
 
-	CompileShader("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros, 3, &byteCodeSize, &byteCode);
+	for (unsigned int i = 0; i < texuresUsed; i++) {
+		ShaderMacro macro = {};
+		macro.name = "TEXTURE_2D_0" + std::to_string(i);
+		macro.definition = "1";
+
+		macros.push_back(macro);
+	}
+
+	CompileShader("shaders/BasicPixelShader.hlsl", PIXEL_SHADER, macros.data(), macros.size(), &byteCodeSize, &byteCode);
 	char* pixelCode = byteCode;
 	PixelShader* pixelShader = renderingInterface->CreatePixelShader(pixelCode, byteCodeSize);
 
@@ -73,13 +76,16 @@ void MaterialCompiler::WriteAlbedo(MaterialNode * node, std::string* code) {
 	code->replace(pos, albedoFunction.length(), albedo);
 }
 
-void MaterialCompiler::WriteNormal(MaterialNode * node, std::string * code) {
+void MaterialCompiler::WriteNormal(Material* material, std::string * code) {
 	std::string normalFunction = "%Normal%";
 	size_t pos = code->find(normalFunction);
 
-	const std::string normal = node->GetExpression();
-
-	code->replace(pos, normalFunction.length(), normal);
+	if (material->UseNormals()) {
+		const std::string normal = material->GetNormal()->GetExpression();
+		code->replace(pos, normalFunction.length(), normal);
+	} else {
+		code->replace(pos, normalFunction.length(), "");
+	}
 }
 
 void MaterialCompiler::CompileShader(const char * fileName, ShaderStages shaderStage, const ShaderMacro * macros, unsigned int macroCount, unsigned int * byteCodeSize, char ** byteCode) {

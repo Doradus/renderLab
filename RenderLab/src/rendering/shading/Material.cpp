@@ -100,6 +100,10 @@ int Material::GetTextureIndex(TextureRI* texture) const {
 	return -1;
 }
 
+unsigned int Material::GetNumberOfTexturesUsed() const {
+	return textures.size();
+}
+
 bool Material::UseNormals() const {
 	return normal != nullptr;
 }

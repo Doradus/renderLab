@@ -192,7 +192,6 @@ void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t src
 	
 	D3D_SHADER_MACRO* shaderMacros = nullptr;
 	if (macroCount) {
-		//shaderMacros = (D3D_SHADER_MACRO*)_malloca((macroCount + 1) * sizeof(D3D_SHADER_MACRO));
 		shaderMacros = new D3D_SHADER_MACRO[macroCount + 1];
 		
 		for (unsigned int i = 0; i < macroCount; i++) {

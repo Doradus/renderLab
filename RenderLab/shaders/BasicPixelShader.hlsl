@@ -185,7 +185,7 @@ void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightPropert
     }
 }
 
-float3 SampledNormalToWorldSpace(float3 sampledNormal, float3 normal, float3 tangent) {
+float3 TangentToWorldSpace(float3 sampledNormal, float3 normal, float3 tangent) {
     float3 unpackedNormal = 2.0f * sampledNormal - 1.0f;
 
     float3 N = normal;
@@ -216,7 +216,7 @@ float4 Main(PixelIn vIn) : SV_TARGET {
 
     #if USE_NORMAL_MAP
     float3 sampledNormal = GetNormal(vIn);
-    normal = SampledNormalToWorldSpace(sampledNormal, normal, vIn.tangent);
+    normal = TangentToWorldSpace(sampledNormal, normal, vIn.tangent);
     #endif
 
     float3 diffuse, specular;
