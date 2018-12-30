@@ -10,7 +10,6 @@ public:
 	virtual ~MaterialNode();
 
 	virtual void GetValue(DirectX::XMFLOAT4* outValue) const = 0;
-	virtual void GenerateShaderCode(std::string* outValue) const  = 0;
 	virtual std::string GetExpression() const = 0;
 
 protected:
@@ -18,6 +17,19 @@ protected:
 
 private:
 	std::string name;
+};
+
+class Vector3Node : public MaterialNode {
+public:
+	Vector3Node(Material* material);
+	~Vector3Node();
+
+	virtual void	GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual			std::string GetExpression() const override;
+	void			SetValues(float r, float g, float b);
+	float			R;
+	float			G;
+	float			B;
 };
 
 // ** textures ** //
@@ -28,7 +40,6 @@ public:
 	~TextureSamplerNode();
 
 	virtual void GetValue(DirectX::XMFLOAT4* outValue) const override;
-	virtual void GenerateShaderCode(std::string* outValue) const override;
 	virtual std::string GetExpression() const override;
 
 	TextureRI* GetTexture() const;

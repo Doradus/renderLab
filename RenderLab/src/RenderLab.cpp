@@ -146,15 +146,19 @@ void RenderLab::InitShaders() {
 	boxMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
 	boxMaterial->SetSpecularPower(20.0f);
 
-	TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
-	albedo->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
+	//TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
+	//albedo->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
+
+	Vector3Node* albedo = new Vector3Node(boxMaterial);
+	albedo->SetValues(0.8f, 0.8f, 0.85f);
+
 	boxMaterial->AddMaterialNode(albedo);
 	boxMaterial->SetAlbedo(albedo);
 
 	TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial);
 	normal->AddTexture(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"));
-	boxMaterial->AddMaterialNode(normal);
-	boxMaterial->SetNormal(normal);
+	//boxMaterial->AddMaterialNode(normal);
+	//boxMaterial->SetNormal(normal);
 
 	MaterialCompiler compiler;
 	compiler.CompileMaterial(boxMaterial);

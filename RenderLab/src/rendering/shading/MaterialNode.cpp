@@ -12,8 +12,6 @@ TextureSamplerNode::~TextureSamplerNode() {}
 
 void TextureSamplerNode::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 
-void TextureSamplerNode::GenerateShaderCode(std::string * outValue) const {}
-
 std::string TextureSamplerNode::GetExpression() const {
 	int textureIndex = owner->GetTextureIndex(texture);
 
@@ -27,4 +25,21 @@ TextureRI * TextureSamplerNode::GetTexture() const {
 void TextureSamplerNode::AddTexture(TextureRI * inTexture) {
 	texture = inTexture;
 	owner->AddTexture(inTexture);
+}
+
+Vector3Node::Vector3Node(Material * material) :
+MaterialNode (material) {}
+
+Vector3Node::~Vector3Node() {}
+
+void Vector3Node::GetValue(DirectX::XMFLOAT4 * outValue) const {}
+
+std::string Vector3Node::GetExpression() const {
+	return "return float3(" + std::to_string(R) + ", " + std::to_string(G) + ", " + std::to_string(B) + ");";
+}
+
+void Vector3Node::SetValues(float r, float g, float b) {
+	R = r;
+	G = g;
+	B = b;
 }
