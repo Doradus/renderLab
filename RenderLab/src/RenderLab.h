@@ -7,6 +7,7 @@
 #include "RenderingResources.h"
 #include "FileSystem.h"
 #include "ResourceManager.h"
+#include "MaterialCompiler.h"
 
 class RenderLab {
 public:
@@ -22,6 +23,7 @@ public:
 	void		Draw();
 
 private:
+	void CreateResources() const;
 	bool CreateRenderer();
 	void BuildGeometry();
 	void InitShaders();

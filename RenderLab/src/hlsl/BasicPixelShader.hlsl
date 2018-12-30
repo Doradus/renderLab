@@ -3,6 +3,8 @@
 #define POINT_LIGHT 1
 #define SPOT_LIGHT 2
 
+//#include <TemplateMaterial.hlsl>
+
 struct PixelIn {
     float3 position : POSITION;
     float2 uv : UV;

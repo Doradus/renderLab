@@ -161,7 +161,7 @@ bool D3D11RenderingInterface::CreateSwapChain() {
 	return true;
 }
 
-void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t srcSize, const char * srcName, const char * src, const ShaderMacro * macros, unsigned int macroCount, unsigned int * outSize, char** outCode) const {
+void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t srcSize, const char * srcName, const char * src, const ShaderMacro * macros, const unsigned int macroCount, unsigned int * outSize, char** outCode) const {
 	LPCSTR  entryPoint = "Main";
 	
 	LPCSTR target = NULL;
@@ -189,8 +189,19 @@ void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t src
 		break;
 	}
 
+	
+	D3D_SHADER_MACRO* shaderMacros = nullptr;
+	if (macroCount) {
+		shaderMacros = new D3D_SHADER_MACRO[macroCount + 1];
+		
+		for (unsigned int i = 0; i < macroCount; i++) {
+			shaderMacros[i] = { macros[i].name.c_str(), macros[i].definition.c_str() };
+		}
+		
+		shaderMacros[macroCount] = { nullptr, nullptr };
+	}
+
 	#if defined(_DEBUG)
-		// Enable better shader debugging with the graphics debugging tools.
 		UINT compile_flags = D3DCOMPILE_SKIP_OPTIMIZATION;
 	#else
 		UINT compile_flags = D3DCOMPILE_OPTIMIZATION_LEVEL3;
@@ -202,7 +213,7 @@ void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t src
 		src,
 		srcSize,
 		srcName,
-		nullptr,
+		macroCount > 0 ? shaderMacros : nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		entryPoint,
 		target,
@@ -227,6 +238,10 @@ void D3D11RenderingInterface::CompileShader(ShaderStages shaderStage, size_t src
 	*outCode = pByteCode;
 
 	RELEASE(compiledCode);
+
+	if (shaderMacros != nullptr) {
+		delete shaderMacros;
+	}
 }
 
 void D3D11RenderingInterface::InitDefaultRenderTargets() {

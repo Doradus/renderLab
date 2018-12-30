@@ -10,6 +10,7 @@
 #include "ShadowInfo.h"
 #include "Image.h"
 #include "ResourceManager.h"
+#include "MaterialUniform.h"
 
 class Renderer {
 public:
@@ -28,7 +29,6 @@ public:
 	void			CreateInputLayout(const unsigned char* shaderSource, size_t size) const;
 
 private:
-	void InitTextureResources();
 	void InitShaders();
 	void RenderProjectedOmniDirectionalShadow(World* world, ShadowInfo& shadowInfo) const;
 	void RenderProjectedShadow(World* world, ShadowInfo& shadowInfo) const;
@@ -49,11 +49,6 @@ private:
 	ConstantBuffer* omniDirectionalShadowPassVSBuffer;
 	ConstantBuffer* omniDirectionalShadowPassGSBuffer;
 	ConstantBuffer* lightSpaceTransformBuffer;
-
-	TextureRI* shadowMap;
-	TextureRI* shadowMapCube;
-	TextureRI* diffuseMap;
-	TextureRI* normalMap;
 
 	int screenWidth;
 	int screenHeight;
