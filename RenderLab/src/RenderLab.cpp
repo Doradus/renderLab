@@ -146,22 +146,44 @@ void RenderLab::InitShaders() {
 	boxMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
 	boxMaterial->SetSpecularPower(20.0f);
 
-	//TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
-	//albedo->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
+	TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
+	albedo->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
 
-	Vector3Node* albedo = new Vector3Node(boxMaterial);
-	albedo->SetValues(0.8f, 0.8f, 0.85f);
+	//Vector3Node* albedo = new Vector3Node(boxMaterial);
+	//albedo->SetValues(0.3f, 0.3f, 0.3f);
 
 	boxMaterial->AddMaterialNode(albedo);
 	boxMaterial->SetAlbedo(albedo);
 
 	TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial);
 	normal->AddTexture(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"));
-	//boxMaterial->AddMaterialNode(normal);
-	//boxMaterial->SetNormal(normal);
+	boxMaterial->AddMaterialNode(normal);
+	boxMaterial->SetNormal(normal);
+
+	ScalarNode* roughness = new ScalarNode(boxMaterial);
+	roughness->R = 0.4f;
+	boxMaterial->AddMaterialNode(roughness);
+	boxMaterial->SetRougness(roughness);
+ 
+	planeMaterial = new Material();
+	planeMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
+	planeMaterial->SetSpecularPower(20.0f);
+
+	Vector3Node* albedoPlane = new Vector3Node(planeMaterial);
+	albedoPlane->SetValues(0.9f, 0.9f, 0.9f);
+
+	ScalarNode* roughnessPlane = new ScalarNode(boxMaterial);
+	roughnessPlane->R = 0.5f;
+
+	planeMaterial->AddMaterialNode(albedoPlane);
+	planeMaterial->SetAlbedo(albedoPlane);
+
+	planeMaterial->AddMaterialNode(roughnessPlane);
+	planeMaterial->SetRougness(roughnessPlane);
 
 	MaterialCompiler compiler;
 	compiler.CompileMaterial(boxMaterial);
+	compiler.CompileMaterial(planeMaterial);
 }
 
 void RenderLab::BuildGeometry() {
@@ -243,7 +265,7 @@ void RenderLab::BuildGeometry() {
 	plane->SetRenderData(planeRenderData);
 
 	plane->SetPosition(0, 0, -5);
-	plane->SetMaterial(boxMaterial);
+	plane->SetMaterial(planeMaterial);
 
 	//  ---- sphere ----- //
 
@@ -306,7 +328,7 @@ void RenderLab::CreateLights() {
 	pointLight->SetAttenuation(0, 0.3f, 0);
 	pointLight->SetLightColor(0.9f, 0.6f, 0.72f);
 	pointLight->SetRange(100.0f);
-	pointLight->SetBrightness(0.9f);
+	pointLight->SetBrightness(0.8f);
 	pointLight->SetIsEnabled(true);
 	pointLight->SetCastsShadows(true);
 
@@ -316,7 +338,7 @@ void RenderLab::CreateLights() {
 	spotLight->SetAttenuation(0, 0.3f, 0);
 	spotLight->SetLightColor(0.3f, 0.5f, 1.0f);
 	spotLight->SetRange(100.0f);
-	spotLight->SetBrightness(0.9f);
+	spotLight->SetBrightness(0.8f);
 	spotLight->SetConeAngle(22);
 	spotLight->SetPenumbraAngle(10);
 	spotLight->SetIsEnabled(true);
@@ -328,7 +350,7 @@ void RenderLab::CreateLights() {
 	spotLight2->SetAttenuation(0, 0.3f, 0);
 	spotLight2->SetLightColor(0.9f, 0.3f, 0.3f);
 	spotLight2->SetRange(100.0f);
-	spotLight2->SetBrightness(0.9f);
+	spotLight2->SetBrightness(0.8f);
 	spotLight2->SetConeAngle(22);
 	spotLight2->SetPenumbraAngle(10);
 	spotLight2->SetIsEnabled(true);

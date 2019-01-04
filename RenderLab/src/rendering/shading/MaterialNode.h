@@ -19,6 +19,17 @@ private:
 	std::string name;
 };
 
+class ScalarNode : public MaterialNode {
+public:
+	ScalarNode(Material* material);
+	~ScalarNode();
+
+	virtual void	GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual			std::string GetExpression() const override;
+	void			SetValues(float r);
+	float			R;
+};
+
 class Vector3Node : public MaterialNode {
 public:
 	Vector3Node(Material* material);

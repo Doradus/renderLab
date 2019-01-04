@@ -4,6 +4,7 @@
 #define SPOT_LIGHT 2
 
 #include <MaterialResources.hlsl>
+#include <BRDF.hlsl>
 
 struct PixelIn {
     float3 position : POSITION;
@@ -115,22 +116,49 @@ float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
     return shadowFactor;
 }
 
-void ComputeDirectionalLight(float3 normal, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor) {
+float3 GetAlbedo(PixelIn vIn) {
+    %Albedo%
+}
+
+float4 GetNormal(PixelIn vIn) {
+    %Normal%
+}
+
+float GetRoughness() {
+    %Roughness%
+}
+
+float3 GGXSpecular(float3 view, float3 normal, float3 light) {
+    float a2 = GetRoughness() * GetRoughness();
+
+    float3 h = normalize(view + light);
+
+    float3 F = SchlickFresnel(material.specularColor, dot(view, h));
+    float G = SmithForGGXMaskingAndShadowing(a2, saturate(abs(dot(normal, view))), dot(normal, light));
+    float D = GGXDistribution(a2, dot(normal, h));
+
+    return (D * G) * F;
+}
+
+void ComputeDirectionalLight(float3 normal, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor)
+{
     diffuseColor = float3(0.0f, 0.0f, 0.0f);
     specularColor = float3(0.0f, 0.0f, 0.0f);
 
     float3 lightVector = normalize(light.direction) * -1.0f;
     float diffuseFactor = max(0.0f, dot(lightVector, normal));
     
-    if (diffuseFactor > 0) {
+    if (diffuseFactor > 0)
+    {
         diffuseColor = light.brightness * light.color * diffuseFactor;
-        float3 view = reflect(-lightVector, normal);
-        float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
-        specularColor = specFactor * light.brightness * light.color;
+        float3 view = normalize(reflect(-lightVector, normal));
+        //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
+        specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color;
     }
 }
 
-void ComputePointLight(float3 normal, float3 position, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor) {
+void ComputePointLight(float3 normal, float3 position, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor)
+{
     diffuseColor = float3(0.0f, 0.0f, 0.0f);
     specularColor = float3(0.0f, 0.0f, 0.0f);
 
@@ -138,7 +166,8 @@ void ComputePointLight(float3 normal, float3 position, float3 toEye, LightProper
 
     float distance = length(lightVector);
 
-    if (distance > light.range) {
+    if (distance > light.range)
+    {
         return;
     }
 
@@ -146,11 +175,12 @@ void ComputePointLight(float3 normal, float3 position, float3 toEye, LightProper
 
     float diffuseFactor = max(0.0f, dot(lightVector, normal));
 
-    if (diffuseFactor > 0) {
+    if (diffuseFactor > 0)
+    {
         diffuseColor = light.brightness * light.color * diffuseFactor;
-        float3 view = reflect(-lightVector, normal);
-        float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
-        specularColor = specFactor * light.brightness * light.color;
+        float3 view = normalize(reflect(-lightVector, normal));
+        //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
+        specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color;
     }
 
     float attenuation = CalculateAttenuation(light, distance);
@@ -158,7 +188,8 @@ void ComputePointLight(float3 normal, float3 position, float3 toEye, LightProper
     specularColor *= attenuation;
 }
 
-void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor) {
+void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor)
+{
     diffuseColor = float3(0.0f, 0.0f, 0.0f);
     specularColor = float3(0.0f, 0.0f, 0.0f);
 
@@ -166,7 +197,8 @@ void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightPropert
 
     float distance = length(lightVector);
 
-    if (distance > light.range) {
+    if (distance > light.range)
+    {
         return;
     }
 
@@ -177,16 +209,25 @@ void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightPropert
 
     float diffuseFactor = max(0.0f, dot(lightVector, normal));
 
-    if (diffuseFactor > 0) {
+    if (diffuseFactor > 0)
+    {
         diffuseColor = light.brightness * light.color * diffuseFactor * attenuation * spotIntensity;
-        float3 view = reflect(-lightVector, normal);
-        float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
-        specularColor = specFactor * light.brightness * light.color * attenuation * spotIntensity;
+        float3 view = normalize(reflect(-lightVector, normal));
+        //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
+        specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color * attenuation * spotIntensity;
     }
 }
 
-float3 TangentToWorldSpace(float3 sampledNormal, float3 normal, float3 tangent) {
-    float3 unpackedNormal = 2.0f * sampledNormal - 1.0f;
+float3 TangentToWorldSpace(float4 sampledNormal, float3 normal, float3 tangent) {
+    float3 unpackedNormal = 2.0f * sampledNormal.rgb - 1.0f;
+
+    /*
+    float2 NormalXY = sampledNormal.rg;
+
+    NormalXY = NormalXY * float2(2.0f, 2.0f) - float2(1.0f, 1.0f);
+    float NormalZ = sqrt(saturate(1.0f - dot(NormalXY, NormalXY)));
+    float3 unpackedNormal = float3(NormalXY.xy, NormalZ);
+*/
 
     float3 N = normal;
     float3 T = normalize(tangent - dot(tangent, N) * N);
@@ -199,13 +240,7 @@ float3 TangentToWorldSpace(float3 sampledNormal, float3 normal, float3 tangent) 
     return transformedNormal;
 }
 
-float3 GetAlbedo(PixelIn vIn) {
-    %Albedo%
-}
 
-float3 GetNormal(PixelIn vIn) {
-    %Normal%
-}
 
 float4 Main(PixelIn vIn) : SV_TARGET {
     float3 normal = normalize(vIn.normal);
@@ -215,7 +250,7 @@ float4 Main(PixelIn vIn) : SV_TARGET {
     float3 toEye = normalize(eyePosition - vIn.position);
 
     #if USE_NORMAL_MAP
-    float3 sampledNormal = GetNormal(vIn);
+    float4 sampledNormal = GetNormal(vIn);
     normal = TangentToWorldSpace(sampledNormal, normal, vIn.tangent);
     #endif
 
@@ -252,10 +287,9 @@ float4 Main(PixelIn vIn) : SV_TARGET {
     }
 
     float3 ambientLight = float3(0.2, 0.2, 0.25);
-    float3 albedo = GetAlbedo(vIn);
+    float3 albedo = PI * LambertianDiffuse(GetAlbedo(vIn));
     ambientLight *= albedo;
     diffuseColor *= albedo;
-    specularColor *= material.specularColor;
 
     float3 finalDiffuse = saturate(diffuseColor);
     float3 finalSpecular = saturate(specularColor);

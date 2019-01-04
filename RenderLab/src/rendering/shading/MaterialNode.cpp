@@ -15,7 +15,7 @@ void TextureSamplerNode::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 std::string TextureSamplerNode::GetExpression() const {
 	int textureIndex = owner->GetTextureIndex(texture);
 
-	return "return texture0" + std::to_string(textureIndex) + ".Sample(textureSampler, vIn.uv).rgb;";
+	return "return texture0" + std::to_string(textureIndex) + ".Sample(textureSampler, vIn.uv);";
 }
 
 TextureRI * TextureSamplerNode::GetTexture() const {
@@ -42,4 +42,15 @@ void Vector3Node::SetValues(float r, float g, float b) {
 	R = r;
 	G = g;
 	B = b;
+}
+
+ScalarNode::ScalarNode(Material * material) :
+	MaterialNode(material) {}
+
+ScalarNode::~ScalarNode() {}
+
+void ScalarNode::GetValue(DirectX::XMFLOAT4 * outValue) const {}
+
+std::string ScalarNode::GetExpression() const {
+	return "return float(" + std::to_string(R) + ");";
 }
