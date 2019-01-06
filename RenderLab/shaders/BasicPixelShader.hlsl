@@ -150,8 +150,9 @@ void ComputeDirectionalLight(float3 normal, float3 toEye, LightProperties light,
     
     if (diffuseFactor > 0)
     {
-        diffuseColor = light.brightness * light.color * diffuseFactor;
-        float3 view = normalize(reflect(-lightVector, normal));
+        float3 h = normalize(toEye + lightVector);
+        float3 F = SchlickFresnel(material.specularColor, dot(toEye, h));
+        diffuseColor = (1.0f - F) * light.brightness * light.color * diffuseFactor;
         //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
         specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color;
     }
@@ -177,7 +178,9 @@ void ComputePointLight(float3 normal, float3 position, float3 toEye, LightProper
 
     if (diffuseFactor > 0)
     {
-        diffuseColor = light.brightness * light.color * diffuseFactor;
+        float3 h = normalize(toEye + lightVector);
+        float3 F = SchlickFresnel(material.specularColor, dot(toEye, h));
+        diffuseColor = (1.0f - F) * light.brightness * light.color * diffuseFactor;
         float3 view = normalize(reflect(-lightVector, normal));
         //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
         specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color;
@@ -211,7 +214,9 @@ void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightPropert
 
     if (diffuseFactor > 0)
     {
-        diffuseColor = light.brightness * light.color * diffuseFactor * attenuation * spotIntensity;
+        float3 h = normalize(toEye + lightVector);
+        float3 F = SchlickFresnel(material.specularColor, dot(toEye, h));
+        diffuseColor = (1.0f - F) * light.brightness * light.color * diffuseFactor * attenuation * spotIntensity;
         float3 view = normalize(reflect(-lightVector, normal));
         //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
         specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color * attenuation * spotIntensity;

@@ -50,12 +50,14 @@ public:
 	TextureSamplerNode(Material* material);
 	~TextureSamplerNode();
 
-	virtual void GetValue(DirectX::XMFLOAT4* outValue) const override;
-	virtual std::string GetExpression() const override;
+	virtual void			GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual std::string		GetExpression() const override;
 
-	TextureRI* GetTexture() const;
+	TextureRI*				GetTexture() const;
+	void					AddTexture(TextureRI* inTexture);
 
-	void AddTexture(TextureRI* inTexture);
+	unsigned int			filterMode;
+	float					LodBias;
 
 private:
 	unsigned int textureIndex;
