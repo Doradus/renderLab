@@ -128,62 +128,75 @@ float GetRoughness() {
     %Roughness%
 }
 
-float3 GGXSpecular(float3 view, float3 normal, float3 light) {
+float3 GGXSpecular(float3 V, float3 N, float3 L) {
     float a2 = GetRoughness() * GetRoughness();
 
-    float3 h = normalize(view + light);
+    float3 H = normalize(V + L);
 
-    float3 F = SchlickFresnel(material.specularColor, dot(view, h));
-    float G = SmithForGGXMaskingAndShadowing(a2, saturate(abs(dot(normal, view))), dot(normal, light));
-    float D = GGXDistribution(a2, dot(normal, h));
+    float NdotV = abs(dot(N, V)) + 1e-5f;
+    float NdotH = saturate(dot(N, H));
+    float NdotL = saturate(dot(N, L));
+    float LdotH = saturate(dot(L, H));
+
+    float3 F = SchlickFresnel(material.specularColor, LdotH);
+    float G = SmithForGGXMaskingAndShadowing(a2, NdotV, NdotL);
+    float D = GGXDistribution(a2, NdotH);
 
     return (D * G) * F;
 }
 
-void ComputeDirectionalLight(float3 normal, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor)
+void ComputeDirectionalLight(float3 N, float3 V, LightProperties light, out float3 diffuseColor, out float3 specularColor)
 {
     diffuseColor = float3(0.0f, 0.0f, 0.0f);
     specularColor = float3(0.0f, 0.0f, 0.0f);
 
-    float3 lightVector = normalize(light.direction) * -1.0f;
-    float diffuseFactor = max(0.0f, dot(lightVector, normal));
+    float3 L = normalize(light.direction) * -1.0f;
+    float diffuseFactor = max(0.0f, dot(L, N));
     
     if (diffuseFactor > 0)
     {
-        float3 h = normalize(toEye + lightVector);
-        float3 F = SchlickFresnel(material.specularColor, dot(toEye, h));
-        diffuseColor = (1.0f - F) * light.brightness * light.color * diffuseFactor;
-        //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
-        specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color;
+        float3 H = normalize(V + L);
+        float NdotV = abs(dot(N, V)) + 1e-5f;
+        float NdotL = saturate(dot(N, L));
+        float LdotH = saturate(dot(L, H));
+
+        diffuseColor = DisneyDiffuseModel(GetRoughness(), NdotV, NdotL, LdotH) * light.brightness * light.color * diffuseFactor;
+        float3 reflection = normalize(reflect(-L, N));
+        float specFactor = max(0.0f, dot(reflection, V));
+        specularColor = specFactor *GGXSpecular(V, N, L) * light.brightness * light.color;
     }
 }
 
-void ComputePointLight(float3 normal, float3 position, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor)
+void ComputePointLight(float3 N, float3 position, float3 V, LightProperties light, out float3 diffuseColor, out float3 specularColor)
 {
     diffuseColor = float3(0.0f, 0.0f, 0.0f);
     specularColor = float3(0.0f, 0.0f, 0.0f);
 
-    float3 lightVector = light.position - position;
+    float3 L = light.position - position;
 
-    float distance = length(lightVector);
+    float distance = length(L);
 
     if (distance > light.range)
     {
         return;
     }
 
-    lightVector /= distance;
+    L /= distance;
 
-    float diffuseFactor = max(0.0f, dot(lightVector, normal));
+    float diffuseFactor = max(0.0f, dot(L, N));
 
     if (diffuseFactor > 0)
     {
-        float3 h = normalize(toEye + lightVector);
-        float3 F = SchlickFresnel(material.specularColor, dot(toEye, h));
-        diffuseColor = (1.0f - F) * light.brightness * light.color * diffuseFactor;
-        float3 view = normalize(reflect(-lightVector, normal));
-        //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
-        specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color;
+        float3 H = normalize(V + L);
+        float NdotV = abs(dot(N, V)) + 1e-5f;
+        float NdotL = saturate(dot(N, L));
+        float LdotH = saturate(dot(L, H));
+
+        diffuseColor = DisneyDiffuseModel(GetRoughness(), NdotV, NdotL, LdotH) * light.brightness * light.color * diffuseFactor;
+        float3 reflection = normalize(reflect(-L, N));
+        float specFactor = max(0.0f, dot(reflection, V));
+        //specularColor = specFactor * light.brightness * light.color;
+        specularColor = specFactor * GGXSpecular(V, N, L) * light.brightness * light.color;
     }
 
     float attenuation = CalculateAttenuation(light, distance);
@@ -191,35 +204,38 @@ void ComputePointLight(float3 normal, float3 position, float3 toEye, LightProper
     specularColor *= attenuation;
 }
 
-void ComputeSpotLight(float3 normal, float3 position, float3 toEye, LightProperties light, out float3 diffuseColor, out float3 specularColor)
+void ComputeSpotLight(float3 N, float3 position, float3 V, LightProperties light, out float3 diffuseColor, out float3 specularColor)
 {
     diffuseColor = float3(0.0f, 0.0f, 0.0f);
     specularColor = float3(0.0f, 0.0f, 0.0f);
 
-    float3 lightVector = light.position - position;
+    float3 L = light.position - position;
 
-    float distance = length(lightVector);
+    float distance = length(L);
 
     if (distance > light.range)
     {
         return;
     }
 
-    lightVector /= distance;
+    L /= distance;
 
     float attenuation = CalculateAttenuation(light, distance);
-    float spotIntensity = CalculateSpotIntensity(light, lightVector);
+    float spotIntensity = CalculateSpotIntensity(light, L);
 
-    float diffuseFactor = max(0.0f, dot(lightVector, normal));
+    float diffuseFactor = max(0.0f, dot(L, N));
 
     if (diffuseFactor > 0)
     {
-        float3 h = normalize(toEye + lightVector);
-        float3 F = SchlickFresnel(material.specularColor, dot(toEye, h));
-        diffuseColor = (1.0f - F) * light.brightness * light.color * diffuseFactor * attenuation * spotIntensity;
-        float3 view = normalize(reflect(-lightVector, normal));
-        //float specFactor = pow(max(0.0f, dot(view, toEye)), material.specularPower);
-        specularColor = GGXSpecular(toEye, normal, lightVector) * light.brightness * light.color * attenuation * spotIntensity;
+        float3 H = normalize(V + L);
+        float NdotV = abs(dot(N, V)) + 1e-5f;
+        float NdotL = saturate(dot(N, L));
+        float LdotH = saturate(dot(L, H));
+
+        diffuseColor = DisneyDiffuseModel(GetRoughness(), NdotV, NdotL, LdotH) * light.brightness * light.color * diffuseFactor * attenuation * spotIntensity;
+        float3 reflection = normalize(reflect(-L, N));
+        float specFactor = max(0.0f, dot(reflection, V));
+        specularColor = specFactor * GGXSpecular(V, N, L) * light.brightness * light.color * attenuation * spotIntensity;
     }
 }
 
@@ -291,13 +307,13 @@ float4 Main(PixelIn vIn) : SV_TARGET {
         }
     }
 
-    float3 ambientLight = float3(0.2, 0.2, 0.25);
-    float3 albedo = PI * LambertianDiffuse(GetAlbedo(vIn));
+    float3 ambientLight = float3(0.0, 0.0, 0.0);
+    float3 albedo = GetAlbedo(vIn);
     ambientLight *= albedo;
     diffuseColor *= albedo;
 
     float3 finalDiffuse = saturate(diffuseColor);
     float3 finalSpecular = saturate(specularColor);
 
-    return float4(ambientLight + finalDiffuse + finalSpecular, 1.0f);
+    return float4(ambientLight + diffuseColor + finalSpecular, 1.0f);
 }
