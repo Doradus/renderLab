@@ -542,15 +542,9 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 			D3D11_SUBRESOURCE_DATA data = {};
 			data.pSysMem = &srcPointer[mipOffset];
 
-			
-			//unsigned int xBlocks = width >> mipIndex;
-			//unsigned int yBlocks = height >> mipIndex;
-			
-
 			unsigned int xBlocks = ImageFormats::GetWidth(format, width >> mipIndex);
 			unsigned int yBlocks = ImageFormats::GetWidth(format, height >> mipIndex);
 	
-
 			data.SysMemPitch = xBlocks * ImageFormats::GetSize(format);
 			data.SysMemSlicePitch = 0;
 

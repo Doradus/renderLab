@@ -120,8 +120,9 @@ void RenderLab::Tick() {
 }
 
 void RenderLab::CreateResources() const {
-	ResourceManager::GetInstance().CreateTextureFromFile("floor_COLOR.dds", true);
-	ResourceManager::GetInstance().CreateTextureFromFile("floor_NRM.dds", true);
+	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_albedo.dds", true);
+	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_normal.dds", true);
+	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_roughness.dds", true);
 }
 
 bool RenderLab::CreateRenderer() {
@@ -146,18 +147,46 @@ void RenderLab::InitShaders() {
 	boxMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
 	boxMaterial->SetSpecularPower(20.0f);
 
-	TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
-	albedo->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
+	//TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
+	//albedo->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_albedo.dds"));
+
+	Vector3Node* albedo = new Vector3Node(boxMaterial);
+	albedo->SetValues(0.45f, 0.45f, 0.45f);
+
 	boxMaterial->AddMaterialNode(albedo);
 	boxMaterial->SetAlbedo(albedo);
 
-	TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial);
-	normal->AddTexture(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"));
-	boxMaterial->AddMaterialNode(normal);
-	boxMaterial->SetNormal(normal);
+	//TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial);
+	//normal->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_normal.dds"));
+	//boxMaterial->AddMaterialNode(normal);
+	//boxMaterial->SetNormal(normal);
+
+	ScalarNode* roughness = new ScalarNode(boxMaterial);
+	roughness->R = 0.456f;
+	//TextureSamplerNode* roughness = new TextureSamplerNode(boxMaterial);
+	//roughness->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_roughness.dds"));
+	boxMaterial->AddMaterialNode(roughness);
+	boxMaterial->SetRougness(roughness);
+ 
+	planeMaterial = new Material();
+	planeMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
+	planeMaterial->SetSpecularPower(20.0f);
+
+	Vector3Node* albedoPlane = new Vector3Node(planeMaterial);
+	albedoPlane->SetValues(0.9f, 0.9f, 0.9f);
+
+	ScalarNode* roughnessPlane = new ScalarNode(planeMaterial);
+	roughnessPlane->R = 1.0f;
+
+	planeMaterial->AddMaterialNode(albedoPlane);
+	planeMaterial->SetAlbedo(albedoPlane);
+
+	planeMaterial->AddMaterialNode(roughnessPlane);
+	planeMaterial->SetRougness(roughnessPlane);
 
 	MaterialCompiler compiler;
 	compiler.CompileMaterial(boxMaterial);
+	compiler.CompileMaterial(planeMaterial);
 }
 
 void RenderLab::BuildGeometry() {
@@ -239,7 +268,7 @@ void RenderLab::BuildGeometry() {
 	plane->SetRenderData(planeRenderData);
 
 	plane->SetPosition(0, 0, -5);
-	plane->SetMaterial(boxMaterial);
+	plane->SetMaterial(planeMaterial);
 
 	//  ---- sphere ----- //
 
@@ -292,17 +321,17 @@ void RenderLab::CreateWorld() {
 void RenderLab::CreateLights() {
 	light = new DirectionalLightComponent();
 	light->SetDirection(0.0f, -0.4f, -1.0f);
-	light->SetLightColor(0.86f, 0.72f, 0.9f);
-	light->SetBrightness(0.8f);
+	light->SetLightColor(1.0f, 1.0f, 1.0f);
+	light->SetBrightness(0.0f);
 	light->SetIsEnabled(true);
 	light->SetCastsShadows(false);
 
 	pointLight = new PointLightComponent();
-	pointLight->SetPosition(15, 6, -5);
+	pointLight->SetPosition(-15, 6, 15);
 	pointLight->SetAttenuation(0, 0.3f, 0);
-	pointLight->SetLightColor(0.9f, 0.6f, 0.72f);
+	pointLight->SetLightColor(0.6f, 0.6f, 0.6f);
 	pointLight->SetRange(100.0f);
-	pointLight->SetBrightness(0.9f);
+	pointLight->SetBrightness(1.0f);
 	pointLight->SetIsEnabled(true);
 	pointLight->SetCastsShadows(true);
 
@@ -310,9 +339,9 @@ void RenderLab::CreateLights() {
 	spotLight->SetPosition(7, 10, 12);
 	spotLight->SetDirection(-0.5f, -0.5f, -0.7f);
 	spotLight->SetAttenuation(0, 0.3f, 0);
-	spotLight->SetLightColor(0.3f, 0.5f, 1.0f);
+	spotLight->SetLightColor(0.2f, 0.2f, 0.7f);
 	spotLight->SetRange(100.0f);
-	spotLight->SetBrightness(0.9f);
+	spotLight->SetBrightness(0.0f);
 	spotLight->SetConeAngle(22);
 	spotLight->SetPenumbraAngle(10);
 	spotLight->SetIsEnabled(true);
@@ -322,9 +351,9 @@ void RenderLab::CreateLights() {
 	spotLight2->SetPosition(-7, 10, 12);
 	spotLight2->SetDirection(0.5f, -0.5f, -0.7f);
 	spotLight2->SetAttenuation(0, 0.3f, 0);
-	spotLight2->SetLightColor(0.9f, 0.3f, 0.3f);
+	spotLight2->SetLightColor(0.6f, 0.6f, 0.6f);
 	spotLight2->SetRange(100.0f);
-	spotLight2->SetBrightness(0.9f);
+	spotLight2->SetBrightness(1.0f);
 	spotLight2->SetConeAngle(22);
 	spotLight2->SetPenumbraAngle(10);
 	spotLight2->SetIsEnabled(true);

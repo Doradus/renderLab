@@ -10,7 +10,6 @@ public:
 	virtual ~MaterialNode();
 
 	virtual void GetValue(DirectX::XMFLOAT4* outValue) const = 0;
-	virtual void GenerateShaderCode(std::string* outValue) const  = 0;
 	virtual std::string GetExpression() const = 0;
 
 protected:
@@ -20,6 +19,30 @@ private:
 	std::string name;
 };
 
+class ScalarNode : public MaterialNode {
+public:
+	ScalarNode(Material* material);
+	~ScalarNode();
+
+	virtual void	GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual			std::string GetExpression() const override;
+	void			SetValues(float r);
+	float			R;
+};
+
+class Vector3Node : public MaterialNode {
+public:
+	Vector3Node(Material* material);
+	~Vector3Node();
+
+	virtual void	GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual			std::string GetExpression() const override;
+	void			SetValues(float r, float g, float b);
+	float			R;
+	float			G;
+	float			B;
+};
+
 // ** textures ** //
 
 class TextureSamplerNode : public MaterialNode {
@@ -27,13 +50,14 @@ public:
 	TextureSamplerNode(Material* material);
 	~TextureSamplerNode();
 
-	virtual void GetValue(DirectX::XMFLOAT4* outValue) const override;
-	virtual void GenerateShaderCode(std::string* outValue) const override;
-	virtual std::string GetExpression() const override;
+	virtual void			GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual std::string		GetExpression() const override;
 
-	TextureRI* GetTexture() const;
+	TextureRI*				GetTexture() const;
+	void					AddTexture(TextureRI* inTexture);
 
-	void AddTexture(TextureRI* inTexture);
+	unsigned int			filterMode;
+	float					LodBias;
 
 private:
 	unsigned int textureIndex;

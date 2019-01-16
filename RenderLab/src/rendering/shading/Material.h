@@ -17,6 +17,7 @@ public:
 
 	void									SetAlbedo(MaterialNode* node);
 	void									SetNormal(MaterialNode* node);
+	void									SetRougness(MaterialNode* node);
 	void									SetSpecularColor(const XMFLOAT3& value);
 	void									SetSpecularColor(float r, float g, float b);
 	void									SetSpecularPower(float value);
@@ -27,6 +28,7 @@ public:
 
 	MaterialNode*							GetAlbedo() const;
 	MaterialNode*							GetNormal() const;
+	MaterialNode*							GetRougness() const;
 	std::vector<MaterialTextureUniform*>	GetMaterialUniforms() const;
 	std::vector<TextureRI*>					GetTextureResources() const;
 	XMFLOAT3								GetSpecularColor() const;
@@ -35,6 +37,7 @@ public:
 	int										GetTextureIndex(TextureRI* texture) const;
 	unsigned int							GetNumberOfTexturesUsed() const;
 	bool									UseNormals() const;
+	bool									UseRoughness() const;
 
 	template <typename NodeType>
 	void GetAllNodesOfType(std::vector<const NodeType*>& outNodes) const {
@@ -50,6 +53,7 @@ public:
 private:
 	MaterialNode*							albedo;
 	MaterialNode*							normal;
+	MaterialNode*							roughness;
 	XMFLOAT3								specularColor;
 	float									specularPower;
 
@@ -59,7 +63,6 @@ private:
 	ConstantBuffer*							constantBuffer;
 	PixelShader*							shader;
 
-	bool									usingRougthness;
 	bool									usingMetalicness;
 	bool									usingTransparency;
 	BlendModes								blendMode;

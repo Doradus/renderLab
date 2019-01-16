@@ -11,6 +11,7 @@ bool MaterialCompiler::CompileMaterial(Material * material) {
 	CreateTextureUniforms(material);
 	WriteAlbedo(material->GetAlbedo(), &generatedShader);
 	WriteNormal(material, &generatedShader);
+	WriteRoughness(material, &generatedShader);
 
 	char* byteCode = nullptr;
 	unsigned int byteCodeSize = 0;
@@ -85,6 +86,19 @@ void MaterialCompiler::WriteNormal(Material* material, std::string * code) {
 		code->replace(pos, normalFunction.length(), normal);
 	} else {
 		code->replace(pos, normalFunction.length(), "");
+	}
+}
+
+void MaterialCompiler::WriteRoughness(Material * material, std::string * code) {
+	std::string roughnessFunction = "%Roughness%";
+	size_t pos = code->find(roughnessFunction);
+
+	if (material->UseRoughness()) {
+		const std::string normal = material->GetRougness()->GetExpression();
+		code->replace(pos, roughnessFunction.length(), normal);
+	}
+	else {
+		code->replace(pos, roughnessFunction.length(), "");
 	}
 }
 
