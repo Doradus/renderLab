@@ -35,7 +35,7 @@ Vector3Node::~Vector3Node() {}
 void Vector3Node::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 
 std::string Vector3Node::GetExpression() const {
-	return "return float3(" + std::to_string(R) + ", " + std::to_string(G) + ", " + std::to_string(B) + ");";
+	return "return float4(" + std::to_string(R) + ", " + std::to_string(G) + ", " + std::to_string(B) + ", 1.0f);";
 }
 
 void Vector3Node::SetValues(float r, float g, float b) {
@@ -52,5 +52,5 @@ ScalarNode::~ScalarNode() {}
 void ScalarNode::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 
 std::string ScalarNode::GetExpression() const {
-	return "return float(" + std::to_string(R) + ");";
+	return "return float4(" + std::to_string(R) + ", " + std::to_string(R) + ", " + std::to_string(R) + ", " + std::to_string(R) + ");";
 }

@@ -14,6 +14,11 @@ float GGXDistribution(float roughness, float NdotH) {
     float d = (NdotH * NdotH) * (a2 - 1.0f) + 1.0f;
 
     return a2 / (PI * d * d);
+
+
+    //float m2 = roughness * roughness;
+    //float f = (NdotH * m2 - NdotH) * NdotH + 1.0f;
+    //return m2 / (PI * f * f);
 }
 
 /** Fresnel **/
