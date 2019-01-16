@@ -6,7 +6,7 @@ MaterialCompiler::~MaterialCompiler() {}
 
 bool MaterialCompiler::CompileMaterial(Material * material) {
 	generatedShader = "";
-	ReadShaderCode("shaders/BasicPixelShader.hlsl", &generatedShader);
+	ReadShaderCode("shaders/PixelShader.hlsl", &generatedShader);
 	
 	CreateTextureUniforms(material);
 	WriteAlbedo(material->GetAlbedo(), &generatedShader);
