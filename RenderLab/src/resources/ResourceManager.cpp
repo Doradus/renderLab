@@ -35,7 +35,7 @@ void ResourceManager::CreateTextureFromFile(char* fileName, bool generateMipMaps
 	Image image = {};
 	image.LoadImageFromFile(fileName, generateMipMaps);
 
-	Texture2DRI* texture = renderingInterface->CreateTexture2d(image.GetWidth(), image.GetHeight(), 1, false, false, image.GetMipMapCount(), image.GetFormat(), TextureBindAsShaderResource, 1, image.GetImageData());
+	Texture2DRI* texture = renderingInterface->CreateTexture2d(image.GetWidth(), image.GetHeight(), image.GetArraySize(), image.IsCube(), false, image.GetMipMapCount(), image.GetFormat(), TextureBindAsShaderResource, 1, image.GetImageData());
 	AddTexture(fileName, texture);
 }
 

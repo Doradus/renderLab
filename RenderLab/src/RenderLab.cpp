@@ -120,8 +120,9 @@ void RenderLab::Tick() {
 }
 
 void RenderLab::CreateResources() const {
+	ResourceManager::GetInstance().CreateTextureFromFile("OutputCube.dds", true);
 	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_albedo.dds", true);
-	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_normal.dds", true);
+	ResourceManager::GetInstance().CreateTextureFromFile("floor_NRM.dds", true);
 	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_roughness.dds", true);
 }
 
@@ -144,25 +145,25 @@ void RenderLab::InitShaders() {
 	renderer->CreateInputLayout(vertexCode, byteCodeSize);
 
 	boxMaterial = new Material();
-	boxMaterial->SetSpecularColor(0.5f, 0.5f, 0.5f);
+	boxMaterial->SetSpecularColor(0.2f, 0.2f, 0.2f);
 	boxMaterial->SetSpecularPower(20.0f);
 
 	//TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
 	//albedo->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_albedo.dds"));
 
 	Vector3Node* albedo = new Vector3Node(boxMaterial);
-	albedo->SetValues(0.45f, 0.45f, 0.45f);
+	albedo->SetValues(0.245f, 0.245f, 0.245f);
 
 	boxMaterial->AddMaterialNode(albedo);
 	boxMaterial->SetAlbedo(albedo);
 
 	//TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial);
-	//normal->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_normal.dds"));
+	//normal->AddTexture(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"));
 	//boxMaterial->AddMaterialNode(normal);
 	//boxMaterial->SetNormal(normal);
 
 	ScalarNode* roughness = new ScalarNode(boxMaterial);
-	roughness->R = 0.456f;
+	roughness->R = 0.2456f;
 	//TextureSamplerNode* roughness = new TextureSamplerNode(boxMaterial);
 	//roughness->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_roughness.dds"));
 	boxMaterial->AddMaterialNode(roughness);
@@ -302,7 +303,7 @@ void RenderLab::CreateCamera() {
 	camera->SetNearPlane(1);
 	camera->SetFarPlane(1000);
 
-	camera->SetPosition(0.0f, 25.0f, 20.0f);
+	camera->SetPosition(0.0f, 30.0f, 20.0f);
 	camera->SetCameraTarget(0, 0, 0);
 
 	camera->UpdateProjection();
@@ -336,12 +337,12 @@ void RenderLab::CreateLights() {
 	pointLight->SetCastsShadows(true);
 
 	spotLight = new SpotLightComponent();
-	spotLight->SetPosition(7, 10, 12);
+	spotLight->SetPosition(12, 10, 12);
 	spotLight->SetDirection(-0.5f, -0.5f, -0.7f);
 	spotLight->SetAttenuation(0, 0.3f, 0);
 	spotLight->SetLightColor(0.2f, 0.2f, 0.7f);
 	spotLight->SetRange(100.0f);
-	spotLight->SetBrightness(0.0f);
+	spotLight->SetBrightness(1.0f);
 	spotLight->SetConeAngle(22);
 	spotLight->SetPenumbraAngle(10);
 	spotLight->SetIsEnabled(true);

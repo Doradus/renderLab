@@ -536,20 +536,25 @@ D3D11Texture2d * D3D11RenderingInterface::CreateD3D11Texture2d(unsigned int widt
 	std::vector<D3D11_SUBRESOURCE_DATA> textureResourceData;
 	if (resourceData) {
 		unsigned char* srcPointer = (unsigned char*)resourceData;
-		unsigned int mipOffset = 0;
+		unsigned int sliceOffset = 0;
+		for (unsigned int arraySliceIndex = 0; arraySliceIndex < arraySize; arraySliceIndex++) {
+			unsigned int mipOffset = 0;
+			for (unsigned int mipIndex = 0; mipIndex < numberOfMips; mipIndex++) {
+				D3D11_SUBRESOURCE_DATA data = {};
+				data.pSysMem = &srcPointer[sliceOffset + mipOffset];
 
-		for (unsigned int mipIndex = 0; mipIndex < numberOfMips; mipIndex++) {
-			D3D11_SUBRESOURCE_DATA data = {};
-			data.pSysMem = &srcPointer[mipOffset];
+				unsigned int resourceIndex = arraySliceIndex * numberOfMips + mipIndex;
 
-			unsigned int xBlocks = ImageFormats::GetWidth(format, width >> mipIndex);
-			unsigned int yBlocks = ImageFormats::GetWidth(format, height >> mipIndex);
-	
-			data.SysMemPitch = xBlocks * ImageFormats::GetSize(format);
-			data.SysMemSlicePitch = 0;
+				unsigned int xBlocks = ImageFormats::GetWidth(format, width >> mipIndex);
+				unsigned int yBlocks = ImageFormats::GetWidth(format, height >> mipIndex);
 
-			textureResourceData.push_back(data);
-			mipOffset += (textureResourceData[mipIndex].SysMemPitch * yBlocks) ;
+				data.SysMemPitch = xBlocks * ImageFormats::GetSize(format);
+				data.SysMemSlicePitch = xBlocks * yBlocks * data.SysMemPitch;
+
+				textureResourceData.push_back(data);
+				mipOffset += (data.SysMemPitch * yBlocks);
+			}
+			sliceOffset += mipOffset;
 		}
 	}
 

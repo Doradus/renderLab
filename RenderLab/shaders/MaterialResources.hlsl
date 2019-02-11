@@ -1,6 +1,7 @@
 //reserved textures
 Texture2DArray shadowMap;
 TextureCube omniDirectionalShadowMap;
+TextureCube environmentLight;
 
 #if TEXTURE_2D_00 > 0 
 Texture2D texture00;

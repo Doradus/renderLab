@@ -69,6 +69,13 @@ bool Image::CreateDDSFromMemory(const char * data, size_t memsize, bool useMipMa
 		MessageBox(0, L"DX10 Header", 0, 0);
 	}
 
+	bool isCubeMap = false;
+	arraySize = 1;
+	if (header.caps2 & DDSCAPS2_CUBEMAP) {
+		isCubeMap = true;
+		arraySize = 6;
+	}
+
 	switch (header.pixelFormat.fourCC) {
 	case MAKE_CHAR4('D', 'X', 'T', '1') :
 		format = ImageFormats::DXT1;
@@ -98,7 +105,7 @@ bool Image::CreateDDSFromMemory(const char * data, size_t memsize, bool useMipMa
 		}
 	}
 
-	unsigned int imageDataSize = GetImageSize();
+	unsigned int imageDataSize = GetImageSize() * arraySize;
 
 	if (imageDataSize == 0) {
 		return false;
@@ -173,12 +180,20 @@ unsigned int Image::GetMipMapCount() const {
 	return mipMapCount;
 }
 
+unsigned int Image::GetArraySize() const {
+	return arraySize;
+}
+
 ImageFormats::Format Image::GetFormat() const {
 	return format;
 }
 
 unsigned char * Image::GetImageData() const {
 	return imageData;
+}
+
+bool Image::IsCube() const {
+	return depths == 0;
 }
 
 bool ImageFormats::IsCompressedFormat(Format format) {

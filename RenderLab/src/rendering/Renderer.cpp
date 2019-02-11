@@ -258,6 +258,8 @@ void Renderer::RenderWorld(World* world) const {
 		}
 	}
 
+	renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("OutputCube.dds"), 2);
+
 	renderingInterface->SetSamplerState(textureSampler, 2);
 
 	renderingInterface->SetSamplerState(normalMapSampler, 3);

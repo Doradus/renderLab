@@ -3,6 +3,8 @@
 
 #define DDS_MAGIC 0x20534444
 #define MAKE_CHAR4(a, b, c, d) (a | (b << 8) | (c << 16) | (d << 24))
+#define DDSCAPS2_CUBEMAP 0x200
+
 
 namespace ImageFormats {
 	enum Format {
@@ -40,25 +42,29 @@ public:
 	Image();
 	~Image();
 
-	bool LoadImageFromFile(const char* fileName, bool useMipMaps);
+	bool					LoadImageFromFile(const char* fileName, bool useMipMaps);
 
-	unsigned int GetWidth() const;
-	unsigned int GetHeight() const;
-	unsigned int GetDepth() const;
-	unsigned int GetMipMapCount() const;
-	ImageFormats::Format GetFormat() const;
-	unsigned char* GetImageData() const;
+	unsigned int			GetWidth() const;
+	unsigned int			GetHeight() const;
+	unsigned int			GetDepth() const;
+	unsigned int			GetMipMapCount() const;
+	unsigned int			GetArraySize() const;
+	ImageFormats::Format	GetFormat() const;
+	unsigned char*			GetImageData() const;
+	bool					IsCube() const;
 
 private:
 	bool CreateDDSFromMemory(const char* data, size_t memsize, bool useMipMaps);
 	unsigned int GetImageSize() const;
 
 private:
-	unsigned char* imageData;
+	unsigned char*			imageData;
 
-	unsigned int width;
-	unsigned int height;
-	unsigned int depths;
-	unsigned int mipMapCount;
-	ImageFormats::Format format;
+	unsigned int			width;
+	unsigned int			height;
+	unsigned int			depths;
+	unsigned int			mipMapCount;
+	unsigned int			arraySize;
+	
+	ImageFormats::Format	format;
 };
