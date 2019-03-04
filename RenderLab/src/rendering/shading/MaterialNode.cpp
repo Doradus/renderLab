@@ -1,7 +1,8 @@
 #include "MaterialNode.h"
 
 MaterialNode::MaterialNode(Material* material) :
- owner (material) {}
+	owner (material),
+	codeIndex (-1){}
 
 MaterialNode::~MaterialNode() {}
 
@@ -16,6 +17,17 @@ std::string TextureSamplerNode::GetExpression() const {
 	int textureIndex = owner->GetTextureIndex(texture);
 
 	return "return texture0" + std::to_string(textureIndex) + ".Sample(textureSampler, vIn.uv);";
+}
+
+int TextureSamplerNode::Compile(MaterialCompiler * compiler) {
+	if (codeIndex != -1) {
+		return codeIndex;
+	}
+
+	int textureIndex = owner->GetTextureIndex(texture);
+	codeIndex = compiler->TextureSampler(textureIndex);
+
+	return codeIndex;
 }
 
 TextureRI * TextureSamplerNode::GetTexture() const {
@@ -38,6 +50,16 @@ std::string Vector3Node::GetExpression() const {
 	return "return float4(" + std::to_string(R) + ", " + std::to_string(G) + ", " + std::to_string(B) + ", 1.0f);";
 }
 
+int Vector3Node::Compile(MaterialCompiler * compiler) {
+	if (codeIndex != -1) {
+		return codeIndex;
+	}
+
+	codeIndex = compiler->Vector3(R, G, B);
+
+	return codeIndex;
+}
+
 void Vector3Node::SetValues(float r, float g, float b) {
 	R = r;
 	G = g;
@@ -53,4 +75,14 @@ void ScalarNode::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 
 std::string ScalarNode::GetExpression() const {
 	return "return float4(" + std::to_string(R) + ", " + std::to_string(R) + ", " + std::to_string(R) + ", " + std::to_string(R) + ");";
+}
+
+int ScalarNode::Compile(MaterialCompiler * compiler) {
+	if (codeIndex != -1) {
+		return codeIndex;
+	}
+
+	codeIndex = compiler->Scalar(R);
+
+	return codeIndex;
 }

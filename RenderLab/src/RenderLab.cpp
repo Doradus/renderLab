@@ -148,11 +148,11 @@ void RenderLab::InitShaders() {
 	boxMaterial->SetSpecularColor(0.2f, 0.2f, 0.2f);
 	boxMaterial->SetSpecularPower(20.0f);
 
-	//TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
-	//albedo->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_albedo.dds"));
+	TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
+	albedo->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_albedo.dds"));
 
-	Vector3Node* albedo = new Vector3Node(boxMaterial);
-	albedo->SetValues(0.245f, 0.245f, 0.245f);
+	//Vector3Node* albedo = new Vector3Node(boxMaterial);
+	//albedo->SetValues(0.245f, 0.245f, 0.245f);
 
 	boxMaterial->AddMaterialNode(albedo);
 	boxMaterial->SetAlbedo(albedo);

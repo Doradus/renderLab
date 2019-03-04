@@ -7,7 +7,8 @@
 #include "RenderingResources.h"
 #include "FileSystem.h"
 #include "ResourceManager.h"
-#include "MaterialCompiler.h"
+#include "Material.h"
+#include "MaterialNode.h"
 
 class RenderLab {
 public:

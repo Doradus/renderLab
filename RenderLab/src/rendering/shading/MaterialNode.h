@@ -1,33 +1,22 @@
 #pragma once
 #include <string>
 #include "MathUtils.h"
-#include "Material.h"
 #include "RenderingInterfaceResources.h"
+#include "Material.h"
+#include "MaterialCompiler.h"
+#include "IMaterialNode.h"
 
-class MaterialNode {
-public:
-	MaterialNode(Material* material);
-	virtual ~MaterialNode();
-
-	virtual void GetValue(DirectX::XMFLOAT4* outValue) const = 0;
-	virtual std::string GetExpression() const = 0;
-
-protected:
-	Material* owner;
-
-private:
-	std::string name;
-};
 
 class ScalarNode : public MaterialNode {
 public:
 	ScalarNode(Material* material);
 	~ScalarNode();
 
-	virtual void	GetValue(DirectX::XMFLOAT4* outValue) const override;
-	virtual			std::string GetExpression() const override;
-	void			SetValues(float r);
-	float			R;
+	virtual void		GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual	std::string GetExpression() const override;
+	virtual int			Compile(class MaterialCompiler* compiler) override;
+	void				SetValues(float r);
+	float				R;
 };
 
 class Vector3Node : public MaterialNode {
@@ -35,12 +24,14 @@ public:
 	Vector3Node(Material* material);
 	~Vector3Node();
 
-	virtual void	GetValue(DirectX::XMFLOAT4* outValue) const override;
-	virtual			std::string GetExpression() const override;
-	void			SetValues(float r, float g, float b);
-	float			R;
-	float			G;
-	float			B;
+	virtual void		GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual	std::string GetExpression() const override;
+	virtual int			Compile(class MaterialCompiler* compiler) override;
+
+	void				SetValues(float r, float g, float b);
+	float				R;
+	float				G;
+	float				B;
 };
 
 // ** textures ** //
@@ -52,6 +43,7 @@ public:
 
 	virtual void			GetValue(DirectX::XMFLOAT4* outValue) const override;
 	virtual std::string		GetExpression() const override;
+	virtual int				Compile(class MaterialCompiler* compiler) override;
 
 	TextureRI*				GetTexture() const;
 	void					AddTexture(TextureRI* inTexture);

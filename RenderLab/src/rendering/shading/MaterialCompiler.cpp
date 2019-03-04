@@ -1,6 +1,8 @@
 #include "MaterialCompiler.h"
 
-MaterialCompiler::MaterialCompiler() {}
+MaterialCompiler::MaterialCompiler() {
+	AddCode("");
+}
 
 MaterialCompiler::~MaterialCompiler() {}
 
@@ -9,9 +11,14 @@ bool MaterialCompiler::CompileMaterial(Material * material) {
 	ReadShaderCode("shaders/PixelShader.hlsl", &generatedShader);
 	
 	CreateTextureUniforms(material);
-	WriteAlbedo(material->GetAlbedo(), &generatedShader);
-	WriteNormal(material, &generatedShader);
-	WriteRoughness(material, &generatedShader);
+
+	int albedo = material->CompileAlbedo(this);
+	int normal = material->CompileNormal(this);
+	int roughness = material->CompileRoughness(this);
+
+	WriteShaderCode(&generatedShader, albedo, "%Albedo%");
+	WriteShaderCode(&generatedShader, normal, "%Normal%");
+	WriteShaderCode(&generatedShader, roughness, "%Roughness%");
 
 	char* byteCode = nullptr;
 	unsigned int byteCodeSize = 0;
@@ -49,6 +56,26 @@ bool MaterialCompiler::CompileMaterial(Material * material) {
 	return true;
 }
 
+
+int MaterialCompiler::Scalar(float value) {
+	std::string code = "return float4(" + std::to_string(value) + ", " + std::to_string(value) + ", " + std::to_string(value) + ", " + std::to_string(value) + ");";
+	return AddCode(code);
+}
+
+int MaterialCompiler::Vector3(float r, float g, float b) {
+	std::string code = "return float4(" + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", 0.0f);";
+	return AddCode(code);
+}
+
+int MaterialCompiler::TextureSampler(int textureIndex) {
+	std::string code = "return texture0" + std::to_string(textureIndex) + ".Sample(textureSampler, vIn.uv);";
+	return AddCode(code);
+}
+
+int MaterialCompiler::Blank() {
+	return 0;
+}
+
 void MaterialCompiler::ReadShaderCode(const char * fileName, std::string* outReadShaderCod) const {
 	File file = {};
 
@@ -68,40 +95,27 @@ void MaterialCompiler::CreateTextureUniforms(Material* material) const {
 	}
 }
 
-void MaterialCompiler::WriteAlbedo(MaterialNode * node, std::string* code) {
-	std::string albedoFunction = "%Albedo%";
-	size_t pos = code->find(albedoFunction);
-
-	const std::string albedo = node->GetExpression();
-
-	code->replace(pos, albedoFunction.length(), albedo);
-}
-
-void MaterialCompiler::WriteNormal(Material* material, std::string * code) {
-	std::string normalFunction = "%Normal%";
-	size_t pos = code->find(normalFunction);
-
-	if (material->UseNormals()) {
-		const std::string normal = material->GetNormal()->GetExpression();
-		code->replace(pos, normalFunction.length(), normal);
-	} else {
-		code->replace(pos, normalFunction.length(), "");
-	}
-}
-
-void MaterialCompiler::WriteRoughness(Material * material, std::string * code) {
-	std::string roughnessFunction = "%Roughness%";
-	size_t pos = code->find(roughnessFunction);
-
-	if (material->UseRoughness()) {
-		const std::string normal = material->GetRougness()->GetExpression();
-		code->replace(pos, roughnessFunction.length(), normal);
-	}
-	else {
-		code->replace(pos, roughnessFunction.length(), "");
-	}
-}
-
 void MaterialCompiler::CompileShader(const char * fileName, ShaderStages shaderStage, const ShaderMacro * macros, unsigned int macroCount, unsigned int * byteCodeSize, char ** byteCode) {
 	renderingInterface->CompileShader(shaderStage, generatedShader.size(), fileName, generatedShader.data(), macros, macroCount, byteCodeSize, byteCode);
+}
+
+int MaterialCompiler::AddCode(const std::string& code) {
+	ShaderCode* codeShunk = new ShaderCode(code);
+
+	generatedCode.push_back(codeShunk);
+
+	return generatedCode.size() - 1;
+}
+
+bool MaterialCompiler::WriteShaderCode(std::string * shader, int codeIndex, std::string type) {
+	std::string function = type;
+	size_t pos = shader->find(function);
+
+	if (pos == std::string::npos) {
+		return false;
+	}
+
+	shader->replace(pos, function.length(), generatedCode[codeIndex]->code);
+
+	return true;
 }
