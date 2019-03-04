@@ -9,7 +9,6 @@ public:
 	virtual ~MaterialNode();
 
 	virtual void			GetValue(DirectX::XMFLOAT4* outValue) const = 0;
-	virtual std::string		GetExpression() const = 0;
 	virtual	int				Compile(class MaterialCompiler* compiler) = 0;
 
 protected:

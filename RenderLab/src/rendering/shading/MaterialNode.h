@@ -13,7 +13,6 @@ public:
 	~ScalarNode();
 
 	virtual void		GetValue(DirectX::XMFLOAT4* outValue) const override;
-	virtual	std::string GetExpression() const override;
 	virtual int			Compile(class MaterialCompiler* compiler) override;
 	void				SetValues(float r);
 	float				R;
@@ -25,7 +24,6 @@ public:
 	~Vector3Node();
 
 	virtual void		GetValue(DirectX::XMFLOAT4* outValue) const override;
-	virtual	std::string GetExpression() const override;
 	virtual int			Compile(class MaterialCompiler* compiler) override;
 
 	void				SetValues(float r, float g, float b);
@@ -42,7 +40,6 @@ public:
 	~TextureSamplerNode();
 
 	virtual void			GetValue(DirectX::XMFLOAT4* outValue) const override;
-	virtual std::string		GetExpression() const override;
 	virtual int				Compile(class MaterialCompiler* compiler) override;
 
 	TextureRI*				GetTexture() const;
