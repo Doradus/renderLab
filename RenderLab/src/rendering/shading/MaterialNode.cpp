@@ -13,12 +13,6 @@ TextureSamplerNode::~TextureSamplerNode() {}
 
 void TextureSamplerNode::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 
-std::string TextureSamplerNode::GetExpression() const {
-	int textureIndex = owner->GetTextureIndex(texture);
-
-	return "return texture0" + std::to_string(textureIndex) + ".Sample(textureSampler, vIn.uv);";
-}
-
 int TextureSamplerNode::Compile(MaterialCompiler * compiler) {
 	if (codeIndex != -1) {
 		return codeIndex;
@@ -46,9 +40,6 @@ Vector3Node::~Vector3Node() {}
 
 void Vector3Node::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 
-std::string Vector3Node::GetExpression() const {
-	return "return float4(" + std::to_string(R) + ", " + std::to_string(G) + ", " + std::to_string(B) + ", 1.0f);";
-}
 
 int Vector3Node::Compile(MaterialCompiler * compiler) {
 	if (codeIndex != -1) {
@@ -73,10 +64,6 @@ ScalarNode::~ScalarNode() {}
 
 void ScalarNode::GetValue(DirectX::XMFLOAT4 * outValue) const {}
 
-std::string ScalarNode::GetExpression() const {
-	return "return float4(" + std::to_string(R) + ", " + std::to_string(R) + ", " + std::to_string(R) + ", " + std::to_string(R) + ");";
-}
-
 int ScalarNode::Compile(MaterialCompiler * compiler) {
 	if (codeIndex != -1) {
 		return codeIndex;
@@ -85,4 +72,8 @@ int ScalarNode::Compile(MaterialCompiler * compiler) {
 	codeIndex = compiler->Scalar(R);
 
 	return codeIndex;
+}
+
+void ScalarNode::SetValues(float r) {
+	R = r;
 }

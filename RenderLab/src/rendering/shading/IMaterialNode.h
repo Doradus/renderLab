@@ -5,7 +5,7 @@
 class Material;
 class MaterialNode {
 public:
-	MaterialNode(Material* material);
+	MaterialNode(class Material* material);
 	virtual ~MaterialNode();
 
 	virtual void			GetValue(DirectX::XMFLOAT4* outValue) const = 0;
