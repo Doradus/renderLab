@@ -4,12 +4,13 @@
 #include "RenderingInterfaceResources.h"
 #include "MaterialValue.h"
 #include "MaterialUtils.h"
+#include "IMaterialNode.h"
 #include "RenderingInterface.h"
 using namespace DirectX;
 
-class MaterialNode;
 class MaterialUniform;
 class MaterialTextureUniform;
+class MaterialCompiler;
 class Material {
 public:
 	Material();
@@ -25,6 +26,11 @@ public:
 	void									AddMaterialNode(MaterialNode* node);
 	void									AddTextureUniform(MaterialTextureUniform* inUniform);
 	void									AddTexture(TextureRI* texture);
+
+	int										CompileAlbedo(MaterialCompiler* compiler);
+	int										CompileNormal(MaterialCompiler* compiler);
+	int										CompileRoughness(MaterialCompiler* compiler);
+	int										CompileMetalicness(MaterialCompiler* compiler);
 
 	MaterialNode*							GetAlbedo() const;
 	MaterialNode*							GetNormal() const;

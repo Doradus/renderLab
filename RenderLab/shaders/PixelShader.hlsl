@@ -269,10 +269,12 @@ float4 Main(PixelIn vIn) : SV_TARGET {
         specularColor += result.specular;
     }
 
-    //float3 ambientLight = float3(0.2, 0.2, 0.2) / PI;
+    
+    float3 ambientLight = float3(0.2, 0.2, 0.2) / PI;
+    /*
     float3 reflectionVector = reflect(V, vIn.normal);
     //reflectionVector.g *= -1.0f;
-    float3 albedo = GetAlbedo(vIn).rgb;
+ 
     float3 sampleVector = reflectionVector;
     sampleVector.g *= -1.0f;
     float3 ambientLightColor = SampleCubeMap(environmentLight, trilinearSampler, sampleVector).rgb / PI;
@@ -283,6 +285,7 @@ float4 Main(PixelIn vIn) : SV_TARGET {
 
     ambientLightColor.r = b;
     ambientLightColor.b = r;
+    */
 
     /*
     float3 H = normalize(V + -reflectionVector);
@@ -295,11 +298,12 @@ float4 Main(PixelIn vIn) : SV_TARGET {
 
     //float3 ambientLight = (GGXSpecular(GetRoughness(vIn).r, material.specularColor, LdotH, NdotV, NdotL, NdotH) * ambientLightColor * NdotL) / PI;
 
-    ambientLightColor *= albedo;
+    float3 albedo = GetAlbedo(vIn).rgb;
+    ambientLight *= albedo;
     diffuseColor *= albedo;
 
     float3 finalDiffuse = saturate(diffuseColor);
     float3 finalSpecular = saturate(specularColor);
 
-    return float4(ambientLightColor + diffuseColor + finalSpecular, 1.0f);
+    return float4(ambientLight + diffuseColor + finalSpecular, 1.0f);
 }

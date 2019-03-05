@@ -122,8 +122,9 @@ void RenderLab::Tick() {
 void RenderLab::CreateResources() const {
 	ResourceManager::GetInstance().CreateTextureFromFile("OutputCube.dds", true);
 	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_albedo.dds", true);
-	ResourceManager::GetInstance().CreateTextureFromFile("floor_NRM.dds", true);
+	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_normal.dds", true);
 	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_roughness.dds", true);
+	ResourceManager::GetInstance().CreateTextureFromFile("floor_COLOR.dds", true);
 }
 
 bool RenderLab::CreateRenderer() {
@@ -149,7 +150,7 @@ void RenderLab::InitShaders() {
 	boxMaterial->SetSpecularPower(20.0f);
 
 	//TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
-	//albedo->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_albedo.dds"));
+	//albedo->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
 
 	Vector3Node* albedo = new Vector3Node(boxMaterial);
 	albedo->SetValues(0.245f, 0.245f, 0.245f);
@@ -157,10 +158,10 @@ void RenderLab::InitShaders() {
 	boxMaterial->AddMaterialNode(albedo);
 	boxMaterial->SetAlbedo(albedo);
 
-	//TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial);
-	//normal->AddTexture(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"));
-	//boxMaterial->AddMaterialNode(normal);
-	//boxMaterial->SetNormal(normal);
+	TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial);
+	normal->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_normal.dds"));
+	boxMaterial->AddMaterialNode(normal);
+	boxMaterial->SetNormal(normal);
 
 	ScalarNode* roughness = new ScalarNode(boxMaterial);
 	roughness->R = 0.2456f;

@@ -117,6 +117,30 @@ bool Material::UseRoughness() const {
 	return roughness != nullptr;
 }
 
+int Material::CompileAlbedo(MaterialCompiler * compiler) {
+	if (albedo != nullptr) {
+		return albedo->Compile(compiler);
+	} else {
+		return 0;
+	}
+}
+
+int Material::CompileNormal(MaterialCompiler * compiler) {
+	if (normal != nullptr) {
+		return normal->Compile(compiler);
+	} else {
+		return 0;
+	}
+}
+
+int Material::CompileRoughness(MaterialCompiler * compiler) {
+	if (roughness != nullptr) {
+		return roughness->Compile(compiler);
+	} else {
+		return 0;
+	}
+}
+
 MaterialNode* Material::GetAlbedo() const {
 	return albedo;
 }
