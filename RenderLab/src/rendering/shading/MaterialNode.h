@@ -6,7 +6,6 @@
 #include "MaterialCompiler.h"
 #include "IMaterialNode.h"
 
-
 class ScalarNode : public MaterialNode {
 public:
 	ScalarNode(Material* material);
@@ -36,7 +35,7 @@ public:
 
 class TextureSamplerNode : public MaterialNode {
 public:
-	TextureSamplerNode(Material* material);
+	TextureSamplerNode(Material* material, TextureTyes type);
 	~TextureSamplerNode();
 
 	virtual void			GetValue(DirectX::XMFLOAT4* outValue) const override;
@@ -45,10 +44,34 @@ public:
 	TextureRI*				GetTexture() const;
 	void					AddTexture(TextureRI* inTexture);
 
-	unsigned int			filterMode;
 	float					LodBias;
+	TextureTyes				textureType;
 
 private:
 	unsigned int textureIndex;
 	TextureRI* texture;
+};
+
+class Multiply : public MaterialNode {
+public:
+	Multiply(Material* material);
+	~Multiply();
+
+	MaterialNode*		a;
+	MaterialNode*		b;
+
+	virtual void		GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual int			Compile(class MaterialCompiler* compiler) override;
+};
+
+class Add : public MaterialNode {
+public:
+	Add(Material* material);
+	~Add();
+
+	MaterialNode*		a;
+	MaterialNode*		b;
+
+	virtual void		GetValue(DirectX::XMFLOAT4* outValue) const override;
+	virtual int			Compile(class MaterialCompiler* compiler) override;
 };

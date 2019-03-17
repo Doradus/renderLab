@@ -21,7 +21,7 @@ void MaterialTextureUniform::AddTexture(TextureRI * inTexture, unsigned int text
 
 void MaterialTextureUniform::BindResource() const {
 	//hardcoded for now should be removed
-	unsigned int textureOffset = 2;
+	unsigned int textureOffset = 3;
 
 	int textureIndex = owner->GetTextureIndex(texture);
 

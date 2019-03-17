@@ -54,10 +54,6 @@ cbuffer MaterialProperties : register(b1) {
     Material material;
 };
 
-SamplerComparisonState shadowSampler;
-SamplerState trilinearSampler;
-SamplerState textureSampler;
-
 #if USE_NORMAL_MAP > 0
 SamplerState normalSampler;
 #endif
@@ -86,7 +82,7 @@ float GetShadowFactor(PixelIn input, LightProperties light) {
     float shadowFactor = 1.0f;
 
     if ((saturate(shadowTextureCoords.x) == shadowTextureCoords.x) && (saturate(shadowTextureCoords.y) == shadowTextureCoords.y) && (pixelDepth > 0.0f)) {
-        shadowFactor = shadowMap.SampleCmpLevelZero(shadowSampler, shadowTextureCoords, pixelDepth).r;
+        shadowFactor = shadowMap.SampleCmpLevelZero(depthSampler, shadowTextureCoords, pixelDepth).r;
     }
 
     return shadowFactor;
@@ -168,7 +164,7 @@ LightingResult ComputePointLight(PixelIn vIn, float3 N, float3 position, float3 
     LightingResult result;
 
     if (distance > light.range){
-        result.diffuse = float3(1.0f, 0.0f, 0.0f);
+        result.diffuse = float3(0.0f, 0.0f, 0.0f);
         result.specular = float3(0.0f, 0.0f, 0.0f);
         return result;
     }
@@ -270,8 +266,8 @@ float4 Main(PixelIn vIn) : SV_TARGET {
     }
 
     
-    float3 ambientLight = float3(0.2, 0.2, 0.2) / PI;
-    /*
+    float3 ambientLight = float3(0.07, 0.07, 0.1);
+    
     float3 reflectionVector = reflect(V, vIn.normal);
     //reflectionVector.g *= -1.0f;
  
@@ -285,7 +281,7 @@ float4 Main(PixelIn vIn) : SV_TARGET {
 
     ambientLightColor.r = b;
     ambientLightColor.b = r;
-    */
+    
 
     /*
     float3 H = normalize(V + -reflectionVector);
@@ -299,11 +295,12 @@ float4 Main(PixelIn vIn) : SV_TARGET {
     //float3 ambientLight = (GGXSpecular(GetRoughness(vIn).r, material.specularColor, LdotH, NdotV, NdotL, NdotH) * ambientLightColor * NdotL) / PI;
 
     float3 albedo = GetAlbedo(vIn).rgb;
+    ambientLightColor *= albedo;
     ambientLight *= albedo;
     diffuseColor *= albedo;
 
     float3 finalDiffuse = saturate(diffuseColor);
     float3 finalSpecular = saturate(specularColor);
 
-    return float4(ambientLight + diffuseColor + finalSpecular, 1.0f);
+    return float4(ambientLightColor + diffuseColor + finalSpecular, 1.0f);
 }

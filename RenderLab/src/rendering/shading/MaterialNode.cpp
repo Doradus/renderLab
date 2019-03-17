@@ -6,8 +6,9 @@ MaterialNode::MaterialNode(Material* material) :
 
 MaterialNode::~MaterialNode() {}
 
-TextureSamplerNode::TextureSamplerNode(Material* material) :
- MaterialNode(material) {}
+TextureSamplerNode::TextureSamplerNode(Material* material, TextureTyes type) :
+	textureType(type),
+	MaterialNode(material) {}
 
 TextureSamplerNode::~TextureSamplerNode() {}
 
@@ -19,7 +20,7 @@ int TextureSamplerNode::Compile(MaterialCompiler * compiler) {
 	}
 
 	int textureIndex = owner->GetTextureIndex(texture);
-	codeIndex = compiler->TextureSampler(textureIndex);
+	codeIndex = compiler->TextureSampler(textureIndex, textureType);
 
 	return codeIndex;
 }
@@ -76,4 +77,21 @@ int ScalarNode::Compile(MaterialCompiler * compiler) {
 
 void ScalarNode::SetValues(float r) {
 	R = r;
+}
+
+Multiply::Multiply(Material * material) :
+	MaterialNode(material) {}
+
+Multiply::~Multiply() {}
+
+void Multiply::GetValue(DirectX::XMFLOAT4 * outValue) const {}
+
+int Multiply::Compile(MaterialCompiler * compiler) {
+	if (codeIndex != -1) {
+		return codeIndex;
+	}
+
+	codeIndex = compiler->Multiply(a->Compile(compiler), b->Compile(compiler));
+
+	return codeIndex;
 }

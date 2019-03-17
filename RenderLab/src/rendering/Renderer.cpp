@@ -10,10 +10,9 @@ Renderer::Renderer() :
 	materialBuffer(nullptr),
 	omniDirectionalShadowPassVSBuffer(nullptr),
 	omniDirectionalShadowPassGSBuffer(nullptr),
-	samplerState(nullptr),
-	omniDirectionalShadowSampler(nullptr),
-	textureSampler(nullptr),
-	normalMapSampler(nullptr),
+	trilinearSampler(nullptr),
+	bilinearSampler(nullptr),
+	depthSampler(nullptr),
 	lightSpaceTransformBuffer(nullptr)
 {}
 
@@ -48,17 +47,14 @@ Renderer::~Renderer() {
 	delete omniDirectionalShadowPassGSBuffer;
 	omniDirectionalShadowPassGSBuffer = nullptr;
 
-	delete samplerState;
-	samplerState = nullptr;
+	delete trilinearSampler;
+	trilinearSampler = nullptr;
 
-	delete omniDirectionalShadowSampler;
-	omniDirectionalShadowSampler = nullptr;
+	delete bilinearSampler;
+	bilinearSampler = nullptr;
 
-	delete textureSampler;
-	textureSampler = nullptr;
-
-	delete normalMapSampler;
-	normalMapSampler = nullptr;
+	delete depthSampler;
+	depthSampler = nullptr;
 
 	delete lightSpaceTransformBuffer;
 	lightSpaceTransformBuffer = nullptr;
@@ -239,7 +235,7 @@ void Renderer::RenderWorld(World* world) const {
 
 	for (ShadowInfo info : allShadowInfo) {
 		if (info.GetIsOmniDirectionalShadow()) {
-			renderingInterface->SetSamplerState(omniDirectionalShadowSampler, 1);
+			renderingInterface->SetSamplerState(trilinearSampler, 1);
 			renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("shadowCubeMap"), 1);
 		}
 
@@ -253,16 +249,16 @@ void Renderer::RenderWorld(World* world) const {
 			XMStoreFloat4x4(&lwvpData, transposedLightWvp);
 			lightSpaceData.lightViewProjection[info.GetShadowId()] = lwvpData;
 
-			renderingInterface->SetSamplerState(samplerState, 0);
+			renderingInterface->SetSamplerState(depthSampler, 0);
 			renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("shadowMap"), 0);
 		}
 	}
 
 	renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("OutputCube.dds"), 2);
 
-	renderingInterface->SetSamplerState(textureSampler, 2);
+	renderingInterface->SetSamplerState(trilinearSampler, 1);
 
-	renderingInterface->SetSamplerState(normalMapSampler, 3);
+	renderingInterface->SetSamplerState(bilinearSampler, 2);
 	//renderingInterface->SetShaderResources(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"), 3);
 
 	renderingInterface->UpdateConstantBuffer(lightSpaceTransformBuffer, &lightSpaceData, sizeof(LightSpaceTransformBuffer));
@@ -347,20 +343,22 @@ void Renderer::InitShaders() {
 	char* geometryCode = byteCode;
 	omniDirectionalShadowPassGS = renderingInterface->CreateGeometryShader(geometryCode, byteCodeSize);
 
-	SamplerConfig samplerConfig = {};
+	SamplerConfig depthSamplerConfig = {};
 
-	samplerConfig.addressModeU = BORDER;
-	samplerConfig.addressModeV = BORDER;
-	samplerConfig.addressModeW = BORDER;
-	samplerConfig.filter = COMPARE_BILINEAR_FILTERING;
-	samplerConfig.comparisonFunction = LESS_OR_EQUAL;
+	depthSamplerConfig.addressModeU = BORDER;
+	depthSamplerConfig.addressModeV = BORDER;
+	depthSamplerConfig.addressModeW = BORDER;
+	depthSamplerConfig.filter = COMPARE_BILINEAR_FILTERING;
+	depthSamplerConfig.comparisonFunction = LESS_OR_EQUAL;
 	
-	SamplerConfig omniDirectionalSamplerConfig = {};
+	SamplerConfig trilinearSamplerConfig = {};
 
-	omniDirectionalSamplerConfig.addressModeU = WRAP;
-	omniDirectionalSamplerConfig.addressModeV = WRAP;
-	omniDirectionalSamplerConfig.addressModeW = WRAP;
-	omniDirectionalSamplerConfig.filter = TRILINEAR_FILTERING;
+	trilinearSamplerConfig.addressModeU = WRAP;
+	trilinearSamplerConfig.addressModeV = WRAP;
+	trilinearSamplerConfig.addressModeW = WRAP;
+	trilinearSamplerConfig.filter = ANISOTROPIC_FILTERING;
+	trilinearSamplerConfig.maxAnisotropy = 11;
+	trilinearSamplerConfig.mipLODBias = -0.5f;
 
 	SamplerConfig defaultSampler = {};
 
@@ -373,20 +371,19 @@ void Renderer::InitShaders() {
 	defaultSampler.maxLOD = 11.0f;
 	defaultSampler.mipLODBias = 0.0f;
 
-	SamplerConfig normalSampler = {};
+	SamplerConfig bilinearSamplerConfig = {};
 
-	normalSampler.addressModeU = WRAP;
-	normalSampler.addressModeV = WRAP;
-	normalSampler.addressModeW = WRAP;
-	normalSampler.filter = POINT_FILTERING;
-	normalSampler.minLOD = 0.0f;
-	normalSampler.maxLOD = 11.0f;
-	normalSampler.mipLODBias = 0.0f;
+	bilinearSamplerConfig.addressModeU = WRAP;
+	bilinearSamplerConfig.addressModeV = WRAP;
+	bilinearSamplerConfig.addressModeW = WRAP;
+	bilinearSamplerConfig.filter = BILINEAR_FILTERING;
+	bilinearSamplerConfig.minLOD = 0.0f;
+	bilinearSamplerConfig.maxLOD = 11.0f;
+	bilinearSamplerConfig.mipLODBias = -0.5f;
 	
-	textureSampler = renderingInterface->CreateSamplerState(defaultSampler);
-	normalMapSampler = renderingInterface->CreateSamplerState(normalSampler);
-	samplerState = renderingInterface->CreateSamplerState(samplerConfig);
-	omniDirectionalShadowSampler = renderingInterface->CreateSamplerState(omniDirectionalSamplerConfig);
+	depthSampler = renderingInterface->CreateSamplerState(depthSamplerConfig);
+	bilinearSampler = renderingInterface->CreateSamplerState(bilinearSamplerConfig);
+	trilinearSampler = renderingInterface->CreateSamplerState(trilinearSamplerConfig);
 }
 
 void Renderer::RenderProjectedOmniDirectionalShadow(World * world, ShadowInfo & shadowInfo) const {

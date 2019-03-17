@@ -1,7 +1,7 @@
 #include "MaterialCompiler.h"
 
 MaterialCompiler::MaterialCompiler() {
-	AddCode("");
+	AddCode("0");
 }
 
 MaterialCompiler::~MaterialCompiler() {}
@@ -58,17 +58,43 @@ bool MaterialCompiler::CompileMaterial(Material * material) {
 
 
 int MaterialCompiler::Scalar(float value) {
-	std::string code = "return float4(" + std::to_string(value) + ", " + std::to_string(value) + ", " + std::to_string(value) + ", " + std::to_string(value) + ");";
+	std::string code = "float4(" + std::to_string(value) + ", " + std::to_string(value) + ", " + std::to_string(value) + ", " + std::to_string(value) + ")";
 	return AddCode(code);
 }
 
 int MaterialCompiler::Vector3(float r, float g, float b) {
-	std::string code = "return float4(" + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", 0.0f);";
+	std::string code = "float4(" + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", 0.0f)";
 	return AddCode(code);
 }
 
-int MaterialCompiler::TextureSampler(int textureIndex) {
-	std::string code = "return texture0" + std::to_string(textureIndex) + ".Sample(textureSampler, vIn.uv);";
+int MaterialCompiler::TextureSampler(int textureIndex, TextureTyes type) {
+	std::string sampler;
+
+	switch (type) {
+		case COLOR_MAP:
+			sampler = "trilinearSampler";
+			break;
+		case NORMAL_MAP:
+			sampler = "bilinearSampler";
+			break;
+		default:
+			sampler = "trilinearSampler";
+			break;
+	}
+
+	std::string code = "SampleTexture2d(texture0" + std::to_string(textureIndex) + ", " + sampler + ", vIn.uv)";
+	return AddCode(code);
+}
+
+int MaterialCompiler::Add(int a, int b) {
+	return 0;
+}
+
+int MaterialCompiler::Multiply(int a, int b) {
+	std::string inputA = generatedCode[a]->code;
+	std::string inputB = generatedCode[b]->code;
+
+	std::string code = inputA + " * " + inputB;
 	return AddCode(code);
 }
 
@@ -115,7 +141,8 @@ bool MaterialCompiler::WriteShaderCode(std::string * shader, int codeIndex, std:
 		return false;
 	}
 
-	shader->replace(pos, function.length(), generatedCode[codeIndex]->code);
+	std::string code = "return " + generatedCode[codeIndex]->code + ";";
+	shader->replace(pos, function.length(), code);
 
 	return true;
 }
