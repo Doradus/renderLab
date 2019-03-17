@@ -4,6 +4,11 @@
 #include <float.h>
 #include <string>
 
+enum TextureTyes {
+	COLOR_MAP,
+	NORMAL_MAP
+};
+
 enum AddressModes {
 	WRAP,
 	CLAMP,

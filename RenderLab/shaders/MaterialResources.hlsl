@@ -66,3 +66,7 @@ Texture2D texture14;
 #if TEXTURE_2D_15 > 0 
 Texture2D texture15;
 #endif
+
+SamplerComparisonState depthSampler;
+SamplerState trilinearSampler;
+SamplerState bilinearSampler;

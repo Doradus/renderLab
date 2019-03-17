@@ -115,15 +115,15 @@ void RenderLab::Tick() {
 	const float x = 15 * sinf(testRotation);
 
 	//ight->SetDirection(-0.4f, -.5f, testRotation);
-	pointLight->SetPosition(x, 8, -5);
+	pointLight->SetPosition(x, 5, -5);
 	//box2->SetRotation(0, testRotation, 0);
 }
 
 void RenderLab::CreateResources() const {
 	ResourceManager::GetInstance().CreateTextureFromFile("OutputCube.dds", true);
 	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_albedo.dds", true);
+	ResourceManager::GetInstance().CreateTextureFromFile("floor_NRM.dds", true);
 	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_normal.dds", true);
-	ResourceManager::GetInstance().CreateTextureFromFile("TexturesCom_Marble_SlabRed_1K_roughness.dds", true);
 	ResourceManager::GetInstance().CreateTextureFromFile("floor_COLOR.dds", true);
 }
 
@@ -149,22 +149,50 @@ void RenderLab::InitShaders() {
 	boxMaterial->SetSpecularColor(0.2f, 0.2f, 0.2f);
 	boxMaterial->SetSpecularPower(20.0f);
 
-	//TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial);
-	//albedo->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
+	/*
+	TextureSamplerNode* albedo = new TextureSamplerNode(boxMaterial, COLOR_MAP);
+	albedo->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
 
+	TextureSamplerNode* albedo2 = new TextureSamplerNode(boxMaterial, COLOR_MAP);
+	albedo2->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_albedo.dds"));
+	*/
+	
 	Vector3Node* albedo = new Vector3Node(boxMaterial);
-	albedo->SetValues(0.245f, 0.245f, 0.245f);
-
-	boxMaterial->AddMaterialNode(albedo);
+	albedo->SetValues(0.35f, 0.35f, 0.35f);
 	boxMaterial->SetAlbedo(albedo);
 
-	TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial);
-	normal->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_normal.dds"));
+	sphereMaterial = new Material();
+	sphereMaterial->SetSpecularColor(0.2f, 0.2f, 0.2f);
+
+	Vector3Node* albedoSphere = new Vector3Node(sphereMaterial);
+	albedoSphere->SetValues(0.9f, 0.1f, 0.1f);
+	sphereMaterial->SetAlbedo(albedoSphere);
+
+	ScalarNode* sphereRoughness = new ScalarNode(sphereMaterial);
+	sphereRoughness->R = 0.2756f;
+	sphereMaterial->SetRougness(sphereRoughness);
+
+	/*
+	Vector3Node* albedo2 = new Vector3Node(boxMaterial);
+	albedo2->SetValues(0.2f, 0.2f, 0.2f);
+	*/
+	//Multiply* multiply = new Multiply(boxMaterial);
+
+	//multiply->a = albedo;
+	//multiply->b = albedo2;
+
+	//boxMaterial->AddMaterialNode(multiply);
+	//
+
+	/*
+	TextureSamplerNode* normal = new TextureSamplerNode(boxMaterial, NORMAL_MAP);
+	normal->AddTexture(ResourceManager::GetInstance().GetTexture("floor_NRM.dds"));
 	boxMaterial->AddMaterialNode(normal);
 	boxMaterial->SetNormal(normal);
+	*/
 
 	ScalarNode* roughness = new ScalarNode(boxMaterial);
-	roughness->R = 0.2456f;
+	roughness->R = 0.4456f;
 	//TextureSamplerNode* roughness = new TextureSamplerNode(boxMaterial);
 	//roughness->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_roughness.dds"));
 	boxMaterial->AddMaterialNode(roughness);
@@ -175,10 +203,20 @@ void RenderLab::InitShaders() {
 	planeMaterial->SetSpecularPower(20.0f);
 
 	Vector3Node* albedoPlane = new Vector3Node(planeMaterial);
-	albedoPlane->SetValues(0.9f, 0.9f, 0.9f);
+	albedoPlane->SetValues(0.8f, 0.8f, 0.8f);
+
+	//TextureSamplerNode* albedoPlane = new TextureSamplerNode(planeMaterial, COLOR_MAP);
+	//albedoPlane->AddTexture(ResourceManager::GetInstance().GetTexture("floor_COLOR.dds"));
+
+
+	TextureSamplerNode* normalPlane = new TextureSamplerNode(planeMaterial, NORMAL_MAP);
+	normalPlane->AddTexture(ResourceManager::GetInstance().GetTexture("TexturesCom_Marble_SlabRed_1K_normal.dds"));
+	planeMaterial->AddMaterialNode(normalPlane);
+	planeMaterial->SetNormal(normalPlane);
+
 
 	ScalarNode* roughnessPlane = new ScalarNode(planeMaterial);
-	roughnessPlane->R = 1.0f;
+	roughnessPlane->R = 0.6f;
 
 	planeMaterial->AddMaterialNode(albedoPlane);
 	planeMaterial->SetAlbedo(albedoPlane);
@@ -189,6 +227,7 @@ void RenderLab::InitShaders() {
 	MaterialCompiler compiler;
 	compiler.CompileMaterial(boxMaterial);
 	compiler.CompileMaterial(planeMaterial);
+	compiler.CompileMaterial(sphereMaterial);
 }
 
 void RenderLab::BuildGeometry() {
@@ -287,7 +326,7 @@ void RenderLab::BuildGeometry() {
 
 	sphere->SetPosition(-4.0, 3.0f, 3.0f);
 	sphere->SetRotation(90.0f, 110.0f, 0.0f);
-	sphere->SetMaterial(boxMaterial);
+	sphere->SetMaterial(sphereMaterial);
 
 	world->AddStaticMesh(box);
 	world->AddStaticMesh(box2);
@@ -304,7 +343,7 @@ void RenderLab::CreateCamera() {
 	camera->SetNearPlane(1);
 	camera->SetFarPlane(1000);
 
-	camera->SetPosition(0.0f, 30.0f, 20.0f);
+	camera->SetPosition(0.0f, 25.0f, 20.0f);
 	camera->SetCameraTarget(0, 0, 0);
 
 	camera->UpdateProjection();
@@ -330,9 +369,9 @@ void RenderLab::CreateLights() {
 
 	pointLight = new PointLightComponent();
 	pointLight->SetPosition(-15, 6, 15);
-	pointLight->SetAttenuation(0, 0.3f, 0);
-	pointLight->SetLightColor(0.6f, 0.6f, 0.6f);
-	pointLight->SetRange(100.0f);
+	pointLight->SetAttenuation(0, 0.6f, 0);
+	pointLight->SetLightColor(0.7f, 0.4f, 0.15f);
+	pointLight->SetRange(55.0f);
 	pointLight->SetBrightness(1.0f);
 	pointLight->SetIsEnabled(true);
 	pointLight->SetCastsShadows(true);
@@ -340,11 +379,11 @@ void RenderLab::CreateLights() {
 	spotLight = new SpotLightComponent();
 	spotLight->SetPosition(12, 10, 12);
 	spotLight->SetDirection(-0.5f, -0.5f, -0.7f);
-	spotLight->SetAttenuation(0, 0.3f, 0);
-	spotLight->SetLightColor(0.2f, 0.2f, 0.7f);
-	spotLight->SetRange(100.0f);
+	spotLight->SetAttenuation(0, 0.7f, 0);
+	spotLight->SetLightColor(0.7f, 0.4f, 0.15f);
+	spotLight->SetRange(55.0f);
 	spotLight->SetBrightness(1.0f);
-	spotLight->SetConeAngle(22);
+	spotLight->SetConeAngle(15);
 	spotLight->SetPenumbraAngle(10);
 	spotLight->SetIsEnabled(true);
 	spotLight->SetCastsShadows(true);
