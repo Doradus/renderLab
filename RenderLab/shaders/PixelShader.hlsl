@@ -91,7 +91,7 @@ float GetShadowFactor(PixelIn input, LightProperties light) {
 
 float GetOmniDirectionalShadowFactor(PixelIn input, LightProperties light) {
     float3 distance = input.position - light.position;
-    float nearest = SampleCubeMap(omniDirectionalShadowMap, trilinearSampler, distance).r;
+    float nearest = SampleCubeMap(omniDirectionalShadowMap, bilinearSampler, distance).r;
 
     float3 absVec = abs(distance);
     float localZcomp = max(absVec.x, max(absVec.y, absVec.z));
