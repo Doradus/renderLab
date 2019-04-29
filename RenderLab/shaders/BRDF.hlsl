@@ -8,17 +8,12 @@ float3 LambertianDiffuse(float3 color) {
 
 /** Normal Distribution (NDF) **/
 
-// Trowbridge Reitz distributionî
+// Trowbridge Reitz distribution‚Äù
 float GGXDistribution(float roughness, float NdotH) {
     float a2 = roughness * roughness;
     float d = (NdotH * NdotH) * (a2 - 1.0f) + 1.0f;
 
     return a2 / (PI * d * d);
-
-
-    //float m2 = roughness * roughness;
-    //float f = (NdotH * m2 - NdotH) * NdotH + 1.0f;
-    //return m2 / (PI * f * f);
 }
 
 /** Fresnel **/
@@ -43,6 +38,7 @@ float SmithForGGXMaskingAndShadowing(float roughness, float NdotV, float NdotL) 
     return 0.5f / (d1 + d2);
 }
 
+// Disney diffuse model from "Moving Frostbite to Physically Based Rendering 3.0" presentation 
 float DisneyDiffuseModel(float linearRoughness, float NdotV, float NdotL, float LdotH) {
     float energyBias = lerp(0, 0.5, linearRoughness);
     float energyFactor = lerp(1.0, 1.0 / 1.51, linearRoughness);
